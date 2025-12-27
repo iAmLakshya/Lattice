@@ -8,39 +8,100 @@ from code_rag.query.reranker import SearchResult
 
 logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = """You are a helpful code assistant. You help developers understand codebases by answering questions about code structure, functionality, and relationships.
+SYSTEM_PROMPT = """You are an expert code analyst helping developers understand codebases.
+Your answers must be accurate, traceable, and actionable.
 
-When answering questions:
-1. Be concise but comprehensive
-2. Reference specific files, functions, and line numbers when relevant
-3. Explain code relationships and dependencies
-4. Provide code snippets when helpful
-5. If you're not sure about something, say so
+## Response Requirements
 
-Format your responses using markdown for readability."""
+**1. TRACEABILITY** (Critical)
+- ALWAYS cite specific source locations: `filename:line_number` or `ClassName.method_name`
+- Every factual claim must be backed by evidence from the search results
+- If information comes from a summary vs. actual code, distinguish between them
 
-QUERY_PROMPT_TEMPLATE = """Based on the following search results from the codebase, answer the user's question.
+**2. ACCURACY**
+- Only make claims supported by the provided search results
+- Distinguish between certainty levels: "X definitely calls Y" vs "X appears to call Y based on..."
+- If results are incomplete or conflicting, explicitly state this
 
-User Question: {question}
+**3. STRUCTURE**
+For implementation questions:
+- Start with a direct answer to the question
+- Follow with supporting evidence and code references
+- End with related information that might be helpful
 
-Search Results:
+For "where/find" questions:
+- Lead with the location(s)
+- Briefly explain what's at each location
+
+**4. CODE SNIPPETS**
+- Include relevant code snippets when they clarify the answer
+- Keep snippets focused - show the relevant portion, not entire functions
+- Add brief annotations if the code's purpose isn't obvious
+
+**5. HANDLING UNCERTAINTY**
+- If results don't fully answer the question, say what IS known
+- Suggest what additional information would help
+- Never fabricate information not in the search results
+
+Format responses in markdown for readability."""
+
+QUERY_PROMPT_TEMPLATE = """Answer the user's question using ONLY the search results provided below.
+
+## User Question
+{question}
+
+## Search Results
 {context}
 
-Provide a helpful, accurate answer based on the search results. If the results don't fully answer the question, say what you can determine and what's unclear."""
+## Instructions
+1. Synthesize information from the search results to directly answer the question
+2. Cite specific files and line numbers for every claim (e.g., `user_service.py:45`)
+3. If multiple results are relevant, explain how they relate to each other
+4. If the results are insufficient, clearly state what's missing and what you CAN determine
+5. Do not make up information - only use what's in the search results above"""
 
-EXPLANATION_WITH_QUESTION_TEMPLATE = """Explain this {language} code, specifically answering: {question}
+EXPLANATION_WITH_QUESTION_TEMPLATE = """Analyze this {language} code and answer the question.
 
-```{language}
-{code}
-```"""
+## Question
+{question}
 
-EXPLANATION_TEMPLATE = """Explain what this {language} code does:
-
+## Code
 ```{language}
 {code}
 ```
 
-Provide a clear, concise explanation suitable for a developer."""
+## Instructions
+1. Directly answer the question first
+2. Reference specific line numbers or code sections
+3. Explain the relevant logic, data flow, or control flow
+4. Note any edge cases, error handling, or important behaviors
+5. If the code interacts with other parts of the system, mention those relationships"""
+
+EXPLANATION_TEMPLATE = """Analyze and explain this {language} code.
+
+## Code
+```{language}
+{code}
+```
+
+## Provide an Explanation That Covers:
+
+1. **Purpose**: What is the primary responsibility of this code? (1-2 sentences)
+
+2. **How It Works**: Walk through the key logic:
+   - What are the inputs/parameters?
+   - What transformations or operations occur?
+   - What is returned or what side effects happen?
+
+3. **Key Details**: Note any important aspects:
+   - Error handling or edge cases
+   - Performance considerations
+   - Dependencies on external systems or libraries
+
+4. **Usage**: When/how would a developer use this code?
+
+Keep the explanation concise but complete - suitable for a developer unfamiliar with
+this codebase."""
 
 MAX_CONTEXT_RESULTS = 10
 MAX_CONTENT_LENGTH = 2000

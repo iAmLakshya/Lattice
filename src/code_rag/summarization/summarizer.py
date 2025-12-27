@@ -25,7 +25,17 @@ logger = logging.getLogger(__name__)
 DEFAULT_MAX_TOKENS = 500
 DEFAULT_TEMPERATURE = 0.7
 
-SYSTEM_MESSAGE = "You are a code analysis assistant. Provide concise, accurate summaries of code."
+SYSTEM_MESSAGE = """You are an expert code analyst creating summaries for semantic search.
+
+Your summaries must:
+1. Capture the essential PURPOSE and BEHAVIOR with precise technical terminology
+2. Include KEYWORDS developers would search for (action verbs, domain terms, patterns)
+3. Mention KEY RELATIONSHIPS (what it calls, what calls it, what it extends)
+4. Be CONCISE but COMPLETE - every word should add searchable value
+5. Use NATURAL LANGUAGE matching how developers ask questions about code
+
+Answer: "What does this code do?" and "When would someone need this code?"
+"""
 
 
 class CodeSummarizer:

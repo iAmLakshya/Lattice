@@ -91,45 +91,85 @@ class QueryPlan:
     reasoning: str = ""
 
 
-QUERY_ANALYSIS_PROMPT = """You are an expert at analyzing code-related questions to understand what information is needed to answer them.
+QUERY_ANALYSIS_PROMPT = """You are an expert code analyst. Analyze questions about codebases
+to determine the best search strategy.
 
-Analyze the following question about a codebase and extract:
-1. The PRIMARY INTENT - what is the user fundamentally trying to understand?
-2. ENTITIES mentioned (class names, function names, file names, modules, concepts)
-3. RELATIONSHIPS between entities (calls, extends, imports, uses, contains)
-4. Whether MULTI-HOP reasoning is needed (e.g., "what calls functions that call X" requires 2 hops)
-5. What CONTEXT is needed to fully answer (implementation details, call chains, data flow, etc.)
+## Your Task
+Analyze the question and determine:
+1. **Intent**: What type of answer does the user need?
+2. **Entities**: What specific code elements are mentioned or implied?
+3. **Search Strategy**: Should we use graph (structural) or vector (semantic) search?
 
-Respond with a JSON object with this structure:
-{{
-    "primary_intent": "one of: find_callers, find_callees, find_call_chain, find_hierarchy, find_implementations, find_usages, find_dependencies, find_dependents, locate_entity, locate_file, explain_implementation, explain_relationship, explain_data_flow, explain_architecture, find_similar, search_functionality, search_pattern",
-    "entities": [
-        {{"name": "EntityName", "type": "class|function|method|file|module|concept", "is_primary": true, "context": "optional context"}}
-    ],
-    "relationships": [
-        {{"source": "Entity1", "target": "Entity2", "type": "calls|extends|imports|uses|contains|related_to"}}
-    ],
-    "multi_hop": {{
-        "required": true|false,
-        "max_hops": 1-5,
-        "reasoning": "why multi-hop is needed"
-    }},
-    "context_requirements": ["implementation_details", "call_chain", "data_flow", "file_context", "dependencies", "usages"],
-    "sub_queries": [
-        {{
-            "query": "sub-query text",
-            "intent": "intent type",
-            "search_type": "graph|vector|hybrid",
-            "priority": 1,
-            "depends_on": []
-        }}
-    ],
-    "reasoning": "explanation of how to answer this query"
-}}
+## Intent Categories
+
+**Graph-first intents** (use graph DB for structural relationships):
+- find_callers: "What calls X?" "Where is X used?"
+- find_callees: "What does X call?" "What dependencies does X have?"
+- find_call_chain: "How does A eventually reach B?" "Trace the path from X to Y"
+- find_hierarchy: "What extends X?" "What does X inherit from?"
+- find_dependencies: "What does X import/depend on?"
+- find_dependents: "What imports/depends on X?"
+- locate_entity: "Where is X defined?" "Find the X class/function"
+
+**Vector-first intents** (use semantic search for concepts/functionality):
+- search_functionality: "How do we handle authentication?"
+- find_similar: "Find code similar to X" "Other functions like X"
+- search_pattern: "Where do we use the repository pattern?"
+- explain_architecture: "How is the system structured?"
+
+**Hybrid intents** (combine both approaches):
+- explain_implementation: "How does X work?" "Explain what X does"
+- explain_relationship: "How do X and Y interact?"
+- explain_data_flow: "How does data flow from X to Y?"
+
+## Examples
+
+Question: "What functions call the authenticate method?"
+Analysis: Intent is find_callers. Entity is "authenticate" (method). Use graph search.
+
+Question: "How does the payment processing work?"
+Analysis: Intent is explain_implementation. Entity is "payment processing" (concept).
+Use vector search for semantics, then graph for structure.
+
+Question: "Show me the inheritance hierarchy of BaseRepository"
+Analysis: Intent is find_hierarchy. Entity is "BaseRepository" (class). Use graph.
+
+Question: "Where do we validate user input?"
+Analysis: Intent is search_functionality. Entity is "user input validation" (concept).
+Use vector search for this semantic query.
+
+## Now Analyze This Question
 
 Question: {question}
 
-Respond ONLY with valid JSON, no additional text."""
+Respond with this JSON structure:
+{{
+    "primary_intent": "<intent from categories above>",
+    "entities": [
+        {{"name": "<name>", "type": "class|function|method|file|module|concept",
+          "is_primary": true}}
+    ],
+    "relationships": [
+        {{"source": "<entity1>", "target": "<entity2>",
+          "type": "calls|extends|imports|uses"}}
+    ],
+    "multi_hop": {{
+        "required": <true if traversing multiple relationships>,
+        "max_hops": <1-5>,
+        "reasoning": "<why multi-hop is needed>"
+    }},
+    "context_requirements": ["implementation_details", "call_chain", "data_flow",
+                             "file_context", "dependencies", "usages"],
+    "sub_queries": [
+        {{
+            "query": "<sub-query if decomposable>",
+            "intent": "<sub-query intent>",
+            "search_type": "graph|vector|hybrid",
+            "priority": 1
+        }}
+    ],
+    "reasoning": "<brief explanation of analysis and search strategy>"
+}}"""
 
 
 class QueryPlanner:
@@ -160,7 +200,11 @@ class QueryPlanner:
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are an expert at analyzing code questions. Always respond with valid JSON only. No markdown, no explanations, just the JSON object.",
+                        "content": (
+                            "You are an expert code search strategist. Analyze developer "
+                            "questions to determine the optimal search strategy. Respond "
+                            "with valid JSON only - no markdown, no code blocks."
+                        ),
                     },
                     {
                         "role": "user",
@@ -179,11 +223,14 @@ class QueryPlanner:
             analysis = self._extract_json(content)
             plan = self._build_query_plan(question, analysis)
 
-            logger.debug(f"Query plan created: intent={plan.primary_intent}, sub_queries={len(plan.sub_queries)}")
+            logger.debug(
+                f"Query plan: intent={plan.primary_intent}, "
+                f"sub_queries={len(plan.sub_queries)}"
+            )
             return plan
 
         except (json.JSONDecodeError, ValueError, KeyError, TypeError, AttributeError) as e:
-            logger.debug(f"Query planning parse error ({type(e).__name__}), using heuristic fallback")
+            logger.debug(f"Query planning parse error ({type(e).__name__}), fallback")
             return self._fallback_plan(question)
         except Exception as e:
             logger.debug(
@@ -363,7 +410,10 @@ class QueryPlanner:
         elif any(kw in question_lower for kw in ["extends", "inherits", "subclass", "hierarchy"]):
             intent = QueryIntent.FIND_HIERARCHY
             search_type = "graph"
-        elif any(kw in question_lower for kw in ["how does", "how is.*implemented", "implementation of"]):
+        elif any(
+            kw in question_lower
+            for kw in ["how does", "how is.*implemented", "implementation of"]
+        ):
             intent = QueryIntent.EXPLAIN_IMPLEMENTATION
             search_type = "hybrid"
         elif any(kw in question_lower for kw in ["where is", "find the", "locate"]):
@@ -406,6 +456,10 @@ class QueryPlanner:
             relationships=[],
             requires_multi_hop=requires_multi_hop,
             max_hops=3 if requires_multi_hop else 1,
-            context_requirements=["implementation_details"] if intent == QueryIntent.EXPLAIN_IMPLEMENTATION else [],
+            context_requirements=(
+                ["implementation_details"]
+                if intent == QueryIntent.EXPLAIN_IMPLEMENTATION
+                else []
+            ),
             reasoning="Fallback heuristic analysis",
         )

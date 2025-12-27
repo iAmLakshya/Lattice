@@ -8,7 +8,7 @@ CLASS_CODE_MAX_CHARS = 6000
 class SummaryPrompts:
     """Collection of prompts for generating code summaries."""
 
-    FILE_SUMMARY = """Analyze this source code file and provide a concise summary.
+    FILE_SUMMARY = """Analyze this source code file and create a search-optimized summary.
 
 File: {file_path}
 Language: {language}
@@ -18,15 +18,25 @@ Code:
 {content}
 ```
 
-Provide a summary that includes:
-1. The main purpose of this file (1-2 sentences)
-2. Key classes/functions defined and what they do
-3. Important dependencies or integrations
-4. Any notable patterns or design decisions
+Create a summary that enables developers to find this file when searching. Include:
 
-Keep the summary concise (3-5 sentences) and focus on what a developer would need to know to understand this file's role in the codebase."""
+1. **Primary Purpose**: What problem does this file solve? What functionality does it
+   provide? (Start with an action verb: "Handles...", "Provides...", "Implements...")
 
-    FUNCTION_SUMMARY = """Analyze this function and provide a concise summary.
+2. **Key Components**: List the main classes/functions with their purposes.
+   Use terminology developers would search for.
+
+3. **Integration Points**: What does this file depend on? What depends on it?
+   (APIs, databases, external services, other modules)
+
+4. **Technical Patterns**: Name any design patterns, architectural patterns, or
+   notable techniques (e.g., "singleton", "repository pattern", "event-driven").
+
+Write 3-5 sentences in natural language. Prioritize SEARCHABLE TERMS - include
+action verbs (create, validate, transform, fetch, authenticate) and domain-specific
+keywords that developers would use when looking for this functionality."""
+
+    FUNCTION_SUMMARY = """Analyze this function and create a search-optimized summary.
 
 Function: {name}
 File: {file_path}
@@ -39,15 +49,22 @@ Code:
 
 {docstring_section}
 
-Provide a summary that includes:
-1. What the function does (1 sentence)
-2. Input parameters and their purpose
-3. Return value and its meaning
-4. Any side effects or important behavior
+Create a summary optimized for semantic search. Structure your response as:
 
-Keep the summary to 2-3 sentences, focusing on practical usage."""
+**What it does**: Start with a strong ACTION VERB describing the primary behavior
+(e.g., "Validates...", "Transforms...", "Fetches...", "Calculates..."). Be specific
+about WHAT is being acted upon.
 
-    CLASS_SUMMARY = """Analyze this class and provide a concise summary.
+**How it works**: Briefly describe the key logic, algorithms, or techniques used.
+Mention any important libraries, APIs, or patterns.
+
+**When to use**: What problem does this solve? In what scenarios would a developer
+look for this function?
+
+Write 2-3 sentences total. Use terminology that matches how developers would search
+(e.g., "hash password" not "process credential", "parse JSON" not "handle data")."""
+
+    CLASS_SUMMARY = """Analyze this class and create a search-optimized summary.
 
 Class: {name}
 File: {file_path}
@@ -59,26 +76,54 @@ Code:
 
 {docstring_section}
 
-Provide a summary that includes:
-1. The class's purpose and responsibility (1-2 sentences)
-2. Key methods and their roles
-3. How this class is typically used
-4. Important attributes or state it manages
+Create a summary optimized for semantic search. Include:
 
-Keep the summary to 3-4 sentences, focusing on the class's role in the system."""
+**Role & Responsibility**: What is this class's single responsibility? Use domain
+terms (e.g., "Repository for user data", "Service for payment processing",
+"Controller for API endpoints", "Model representing order entities").
 
-    CODEBASE_OVERVIEW = """Based on the following file summaries, provide an overview of this codebase.
+**Design Pattern**: If applicable, name the pattern (Factory, Singleton, Strategy,
+Observer, Repository, Service, DTO, Entity, etc.).
+
+**Key Capabilities**: What are the 2-3 most important methods? What operations does
+this class enable? Use action verbs.
+
+**Relationships**: What does it inherit from? What interfaces does it implement?
+What are its key dependencies?
+
+Write 3-4 sentences. Focus on SEARCHABLE TERMINOLOGY that developers would use when
+looking for this functionality. Include both the abstract concept ("handles auth")
+and concrete details ("validates JWT tokens")."""
+
+    CODEBASE_OVERVIEW = """Based on the file summaries, create a codebase overview.
 
 File summaries:
 {summaries}
 
-Provide an overview that includes:
-1. The main purpose of this codebase
-2. Key architectural patterns used
-3. Main components and how they interact
-4. Entry points and important flows
+Create an overview that helps developers understand and navigate this codebase:
 
-Keep the overview concise but comprehensive."""
+**1. Purpose & Domain**: What problem does this codebase solve? What domain does it
+   operate in? (e.g., "E-commerce platform", "API gateway", "Data pipeline")
+
+**2. Architecture**: Describe the high-level architecture and patterns used:
+   - Architectural style (monolith, microservices, layered, event-driven, etc.)
+   - Key design patterns employed
+   - Technology stack highlights
+
+**3. Core Components**: List the main modules/packages and their responsibilities:
+   - What each major component does
+   - How they interact with each other
+
+**4. Key Flows**: Describe 2-3 important workflows:
+   - Entry points (main functions, API endpoints, event handlers)
+   - Critical data flows or request paths
+
+**5. Developer Guide**: What would a new developer need to know?
+   - Where to look for common tasks
+   - Important conventions or patterns to follow
+
+Use clear, searchable terminology. This overview helps developers find relevant code
+when they have questions about the system."""
 
     @staticmethod
     def _build_docstring_section(docstring: str | None) -> str:

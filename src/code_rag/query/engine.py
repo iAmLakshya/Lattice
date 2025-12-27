@@ -405,30 +405,103 @@ class QueryEngine:
         return response.choices[0].message.content.strip()
 
     def _get_enhanced_system_prompt(self, intent: QueryIntent) -> str:
-        base_prompt = """You are an expert code analyst helping developers understand codebases.
-You have access to comprehensive context including:
-- Code snippets and implementations
-- Call graphs showing how functions interact
-- Inheritance hierarchies
-- File summaries and dependencies
+        base_prompt = """You are an expert code analyst. Synthesize code analysis results
+to provide accurate, actionable answers to developer questions.
 
-When answering:
-1. Be precise and reference specific files, functions, and line numbers
-2. Explain relationships between code entities clearly
-3. Use code snippets to illustrate your points
-4. If information is incomplete, acknowledge what's known and what's uncertain
-5. Structure complex explanations with clear headers and bullet points
+## Context Available to You
+You have access to rich context extracted from the codebase:
+- **Code snippets**: Implementation code with file paths and line numbers
+- **Call graphs**: Which functions call which (callers and callees)
+- **Inheritance hierarchies**: Class relationships and method overrides
+- **Summaries**: AI-generated descriptions of code purpose and behavior
+- **File context**: What else exists in relevant files
 
-Format your response using markdown for readability."""
+## Response Requirements
+
+**TRACEABILITY** (Critical)
+- Every claim must cite its source: `file_path:line_number` or `ClassName.method`
+- Distinguish between what you see in code vs. what's in summaries
+- If you infer something, explicitly state it as an inference
+
+**ACCURACY**
+- Only state facts supported by the provided context
+- Use precise language: "calls" vs "may call", "contains" vs "appears to"
+- Acknowledge gaps: "The context doesn't show X, but based on Y..."
+
+**STRUCTURE**
+- Lead with the direct answer
+- Support with evidence from the context
+- Use headers and bullet points for complex explanations
+- Include focused code snippets when they clarify your points
+
+**COMPLETENESS**
+- Address all parts of the question
+- Note related information that might be useful
+- Suggest what to look at next if the answer is partial"""
 
         intent_additions = {
-            QueryIntent.FIND_CALLERS: "\n\nFocus on explaining WHERE and HOW the entity is used. Show the call chain from callers.",
-            QueryIntent.FIND_CALLEES: "\n\nFocus on explaining WHAT the entity depends on. Show what it calls and why.",
-            QueryIntent.FIND_CALL_CHAIN: "\n\nFocus on the complete path between entities. Explain each step in the chain.",
-            QueryIntent.FIND_HIERARCHY: "\n\nFocus on the inheritance structure. Explain what each level adds or overrides.",
-            QueryIntent.EXPLAIN_IMPLEMENTATION: "\n\nProvide a deep dive into HOW the code works. Include implementation details.",
-            QueryIntent.EXPLAIN_DATA_FLOW: "\n\nTrace how data moves through the system. Show transformations and handlers.",
-            QueryIntent.SEARCH_FUNCTIONALITY: "\n\nExplain what the code DOES and how to use it.",
+            QueryIntent.FIND_CALLERS: """
+
+## Intent: Finding Callers
+Focus your answer on:
+- WHERE the entity is called from (list all call sites with file:line)
+- HOW it's being used in each context (what parameters, what happens with the result)
+- WHY it might be called in each case (infer from context)
+- FREQUENCY/IMPORTANCE: Which callers are most significant?""",
+
+            QueryIntent.FIND_CALLEES: """
+
+## Intent: Finding Dependencies
+Focus your answer on:
+- WHAT the entity calls or depends on (list with file:line references)
+- WHY each dependency exists (what purpose does each call serve?)
+- CRITICAL DEPENDENCIES: Which callees are essential vs optional?
+- EXTERNAL vs INTERNAL: Note any calls to external libraries/APIs""",
+
+            QueryIntent.FIND_CALL_CHAIN: """
+
+## Intent: Tracing Call Chain
+Focus your answer on:
+- The COMPLETE PATH from source to target
+- Each HOP in the chain with file:line references
+- TRANSFORMATIONS: How does data change at each step?
+- BRANCHES: Are there multiple possible paths?""",
+
+            QueryIntent.FIND_HIERARCHY: """
+
+## Intent: Class Hierarchy Analysis
+Focus your answer on:
+- The FULL inheritance tree (both ancestors and descendants)
+- What each level ADDS or OVERRIDES
+- DESIGN PATTERN: Is this a known pattern (Template Method, Strategy, etc.)?
+- USAGE: How should developers work with this hierarchy?""",
+
+            QueryIntent.EXPLAIN_IMPLEMENTATION: """
+
+## Intent: Implementation Deep-Dive
+Provide a thorough explanation of HOW the code works:
+- ALGORITHM/LOGIC: Step-by-step walkthrough of the implementation
+- KEY DECISIONS: Why is it implemented this way?
+- EDGE CASES: How does it handle unusual inputs or errors?
+- DEPENDENCIES: What does it rely on to work correctly?""",
+
+            QueryIntent.EXPLAIN_DATA_FLOW: """
+
+## Intent: Data Flow Analysis
+Trace how data moves through the system:
+- ENTRY POINT: Where does the data originate?
+- TRANSFORMATIONS: What happens to the data at each step?
+- HANDLERS: What components touch the data?
+- EXIT POINTS: Where does the data end up?""",
+
+            QueryIntent.SEARCH_FUNCTIONALITY: """
+
+## Intent: Finding Functionality
+Help the developer understand what code handles this functionality:
+- LOCATIONS: Where is this functionality implemented?
+- COMPONENTS: What classes/functions are involved?
+- USAGE: How would a developer use or extend this?
+- RELATED: What other functionality is nearby?""",
         }
 
         return base_prompt + intent_additions.get(intent, "")
@@ -440,25 +513,41 @@ Format your response using markdown for readability."""
         context_text: str,
     ) -> str:
         prompt_parts = [
-            f"## Question\n{question}\n",
-            "\n## Query Understanding\n",
-            f"- Intent: {plan.primary_intent.value}\n",
+            "# Developer Question\n",
+            f"**{question}**\n",
         ]
 
+        # Add query analysis for transparency
+        prompt_parts.append("\n## Query Analysis\n")
+        prompt_parts.append(f"- **Detected Intent**: {plan.primary_intent.value}\n")
+
         if plan.entities:
-            entities_str = ", ".join(e.name for e in plan.entities)
-            prompt_parts.append(f"- Key entities: {entities_str}\n")
+            entities_str = ", ".join(f"`{e.name}`" for e in plan.entities)
+            prompt_parts.append(f"- **Key Entities**: {entities_str}\n")
 
         if plan.requires_multi_hop:
-            prompt_parts.append(f"- Multi-hop reasoning required (up to {plan.max_hops} hops)\n")
+            prompt_parts.append(
+                f"- **Reasoning Depth**: Multi-hop analysis (up to {plan.max_hops} hops)\n"
+            )
 
         if plan.reasoning:
-            prompt_parts.append(f"- Analysis: {plan.reasoning}\n")
+            prompt_parts.append(f"- **Search Strategy**: {plan.reasoning}\n")
 
+        # Add the context
         prompt_parts.append(f"\n{context_text}\n")
-        prompt_parts.append("\n## Instructions\n")
-        prompt_parts.append("Based on the above context, provide a comprehensive answer to the question. ")
-        prompt_parts.append("Reference specific code, files, and line numbers where relevant.")
+
+        # Clearer instructions based on intent
+        prompt_parts.append("\n---\n")
+        prompt_parts.append("## Your Task\n")
+        prompt_parts.append(
+            "Using the context above, provide a complete answer to the question.\n\n"
+        )
+        prompt_parts.append("**Requirements:**\n")
+        prompt_parts.append("1. Start with a direct, concise answer\n")
+        prompt_parts.append("2. Support every claim with references (file:line or entity names)\n")
+        prompt_parts.append("3. Include relevant code snippets when they help clarify\n")
+        prompt_parts.append("4. If context is incomplete, state what's known and what's missing\n")
+        prompt_parts.append("5. Suggest next steps if more information might be needed\n")
 
         return "".join(prompt_parts)
 
