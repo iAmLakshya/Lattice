@@ -5,11 +5,11 @@ import pytest
 from pathlib import Path
 from unittest.mock import AsyncMock, patch, MagicMock
 
-from code_rag.pipeline.orchestrator import PipelineOrchestrator
-from code_rag.pipeline.progress import ProgressTracker
-from code_rag.core.types import PipelineStage
-from code_rag.parsing.scanner import FileScanner
-from code_rag.parsing.parser import CodeParser
+from lattice.pipeline.orchestrator import PipelineOrchestrator
+from lattice.pipeline.progress import ProgressTracker
+from lattice.core.types import PipelineStage
+from lattice.parsing.scanner import FileScanner
+from lattice.parsing.parser import CodeParser
 
 
 class TestProgressTracker:
@@ -155,8 +155,8 @@ class TestPipelineWithMocks:
              patch.object(orchestrator, '_execute_embedding_stage', new_callable=AsyncMock) as mock_embeddings:
 
             # Setup mock context
-            from code_rag.pipeline.orchestrator import PipelineContext
-            from code_rag.core.cache import FunctionRegistry
+            from lattice.pipeline.orchestrator import PipelineContext
+            from lattice.core.cache import FunctionRegistry
             mock_ctx = MagicMock(spec=PipelineContext)
             mock_ctx.repo_path = orchestrator.repo_path
             mock_ctx.project_name = orchestrator.project_name
@@ -245,8 +245,8 @@ class TestPipelineEdgeCases:
              patch.object(orchestrator, '_execute_summarize_stage', new_callable=AsyncMock), \
              patch.object(orchestrator, '_execute_embedding_stage', new_callable=AsyncMock):
 
-            from code_rag.pipeline.orchestrator import PipelineContext
-            from code_rag.core.cache import FunctionRegistry
+            from lattice.pipeline.orchestrator import PipelineContext
+            from lattice.core.cache import FunctionRegistry
             mock_ctx = MagicMock(spec=PipelineContext)
             mock_ctx.repo_path = orchestrator.repo_path
             mock_ctx.project_name = orchestrator.project_name
@@ -283,8 +283,8 @@ class TestPipelineEdgeCases:
              patch.object(orchestrator, '_execute_summarize_stage', new_callable=AsyncMock), \
              patch.object(orchestrator, '_execute_embedding_stage', new_callable=AsyncMock):
 
-            from code_rag.pipeline.orchestrator import PipelineContext
-            from code_rag.core.cache import FunctionRegistry
+            from lattice.pipeline.orchestrator import PipelineContext
+            from lattice.core.cache import FunctionRegistry
             mock_ctx = MagicMock(spec=PipelineContext)
             mock_ctx.repo_path = orchestrator.repo_path
             mock_ctx.project_name = orchestrator.project_name

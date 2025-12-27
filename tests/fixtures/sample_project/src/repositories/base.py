@@ -31,12 +31,12 @@ from typing import (
 from contextlib import asynccontextmanager
 import asyncio
 
-from code_rag.tests.fixtures.sample_project.src.core.events import (
+from lattice.tests.fixtures.sample_project.src.core.events import (
     EventBus,
     Event,
     EventType,
 )
-from code_rag.tests.fixtures.sample_project.src.core.cache import cached, get_cache
+from lattice.tests.fixtures.sample_project.src.core.cache import cached, get_cache
 
 
 T = TypeVar("T")

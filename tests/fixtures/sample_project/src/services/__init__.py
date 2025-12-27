@@ -1,6 +1,6 @@
 """Application services layer."""
 
-from code_rag.tests.fixtures.sample_project.src.services.payment import (
+from lattice.tests.fixtures.sample_project.src.services.payment import (
     PaymentService,
     PaymentProvider,
     PaymentProviderFactory,
@@ -11,7 +11,7 @@ from code_rag.tests.fixtures.sample_project.src.services.payment import (
     PaymentStatus,
     PaymentError,
 )
-from code_rag.tests.fixtures.sample_project.src.services.data_pipeline import (
+from lattice.tests.fixtures.sample_project.src.services.data_pipeline import (
     Pipeline,
     PipelineStage,
     MapStage,

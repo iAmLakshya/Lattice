@@ -1,13 +1,13 @@
 """Core infrastructure modules."""
 
-from code_rag.tests.fixtures.sample_project.src.core.events import (
+from lattice.tests.fixtures.sample_project.src.core.events import (
     Event,
     EventBus,
     EventHandler,
     EventType,
     on_event,
 )
-from code_rag.tests.fixtures.sample_project.src.core.cache import (
+from lattice.tests.fixtures.sample_project.src.core.cache import (
     Cache,
     CacheBackend,
     MemoryCache,
@@ -16,7 +16,7 @@ from code_rag.tests.fixtures.sample_project.src.core.cache import (
     get_cache,
     init_cache,
 )
-from code_rag.tests.fixtures.sample_project.src.core.middleware import (
+from lattice.tests.fixtures.sample_project.src.core.middleware import (
     Middleware,
     MiddlewareChain,
     Request,

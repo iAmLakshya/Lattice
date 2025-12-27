@@ -1,0 +1,166 @@
+import logging
+from contextlib import asynccontextmanager
+from typing import Any
+
+from neo4j import AsyncDriver, AsyncGraphDatabase, AsyncSession
+
+from lattice.config import get_settings
+from lattice.core.errors import ConnectionError, GraphError
+
+logger = logging.getLogger(__name__)
+
+
+class MemgraphClient:
+    def __init__(
+        self,
+        uri: str | None = None,
+        user: str | None = None,
+        password: str | None = None,
+    ):
+        settings = get_settings()
+        self._uri = uri or settings.memgraph_uri
+        self._user = user or settings.memgraph_user
+        self._password = password or settings.memgraph_password
+        self._driver: AsyncDriver | None = None
+
+    async def connect(self) -> None:
+        if self._driver is None:
+            try:
+                self._driver = AsyncGraphDatabase.driver(
+                    self._uri,
+                    auth=(self._user, self._password),
+                )
+                await self._driver.verify_connectivity()
+                logger.info(f"Connected to Memgraph at {self._uri}")
+            except Exception as e:
+                raise ConnectionError(
+                    f"Failed to connect to Memgraph at {self._uri}",
+                    cause=e,
+                ) from e
+
+    async def close(self) -> None:
+        if self._driver:
+            try:
+                await self._driver.close()
+                self._driver = None
+                logger.info("Closed Memgraph connection")
+            except Exception as e:
+                logger.warning(f"Error closing Memgraph connection: {e}")
+
+    @asynccontextmanager
+    async def session(self):
+        if self._driver is None:
+            await self.connect()
+        session: AsyncSession = self._driver.session()
+        try:
+            yield session
+        finally:
+            await session.close()
+
+    def _normalize_parameters(self, parameters: dict[str, Any] | None) -> dict[str, Any]:
+        return parameters or {}
+
+    async def execute(
+        self,
+        query: str,
+        parameters: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
+        try:
+            async with self.session() as session:
+                result = await session.run(query, self._normalize_parameters(parameters))
+                records = await result.data()
+                return records
+        except Exception as e:
+            logger.error(f"Query execution failed: {e}")
+            raise GraphError(f"Failed to execute query: {query[:100]}...", cause=e) from e
+
+    async def execute_write(
+        self,
+        query: str,
+        parameters: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
+        try:
+            async with self.session() as session:
+                result = await session.execute_write(
+                    lambda tx: tx.run(query, self._normalize_parameters(parameters)).data()
+                )
+                return result
+        except Exception as e:
+            logger.error(f"Write query execution failed: {e}")
+            raise GraphError(f"Failed to execute write query: {query[:100]}...", cause=e) from e
+
+    async def health_check(self) -> bool:
+        try:
+            await self.execute("RETURN 1 as n")
+            return True
+        except Exception as e:
+            logger.warning(f"Health check failed: {e}")
+            return False
+
+    async def clear_database(self) -> None:
+        try:
+            await self.execute("MATCH (n) DETACH DELETE n")
+            logger.info("Database cleared successfully")
+        except Exception as e:
+            raise GraphError("Failed to clear database", cause=e) from e
+
+    async def get_node_count(self) -> int:
+        result = await self.execute("MATCH (n) RETURN count(n) as count")
+        return result[0]["count"] if result else 0
+
+    async def get_relationship_count(self) -> int:
+        result = await self.execute("MATCH ()-[r]->() RETURN count(r) as count")
+        return result[0]["count"] if result else 0
+
+    async def execute_batch(
+        self,
+        query: str,
+        batch: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Execute batch query using UNWIND. Query should reference 'row' for parameters."""
+        if not batch:
+            return []
+
+        batch_query = f"UNWIND $batch AS row\n{query}"
+        try:
+            async with self.session() as session:
+                result = await session.run(batch_query, {"batch": batch})
+                records = await result.data()
+                return records
+        except Exception as e:
+            if "already exists" not in str(e).lower():
+                logger.error(f"Batch query execution failed: {e}")
+                logger.debug(f"Query: {batch_query}")
+                logger.debug(f"Batch size: {len(batch)}")
+            raise GraphError(
+                f"Failed to execute batch query: {query[:100]}...", cause=e
+            ) from e
+
+    async def execute_batch_write(
+        self,
+        query: str,
+        batch: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        if not batch:
+            return []
+
+        batch_query = f"UNWIND $batch AS row\n{query}"
+        try:
+            async with self.session() as session:
+                result = await session.execute_write(
+                    lambda tx: tx.run(batch_query, {"batch": batch}).data()
+                )
+                return result
+        except Exception as e:
+            if "already exists" not in str(e).lower():
+                logger.error(f"Batch write query execution failed: {e}")
+            raise GraphError(
+                f"Failed to execute batch write query: {query[:100]}...", cause=e
+            ) from e
+
+    async def __aenter__(self):
+        await self.connect()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.close()

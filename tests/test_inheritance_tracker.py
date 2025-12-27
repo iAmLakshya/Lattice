@@ -13,9 +13,9 @@ import pytest
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from code_rag.core.cache import FunctionRegistry
-from code_rag.parsing.import_processor import ImportProcessor
-from code_rag.parsing.inheritance_tracker import InheritanceTracker
+from lattice.core.cache import FunctionRegistry
+from lattice.parsing.import_processor import ImportProcessor
+from lattice.parsing.inheritance_tracker import InheritanceTracker
 
 
 @pytest.fixture

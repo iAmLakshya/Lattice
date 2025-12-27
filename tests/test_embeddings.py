@@ -4,12 +4,12 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from pathlib import Path
 
-from code_rag.core.types import EntityType, Language
-from code_rag.core.errors import EmbeddingError, IndexingError
-from code_rag.embeddings.chunker import CodeChunker, CodeChunk
-from code_rag.embeddings.embedder import Embedder
-from code_rag.embeddings.indexer import VectorIndexer, VectorSearcher, CodeSearchResult
-from code_rag.parsing.models import CodeEntity, FileInfo, ParsedFile
+from lattice.core.types import EntityType, Language
+from lattice.core.errors import EmbeddingError, IndexingError
+from lattice.embeddings.chunker import CodeChunker, CodeChunk
+from lattice.embeddings.embedder import Embedder
+from lattice.embeddings.indexer import VectorIndexer, VectorSearcher, CodeSearchResult
+from lattice.parsing.models import CodeEntity, FileInfo, ParsedFile
 
 
 # ============================================================================
@@ -641,8 +641,8 @@ class TestEmbeddingsIntegration:
         if not sample_project_path.exists():
             pytest.skip("Sample project not found")
 
-        from code_rag.parsing.scanner import FileScanner
-        from code_rag.parsing.parser import CodeParser
+        from lattice.parsing.scanner import FileScanner
+        from lattice.parsing.parser import CodeParser
 
         scanner = FileScanner(sample_project_path)
         parser = CodeParser()
@@ -671,8 +671,8 @@ class TestEmbeddingsIntegration:
         if not sample_project_path.exists():
             pytest.skip("Sample project not found")
 
-        from code_rag.parsing.scanner import FileScanner
-        from code_rag.parsing.parser import CodeParser
+        from lattice.parsing.scanner import FileScanner
+        from lattice.parsing.parser import CodeParser
 
         scanner = FileScanner(sample_project_path)
         parser = CodeParser()

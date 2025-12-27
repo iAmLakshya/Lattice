@@ -4,10 +4,10 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from pathlib import Path
 
-from code_rag.core.types import EntityType, Language
-from code_rag.core.errors import SummarizationError
-from code_rag.summarization.summarizer import CodeSummarizer
-from code_rag.parsing.models import CodeEntity, FileInfo, ParsedFile
+from lattice.core.types import EntityType, Language
+from lattice.core.errors import SummarizationError
+from lattice.summarization.summarizer import CodeSummarizer
+from lattice.parsing.models import CodeEntity, FileInfo, ParsedFile
 
 
 # ============================================================================
@@ -284,7 +284,7 @@ class TestSummaryPrompts:
 
     def test_file_prompt_contains_required_info(self):
         """Test that file prompt contains required information."""
-        from code_rag.summarization.prompts import SummaryPrompts
+        from lattice.summarization.prompts import SummaryPrompts
 
         prompt = SummaryPrompts.get_file_prompt(
             file_path="src/main.py",
@@ -298,7 +298,7 @@ class TestSummaryPrompts:
 
     def test_function_prompt_contains_required_info(self):
         """Test that function prompt contains required information."""
-        from code_rag.summarization.prompts import SummaryPrompts
+        from lattice.summarization.prompts import SummaryPrompts
 
         prompt = SummaryPrompts.get_function_prompt(
             name="process_data",
@@ -315,7 +315,7 @@ class TestSummaryPrompts:
 
     def test_class_prompt_contains_required_info(self):
         """Test that class prompt contains required information."""
-        from code_rag.summarization.prompts import SummaryPrompts
+        from lattice.summarization.prompts import SummaryPrompts
 
         prompt = SummaryPrompts.get_class_prompt(
             name="DataProcessor",
@@ -331,7 +331,7 @@ class TestSummaryPrompts:
 
     def test_function_prompt_without_docstring(self):
         """Test function prompt when no docstring is provided."""
-        from code_rag.summarization.prompts import SummaryPrompts
+        from lattice.summarization.prompts import SummaryPrompts
 
         prompt = SummaryPrompts.get_function_prompt(
             name="helper",
@@ -347,7 +347,7 @@ class TestSummaryPrompts:
 
     def test_class_prompt_without_docstring(self):
         """Test class prompt when no docstring is provided."""
-        from code_rag.summarization.prompts import SummaryPrompts
+        from lattice.summarization.prompts import SummaryPrompts
 
         prompt = SummaryPrompts.get_class_prompt(
             name="Service",
@@ -377,8 +377,8 @@ class TestSummarizationIntegration:
         if not sample_project_path.exists():
             pytest.skip("Sample project not found")
 
-        from code_rag.parsing.parser import CodeParser
-        from code_rag.parsing.scanner import FileScanner
+        from lattice.parsing.parser import CodeParser
+        from lattice.parsing.scanner import FileScanner
 
         # Parse a real file
         scanner = FileScanner(sample_project_path)
@@ -416,8 +416,8 @@ class TestSummarizationIntegration:
         if not sample_project_path.exists():
             pytest.skip("Sample project not found")
 
-        from code_rag.parsing.parser import CodeParser
-        from code_rag.parsing.scanner import FileScanner
+        from lattice.parsing.parser import CodeParser
+        from lattice.parsing.scanner import FileScanner
 
         scanner = FileScanner(sample_project_path)
         parser = CodeParser()

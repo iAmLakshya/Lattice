@@ -1,6 +1,6 @@
 """Data access layer with Repository pattern."""
 
-from code_rag.tests.fixtures.sample_project.src.repositories.base import (
+from lattice.tests.fixtures.sample_project.src.repositories.base import (
     Repository,
     InMemoryRepository,
     CachedRepository,

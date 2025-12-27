@@ -2,8 +2,8 @@
 
 import pytest
 
-from code_rag.graph.client import MemgraphClient
-from code_rag.embeddings.client import QdrantManager, CollectionName
+from lattice.graph.client import MemgraphClient
+from lattice.embeddings.client import QdrantManager, CollectionName
 
 
 class TestMemgraphConnection:

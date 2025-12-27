@@ -4,18 +4,18 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from pathlib import Path
 
-from code_rag.core.types import EntityType, Language
-from code_rag.core.errors import GraphError, QueryError
-from code_rag.graph.builder import GraphBuilder
-from code_rag.graph.queries import (
+from lattice.core.types import EntityType, Language
+from lattice.core.errors import GraphError, QueryError
+from lattice.graph.builder import GraphBuilder
+from lattice.graph.queries import (
     ProjectQueries,
     FileQueries,
     EntityQueries,
     RelationshipQueries,
     SearchQueries,
 )
-from code_rag.query.graph_search import GraphSearcher
-from code_rag.parsing.models import CodeEntity, FileInfo, ImportInfo, ParsedFile
+from lattice.query.graph_search import GraphSearcher
+from lattice.parsing.models import CodeEntity, FileInfo, ImportInfo, ParsedFile
 
 
 # ============================================================================
@@ -510,7 +510,7 @@ class TestGraphSearcher:
                 "method_count": 100,
             })
 
-            with patch('code_rag.query.graph_search.GraphStatistics', return_value=mock_stats):
+            with patch('lattice.query.graph_search.GraphStatistics', return_value=mock_stats):
                 results = await searcher.get_statistics()
 
                 assert "file_count" in results or results is not None

@@ -24,7 +24,7 @@ from enum import Enum
 import asyncio
 from collections.abc import AsyncIterator
 
-from code_rag.tests.fixtures.sample_project.src.core.events import (
+from lattice.tests.fixtures.sample_project.src.core.events import (
     EventBus,
     Event,
     EventType,

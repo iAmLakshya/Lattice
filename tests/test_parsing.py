@@ -3,9 +3,9 @@
 import pytest
 from pathlib import Path
 
-from code_rag.parsing.scanner import FileScanner
-from code_rag.parsing.parser import CodeParser
-from code_rag.parsing.models import Language, EntityType
+from lattice.parsing.scanner import FileScanner
+from lattice.parsing.parser import CodeParser
+from lattice.parsing.models import Language, EntityType
 
 
 class TestFileScanner:
@@ -61,7 +61,7 @@ class TestCodeParser:
 
     def test_parse_python_file(self, sample_python_file: Path):
         """Test parsing a Python file."""
-        from code_rag.parsing.models import FileInfo
+        from lattice.parsing.models import FileInfo
         import hashlib
 
         content = sample_python_file.read_bytes()

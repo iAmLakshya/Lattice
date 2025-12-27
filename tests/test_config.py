@@ -3,7 +3,7 @@
 import pytest
 from pydantic import SecretStr, ValidationError
 
-from code_rag.config import (
+from lattice.config import (
     AISettings,
     DatabaseSettings,
     FileSettings,

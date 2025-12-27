@@ -20,12 +20,12 @@ import asyncio
 import time
 import uuid
 
-from code_rag.tests.fixtures.sample_project.src.core.events import (
+from lattice.tests.fixtures.sample_project.src.core.events import (
     EventBus,
     Event,
     EventType,
 )
-from code_rag.tests.fixtures.sample_project.src.core.cache import get_cache
+from lattice.tests.fixtures.sample_project.src.core.cache import get_cache
 
 
 @dataclass

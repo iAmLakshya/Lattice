@@ -3,11 +3,11 @@
 import pytest
 from pathlib import Path
 
-from code_rag.core.types import EntityType, Language
-from code_rag.parsing.extractors.python import PythonExtractor
-from code_rag.parsing.extractors.javascript import JavaScriptExtractor
-from code_rag.parsing.extractors.typescript import TypeScriptExtractor
-from code_rag.parsing.parser import CodeParser
+from lattice.core.types import EntityType, Language
+from lattice.parsing.extractors.python import PythonExtractor
+from lattice.parsing.extractors.javascript import JavaScriptExtractor
+from lattice.parsing.extractors.typescript import TypeScriptExtractor
+from lattice.parsing.parser import CodeParser
 
 
 # ============================================================================
@@ -654,8 +654,8 @@ class TestExtractorsIntegration:
         if not user_file.exists():
             pytest.skip("Sample project not found")
 
-        from code_rag.parsing.scanner import FileScanner
-        from code_rag.parsing.models import FileInfo
+        from lattice.parsing.scanner import FileScanner
+        from lattice.parsing.models import FileInfo
 
         content = user_file.read_text()
         parsed = parser.parse_content(content, Language.PYTHON)
@@ -728,7 +728,7 @@ class TestExtractorsIntegration:
         if not sample_project_path.exists():
             pytest.skip("Sample project not found")
 
-        from code_rag.parsing.scanner import FileScanner
+        from lattice.parsing.scanner import FileScanner
 
         scanner = FileScanner(sample_project_path)
         files = list(scanner.scan_all())

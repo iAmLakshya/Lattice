@@ -12,8 +12,8 @@ import pytest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from code_rag.core.cache import FunctionRegistry
-from code_rag.parsing.import_processor import ImportProcessor
+from lattice.core.cache import FunctionRegistry
+from lattice.parsing.import_processor import ImportProcessor
 
 
 @pytest.fixture

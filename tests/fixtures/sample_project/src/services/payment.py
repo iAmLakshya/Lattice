@@ -17,13 +17,13 @@ from typing import Any, TypeVar, Generic
 import asyncio
 import uuid
 
-from code_rag.tests.fixtures.sample_project.src.core.events import (
+from lattice.tests.fixtures.sample_project.src.core.events import (
     EventBus,
     Event,
     EventType,
 )
-from code_rag.tests.fixtures.sample_project.src.core.cache import cached
-from code_rag.tests.fixtures.sample_project.src.utils.crypto import generate_token
+from lattice.tests.fixtures.sample_project.src.core.cache import cached
+from lattice.tests.fixtures.sample_project.src.utils.crypto import generate_token
 
 
 class PaymentStatus(Enum):
