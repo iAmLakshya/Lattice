@@ -152,6 +152,7 @@ class TestPipelineWithMocks:
              patch.object(orchestrator, '_cleanup', new_callable=AsyncMock) as mock_cleanup, \
              patch.object(orchestrator, '_execute_graph_stage', new_callable=AsyncMock) as mock_graph, \
              patch.object(orchestrator, '_execute_summarize_stage', new_callable=AsyncMock) as mock_summaries, \
+             patch.object(orchestrator, '_execute_metadata_stage', new_callable=AsyncMock) as mock_metadata, \
              patch.object(orchestrator, '_execute_embedding_stage', new_callable=AsyncMock) as mock_embeddings:
 
             # Setup mock context
@@ -188,11 +189,14 @@ class TestPipelineWithMocks:
 
 
 @pytest.mark.skipif(
-    not os.environ.get("OPENAI_API_KEY"),
-    reason="OPENAI_API_KEY not set"
+    not os.environ.get("RUN_INTEGRATION_TESTS"),
+    reason="RUN_INTEGRATION_TESTS not set (these tests make real API calls)"
 )
 class TestPipelineIntegration:
-    """Full integration tests (requires API keys and running databases)."""
+    """Full integration tests (requires API keys and running databases).
+
+    Run with: RUN_INTEGRATION_TESTS=1 pytest tests/test_pipeline.py
+    """
 
     @pytest.mark.asyncio
     async def test_full_pipeline(self, sample_project_path: Path):
@@ -243,6 +247,7 @@ class TestPipelineEdgeCases:
              patch.object(orchestrator, '_cleanup', new_callable=AsyncMock), \
              patch.object(orchestrator, '_execute_graph_stage', new_callable=AsyncMock), \
              patch.object(orchestrator, '_execute_summarize_stage', new_callable=AsyncMock), \
+             patch.object(orchestrator, '_execute_metadata_stage', new_callable=AsyncMock), \
              patch.object(orchestrator, '_execute_embedding_stage', new_callable=AsyncMock):
 
             from lattice.pipeline.orchestrator import PipelineContext
@@ -281,6 +286,7 @@ class TestPipelineEdgeCases:
              patch.object(orchestrator, '_cleanup', new_callable=AsyncMock), \
              patch.object(orchestrator, '_execute_graph_stage', new_callable=AsyncMock), \
              patch.object(orchestrator, '_execute_summarize_stage', new_callable=AsyncMock), \
+             patch.object(orchestrator, '_execute_metadata_stage', new_callable=AsyncMock), \
              patch.object(orchestrator, '_execute_embedding_stage', new_callable=AsyncMock):
 
             from lattice.pipeline.orchestrator import PipelineContext
