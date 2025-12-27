@@ -1,5 +1,3 @@
-"""Configuration module for Lattice."""
-
 from lattice.config.settings import (
     AISettings,
     DatabaseSettings,

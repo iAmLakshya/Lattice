@@ -1,5 +1,3 @@
-"""Graph database module for knowledge graph operations."""
-
 from lattice.graph.batch_builder import BatchGraphBuilder
 from lattice.graph.builder import GraphBuilder
 from lattice.graph.client import MemgraphClient

@@ -1,12 +1,3 @@
-"""Query engine module with multi-hop graph reasoning.
-
-This module provides:
-- LLM-powered query planning and decomposition
-- Multi-hop graph traversals for structural queries
-- Rich context building with implementation details
-- Intelligent hybrid ranking with graph centrality
-"""
-
 from lattice.query.context import (
     CodeSnippet,
     ContextBuilder,

@@ -60,6 +60,7 @@ class PipelineStage(str, Enum):
     PARSING = "parsing"
     GRAPH_BUILDING = "graph_building"
     SUMMARIZING = "summarizing"
+    METADATA = "metadata"
     EMBEDDING = "embedding"
     COMPLETED = "completed"
     FAILED = "failed"

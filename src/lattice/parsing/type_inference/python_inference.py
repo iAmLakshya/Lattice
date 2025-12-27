@@ -46,10 +46,8 @@ class PythonTypeInference:
         """
         self.function_registry = function_registry
         self.import_mapping = import_mapping or {}
-
-        # Cache for method return type analysis
         self._return_type_cache: dict[str, str | None] = {}
-        self._in_progress: set[str] = set()  # Recursion guard
+        self._in_progress: set[str] = set()
 
     def infer_local_types(
         self,
@@ -554,13 +552,10 @@ class PythonTypeInference:
         Returns:
             Inferred type or None.
         """
-        # Try simple type first
         simple = self._infer_simple_type(expr_node, context)
         if simple:
             return simple
 
-        # Future enhancement: Handle more complex expressions
-        # e.g., list comprehensions, conditional expressions, etc.
         return None
 
     def _find_containing_class(self, node: Node) -> Node | None:
@@ -633,14 +628,12 @@ class PythonTypeInference:
         Returns:
             Inferred type or None.
         """
-        # Convert snake_case to PascalCase
         if "_" in name:
             parts = name.split("_")
             class_name = "".join(p.capitalize() for p in parts)
         else:
             class_name = name.capitalize()
 
-        # Check if this class exists
         resolved = self._resolve_type_name(class_name, context)
         if resolved:
             return InferredType(
@@ -666,18 +659,15 @@ class PythonTypeInference:
         Returns:
             Qualified name or None.
         """
-        # Check imports
         if context.module_qn in self.import_mapping:
             imports = self.import_mapping[context.module_qn]
             if type_name in imports:
                 return imports[type_name]
 
-        # Check local module
         local_qn = f"{context.module_qn}.{type_name}"
         if self.function_registry and local_qn in self.function_registry:
             return local_qn
 
-        # Check function registry by simple name
         if self.function_registry:
             if hasattr(self.function_registry, 'find_by_simple_name'):
                 matches = self.function_registry.find_by_simple_name(type_name)

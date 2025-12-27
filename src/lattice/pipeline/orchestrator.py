@@ -53,8 +53,6 @@ class PipelineContext:
 
 
 class PipelineOrchestrator:
-    """Orchestrates the full indexing pipeline with parallel processing."""
-
     def __init__(
         self,
         repo_path: str | Path,
@@ -68,10 +66,12 @@ class PipelineOrchestrator:
         max_workers: int | None = None,
         max_concurrent_api: int | None = None,
         force: bool = False,
+        skip_metadata: bool = False,
     ):
         self.repo_path = Path(repo_path).resolve()
         self.project_name = project_name or self.repo_path.name
         self.force = force
+        self.skip_metadata = skip_metadata
 
         self.tracker = ProgressTracker()
         if progress_callback:
@@ -166,6 +166,10 @@ class PipelineOrchestrator:
             await self._execute_parse_stage(ctx)
             await self._execute_graph_stage(ctx)
             await self._execute_summarize_stage(ctx)
+
+            if not self.skip_metadata:
+                await self._execute_metadata_stage(ctx)
+
             await self._execute_embedding_stage(ctx)
 
             self.tracker.complete()
@@ -356,7 +360,6 @@ class PipelineOrchestrator:
                     logger.warning(f"Failed to check file update status: {result}")
                     continue
                 parsed_file, file_path, needs_update = result
-                # Force flag bypasses incremental check - always update
                 if self.force:
                     needs_update = True
                 ctx.file_update_status[file_path] = needs_update
@@ -454,35 +457,51 @@ class PipelineOrchestrator:
             message=f"Generating AI summaries ({self._max_concurrent_api} concurrent)...",
         )
         logger.info(
-            f"Generating {total_items} summaries with {self._max_concurrent_api} concurrent API calls"
+            f"Generating {total_items} summaries "
+            f"(max {self._max_concurrent_api} concurrent API calls)"
         )
 
         summaries_generated = 0
         completed = 0
 
-        async def summarize_item(task_type, parsed_file, entity):
-            async with self._api_semaphore:
+        async def summarize_item_with_retry(task_type, parsed_file, entity, max_retries=3):
+            for attempt in range(max_retries):
                 try:
-                    if task_type == "file":
-                        summary = await ctx.summarizer.summarize_file(parsed_file)
-                        parsed_file.summary = summary
-                        return ("file", parsed_file.file_info.relative_path, True)
-                    else:
-                        summary = await ctx.summarizer.summarize_entity(
-                            entity,
-                            parsed_file.file_info.relative_path,
-                            parsed_file.file_info.language.value,
-                        )
-                        return ("entity", entity.name, summary is not None)
+                    async with self._api_semaphore:
+                        if task_type == "file":
+                            summary = await ctx.summarizer.summarize_file(parsed_file)
+                            parsed_file.summary = summary
+                            return ("file", parsed_file.file_info.relative_path, True)
+                        else:
+                            summary = await ctx.summarizer.summarize_entity(
+                                entity,
+                                parsed_file.file_info.relative_path,
+                                parsed_file.file_info.language.value,
+                            )
+                            return ("entity", entity.name, summary is not None)
                 except Exception as e:
-                    name = parsed_file.file_info.relative_path if task_type == "file" else entity.name
+                    error_str = str(e).lower()
+                    if "rate limit" in error_str or "429" in error_str:
+                        wait_time = (attempt + 1) * 2
+                        logger.warning(
+                            f"Rate limit hit, waiting {wait_time}s (attempt {attempt + 1})"
+                        )
+                        await asyncio.sleep(wait_time)
+                        continue
+                    if task_type == "file":
+                        name = parsed_file.file_info.relative_path
+                    else:
+                        name = entity.name
                     logger.warning(f"Failed to summarize {name}: {e}")
                     return (task_type, name, False)
+            name = parsed_file.file_info.relative_path if task_type == "file" else entity.name
+            logger.warning(f"Failed to summarize {name} after {max_retries} retries")
+            return (task_type, name, False)
 
-        batch_size = self._max_concurrent_api * 3
+        batch_size = min(3, self._max_concurrent_api)
         for i in range(0, len(summarize_tasks), batch_size):
             batch = summarize_tasks[i:i + batch_size]
-            batch_coros = [summarize_item(*task) for task in batch]
+            batch_coros = [summarize_item_with_retry(*task) for task in batch]
             batch_results = await asyncio.gather(*batch_coros, return_exceptions=True)
 
             for result in batch_results:
@@ -516,6 +535,75 @@ class PipelineOrchestrator:
             logger.warning(f"Failed to summarize entity {entity.name}: {e}", exc_info=True)
             return None
 
+    async def _execute_metadata_stage(self, ctx: PipelineContext) -> None:
+        from datetime import datetime
+
+        from lattice.config import get_settings
+        from lattice.database.postgres import PostgresClient
+        from lattice.metadata.generator import GenerationProgress, MetadataGenerator
+        from lattice.metadata.repository import MetadataRepository
+
+        settings = get_settings()
+
+        if not settings.metadata.metadata_enabled:
+            logger.info("Metadata generation is disabled in settings")
+            return
+
+        ctx.tracker.set_stage(
+            PipelineStage.METADATA,
+            total=7,
+            message="Generating project metadata with AI agent...",
+        )
+        logger.info(f"Generating metadata for {ctx.project_name}")
+
+        def on_progress(progress: GenerationProgress) -> None:
+            completed = len(progress.completed_fields) + len(progress.failed_fields)
+            ctx.tracker.update_stage(
+                completed,
+                message=f"Generating {progress.current_field}...",
+            )
+
+        postgres = None
+        try:
+            postgres = PostgresClient()
+            await postgres.connect()
+
+            generator = MetadataGenerator(
+                repo_path=ctx.repo_path,
+                project_name=ctx.project_name,
+                progress_callback=on_progress,
+            )
+
+            metadata = await generator.generate_all()
+            metadata.indexed_at = datetime.now()
+
+            repository = MetadataRepository(postgres)
+            await repository.upsert(metadata)
+
+            completed_count = len(generator._progress.completed_fields)
+            failed_count = len(generator._progress.failed_fields)
+
+            ctx.tracker.update_stage(
+                7,
+                message=f"Metadata generated ({completed_count} fields, {failed_count} failed)",
+            )
+
+            logger.info(
+                f"Metadata generation complete: "
+                f"{completed_count} succeeded, {failed_count} failed"
+            )
+
+        except Exception as e:
+            logger.error(f"Metadata generation failed: {e}", exc_info=True)
+            ctx.tracker.update_stage(7, message="Metadata generation skipped (error)")
+
+        finally:
+            if postgres:
+                try:
+                    await postgres.close()
+                except Exception as e:
+                    logger.warning(f"Failed to close PostgreSQL connection: {e}")
+
     async def _execute_embedding_stage(self, ctx: PipelineContext) -> None:
         files_to_embed = [
             pf for pf in ctx.parsed_files
@@ -539,22 +627,32 @@ class PipelineOrchestrator:
         files_embedded = 0
         completed = len(ctx.parsed_files) - len(files_to_embed)
 
-        async def embed_file(parsed_file):
-            async with self._api_semaphore:
+        async def embed_file_with_retry(parsed_file, max_retries=3):
+            for attempt in range(max_retries):
                 try:
-                    chunks = await indexer.index_file(
-                        parsed_file,
-                        force=True,
-                        project_name=ctx.project_name,
-                    )
-                    return (parsed_file, chunks, None)
+                    async with self._api_semaphore:
+                        chunks = await indexer.index_file(
+                            parsed_file,
+                            force=True,
+                            project_name=ctx.project_name,
+                        )
+                        return (parsed_file, chunks, None)
                 except Exception as e:
+                    error_str = str(e).lower()
+                    if "rate limit" in error_str or "429" in error_str:
+                        wait_time = (attempt + 1) * 2
+                        logger.warning(
+                            f"Rate limit hit, waiting {wait_time}s (attempt {attempt + 1})"
+                        )
+                        await asyncio.sleep(wait_time)
+                        continue
                     return (parsed_file, 0, e)
+            return (parsed_file, 0, Exception("Rate limit exceeded after retries"))
 
-        batch_size = self._max_concurrent_api * 2
+        batch_size = min(3, self._max_concurrent_api)
         for i in range(0, len(files_to_embed), batch_size):
             batch = files_to_embed[i:i + batch_size]
-            batch_coros = [embed_file(pf) for pf in batch]
+            batch_coros = [embed_file_with_retry(pf) for pf in batch]
             batch_results = await asyncio.gather(*batch_coros, return_exceptions=True)
 
             for result in batch_results:
@@ -564,10 +662,10 @@ class PipelineOrchestrator:
                     ctx.tracker.update_stage(completed)
                     continue
 
-                parsed_file, chunks, error = result
+                pf, chunks, error = result
                 if error:
                     logger.warning(
-                        f"Failed to embed {parsed_file.file_info.relative_path}: {error}"
+                        f"Failed to embed {pf.file_info.relative_path}: {error}"
                     )
                     status = "Failed"
                 else:
@@ -577,7 +675,7 @@ class PipelineOrchestrator:
 
                 ctx.tracker.update_stage(
                     completed,
-                    message=f"Embedding {parsed_file.file_info.relative_path} - {status}",
+                    message=f"Embedding {pf.file_info.relative_path} - {status}",
                 )
 
         ctx.tracker.update_stats(chunks_embedded=total_chunks)

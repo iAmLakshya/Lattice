@@ -136,6 +136,48 @@ class QuerySettings(BaseSettings):
     max_explanation_tokens: int = Field(default=1000, gt=0)
 
 
+class PostgresSettings(BaseSettings):
+    """PostgreSQL connection settings for metadata storage."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    postgres_host: str = Field(default="localhost")
+    postgres_port: int = Field(default=5432, ge=1, le=65535)
+    postgres_database: str = Field(default="lattice")
+    postgres_user: str = Field(default="lattice")
+    postgres_password: SecretStr = Field(default=SecretStr("lattice"))
+    postgres_pool_min: int = Field(default=2, ge=1, le=10)
+    postgres_pool_max: int = Field(default=10, ge=1, le=100)
+
+    @property
+    def dsn(self) -> str:
+        """Return PostgreSQL connection string (without password for logging)."""
+        return (
+            f"postgresql://{self.postgres_user}@"
+            f"{self.postgres_host}:{self.postgres_port}/{self.postgres_database}"
+        )
+
+
+class MetadataSettings(BaseSettings):
+    """Metadata generation settings."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    metadata_enabled: bool = Field(default=True)
+    metadata_max_retries: int = Field(default=3, ge=1, le=10)
+    metadata_timeout_seconds: int = Field(default=300, ge=60, le=1800)
+
+
 class Settings(BaseSettings):
     """Composed settings with backward-compatible property access."""
 
@@ -150,6 +192,8 @@ class Settings(BaseSettings):
     indexing: IndexingSettings = Field(default_factory=IndexingSettings)
     files: FileSettings = Field(default_factory=FileSettings)
     query: QuerySettings = Field(default_factory=QuerySettings)
+    postgres: PostgresSettings = Field(default_factory=PostgresSettings)
+    metadata: MetadataSettings = Field(default_factory=MetadataSettings)
 
     @property
     def memgraph_host(self) -> str:

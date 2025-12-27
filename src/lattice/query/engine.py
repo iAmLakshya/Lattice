@@ -517,7 +517,6 @@ Help the developer understand what code handles this functionality:
             f"**{question}**\n",
         ]
 
-        # Add query analysis for transparency
         prompt_parts.append("\n## Query Analysis\n")
         prompt_parts.append(f"- **Detected Intent**: {plan.primary_intent.value}\n")
 
@@ -533,10 +532,8 @@ Help the developer understand what code handles this functionality:
         if plan.reasoning:
             prompt_parts.append(f"- **Search Strategy**: {plan.reasoning}\n")
 
-        # Add the context
         prompt_parts.append(f"\n{context_text}\n")
 
-        # Clearer instructions based on intent
         prompt_parts.append("\n---\n")
         prompt_parts.append("## Your Task\n")
         prompt_parts.append(

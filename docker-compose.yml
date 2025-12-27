@@ -51,7 +51,27 @@ services:
       retries: 5
     restart: unless-stopped
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: lattice-postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d:ro
+    environment:
+      - POSTGRES_DB=lattice
+      - POSTGRES_USER=lattice
+      - POSTGRES_PASSWORD=lattice
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lattice -d lattice"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
 volumes:
   memgraph_data:
   memgraph_log:
   qdrant_data:
+  postgres_data:

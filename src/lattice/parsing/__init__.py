@@ -1,5 +1,3 @@
-"""Code parsing module using Tree-sitter."""
-
 from lattice.parsing.call_resolution import CallProcessor
 from lattice.parsing.import_processor import ImportProcessor
 from lattice.parsing.inheritance_tracker import InheritanceTracker

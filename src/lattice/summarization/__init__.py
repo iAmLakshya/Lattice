@@ -1,5 +1,3 @@
-"""Summarization module for AI-generated code summaries."""
-
 from lattice.summarization.prompts import (
     CLASS_CODE_MAX_CHARS,
     FILE_CODE_MAX_CHARS,

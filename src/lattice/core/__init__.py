@@ -1,5 +1,3 @@
-"""Core abstractions and shared utilities for lattice."""
-
 from lattice.core.cache import (
     ASTCache,
     BoundedCache,

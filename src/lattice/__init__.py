@@ -1,5 +1,3 @@
-"""Lattice - A hybrid RAG system for code repositories."""
-
 __version__ = "0.1.0"
 
 from lattice.config import Settings, get_settings

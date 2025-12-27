@@ -1,5 +1,3 @@
-"""Project management for Lattice."""
-
 from lattice.projects.cleanup import ProjectCleanupService
 from lattice.projects.manager import ProjectManager
 from lattice.projects.models import Project, ProjectIndex

@@ -11,8 +11,9 @@ logger = logging.getLogger(__name__)
 STAGE_WEIGHT_SCANNING = 5
 STAGE_WEIGHT_PARSING = 15
 STAGE_WEIGHT_BUILDING_GRAPH = 20
-STAGE_WEIGHT_SUMMARIZING = 30
-STAGE_WEIGHT_EMBEDDING = 30
+STAGE_WEIGHT_SUMMARIZING = 25
+STAGE_WEIGHT_METADATA = 10
+STAGE_WEIGHT_EMBEDDING = 25
 
 
 @dataclass
@@ -73,6 +74,7 @@ class PipelineProgress:
             PipelineStage.PARSING: STAGE_WEIGHT_PARSING,
             PipelineStage.GRAPH_BUILDING: STAGE_WEIGHT_BUILDING_GRAPH,
             PipelineStage.SUMMARIZING: STAGE_WEIGHT_SUMMARIZING,
+            PipelineStage.METADATA: STAGE_WEIGHT_METADATA,
             PipelineStage.EMBEDDING: STAGE_WEIGHT_EMBEDDING,
         }
 
@@ -94,6 +96,7 @@ class PipelineProgress:
             PipelineStage.PARSING,
             PipelineStage.GRAPH_BUILDING,
             PipelineStage.SUMMARIZING,
+            PipelineStage.METADATA,
             PipelineStage.EMBEDDING,
             PipelineStage.COMPLETED,
             PipelineStage.FAILED,
@@ -104,8 +107,6 @@ class PipelineProgress:
 
 
 class ProgressTracker:
-    """Tracks and reports pipeline progress with thread-safety."""
-
     def __init__(self):
         self._progress = PipelineProgress()
         self._callbacks: list[Callable[[PipelineProgress], None]] = []

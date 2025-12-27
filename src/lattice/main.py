@@ -1,7 +1,19 @@
+# ruff: noqa: E402
+import os
+
+os.environ["GRPC_VERBOSITY"] = "ERROR"
+os.environ["GRPC_ENABLE_FORK_SUPPORT"] = "0"
+os.environ["GRPC_POLL_STRATEGY"] = "epoll1"
+
 import argparse
 import asyncio
+import logging
 import sys
 from pathlib import Path
+
+logging.getLogger("grpc").setLevel(logging.ERROR)
+logging.getLogger("grpc._cython").setLevel(logging.ERROR)
+logging.getLogger("grpc._plugin_wrapping").setLevel(logging.ERROR)
 
 
 def main():
@@ -12,8 +24,11 @@ def main():
 Examples:
   lattice index ./my-project              Index a repository
   lattice index ./my-project --force      Force re-index (regenerate summaries)
+  lattice index ./my-project --skip-metadata  Skip metadata generation
   lattice projects list                   List all indexed projects
   lattice projects delete my-project      Delete a project
+  lattice metadata show my-project        Show project metadata
+  lattice metadata regenerate my-project  Regenerate metadata
   lattice query "How does auth work?"     Query the codebase
   lattice search "password validation"    Search for code
   lattice status                          Show database statistics
@@ -30,6 +45,35 @@ Examples:
     index_parser.add_argument(
         "--force", "-f", action="store_true",
         help="Force re-index all files (bypass incremental check)"
+    )
+    index_parser.add_argument(
+        "--skip-metadata", action="store_true",
+        help="Skip AI metadata generation"
+    )
+
+    metadata_parser = subparsers.add_parser("metadata", help="Manage project metadata")
+    metadata_subparsers = metadata_parser.add_subparsers(dest="metadata_command")
+
+    metadata_show_parser = metadata_subparsers.add_parser("show", help="Show project metadata")
+    metadata_show_parser.add_argument("name", help="Project name")
+    metadata_show_parser.add_argument(
+        "--field", "-f",
+        choices=["overview", "features", "architecture", "tech", "deps", "entry", "folders"],
+        help="Show specific field only"
+    )
+    metadata_show_parser.add_argument(
+        "--json", action="store_true", help="Output as JSON"
+    )
+
+    metadata_regen_parser = metadata_subparsers.add_parser(
+        "regenerate", help="Regenerate project metadata"
+    )
+    metadata_regen_parser.add_argument("name", help="Project name")
+    metadata_regen_parser.add_argument(
+        "--field", "-f",
+        choices=["folder_structure", "tech_stack", "dependencies", "entry_points",
+                 "core_features", "project_overview", "architecture_diagram"],
+        help="Only regenerate specific field"
     )
 
     projects_parser = subparsers.add_parser("projects", help="Manage indexed projects")
@@ -70,7 +114,14 @@ Examples:
         parser.print_help()
         sys.exit(0)
     elif args.command == "index":
-        asyncio.run(run_index(args.path, args.name, args.force))
+        asyncio.run(run_index(args.path, args.name, args.force, args.skip_metadata))
+    elif args.command == "metadata":
+        if args.metadata_command == "show":
+            asyncio.run(run_metadata_show(args.name, args.field, args.json))
+        elif args.metadata_command == "regenerate":
+            asyncio.run(run_metadata_regenerate(args.name, args.field))
+        else:
+            metadata_parser.print_help()
     elif args.command == "projects":
         if args.projects_command == "list" or args.projects_command is None:
             asyncio.run(run_projects_list())
@@ -90,7 +141,9 @@ Examples:
         parser.print_help()
 
 
-async def run_index(path: str, name: str | None = None, force: bool = False):
+async def run_index(
+    path: str, name: str | None = None, force: bool = False, skip_metadata: bool = False
+):
     from rich.console import Console
     from rich.progress import (
         BarColumn,
@@ -140,7 +193,7 @@ async def run_index(path: str, name: str | None = None, force: bool = False):
                 stage_name = p.current_stage.value.replace("_", " ").title()
                 stage_progress = p.stages.get(p.current_stage)
                 if stage_progress and stage_progress.total > 0:
-                    detail = f"({stage_progress.completed}/{stage_progress.total})"
+                    detail = f"({stage_progress.current}/{stage_progress.total})"
                 else:
                     detail = ""
                 progress.update(task, description=f"{stage_name} {detail}")
@@ -150,6 +203,7 @@ async def run_index(path: str, name: str | None = None, force: bool = False):
             project_name=name,
             progress_callback=on_progress,
             force=force,
+            skip_metadata=skip_metadata,
         )
 
         try:
@@ -167,6 +221,238 @@ async def run_index(path: str, name: str | None = None, force: bool = False):
     console.print(f"  [cyan]Summaries:[/cyan]        {result['summaries']}")
     console.print(f"  [cyan]Chunks embedded:[/cyan]  {result['chunks_embedded']}")
     console.print(f"  [cyan]Time elapsed:[/cyan]     {result['elapsed_seconds']:.1f}s")
+
+
+async def run_metadata_show(name: str, field: str | None = None, as_json: bool = False):
+    """Show metadata for a project."""
+    import json as json_module
+
+    from rich.console import Console
+    from rich.panel import Panel
+    from rich.tree import Tree
+
+    from lattice.database.postgres import PostgresClient
+    from lattice.metadata.repository import MetadataRepository
+
+    console = Console()
+
+    try:
+        async with PostgresClient() as postgres:
+            repository = MetadataRepository(postgres)
+            metadata = await repository.get_by_project_name(name)
+    except Exception as e:
+        console.print(f"[red]Error connecting to PostgreSQL: {e}[/red]")
+        console.print("[yellow]Make sure Docker containers are running.[/yellow]")
+        sys.exit(1)
+
+    if not metadata:
+        console.print(f"[red]No metadata found for project '{name}'.[/red]")
+        console.print("[dim]Run 'lattice index <path>' to generate metadata.[/dim]")
+        sys.exit(1)
+
+    if as_json:
+        output = {
+            "project_name": metadata.project_name,
+            "version": metadata.version,
+            "status": metadata.status.value,
+            "generated_by": metadata.generated_by,
+            "generation_model": metadata.generation_model,
+            "generation_duration_ms": metadata.generation_duration_ms,
+            "created_at": metadata.created_at.isoformat() if metadata.created_at else None,
+            "updated_at": metadata.updated_at.isoformat() if metadata.updated_at else None,
+        }
+
+        if not field or field == "overview":
+            output["project_overview"] = metadata.project_overview
+        if not field or field == "features":
+            output["core_features"] = [f.model_dump() for f in metadata.core_features]
+        if not field or field == "architecture":
+            output["architecture_diagram"] = metadata.architecture_diagram
+        if not field or field == "tech":
+            output["tech_stack"] = metadata.tech_stack.model_dump() if metadata.tech_stack else None
+        if not field or field == "deps":
+            deps = metadata.dependencies.model_dump() if metadata.dependencies else None
+            output["dependencies"] = deps
+        if not field or field == "entry":
+            output["entry_points"] = [e.model_dump() for e in metadata.entry_points]
+        if not field or field == "folders":
+            folders = metadata.folder_structure.model_dump() if metadata.folder_structure else None
+            output["folder_structure"] = folders
+
+        console.print(json_module.dumps(output, indent=2))
+        return
+
+    duration = f"{metadata.generation_duration_ms}ms" if metadata.generation_duration_ms else "N/A"
+    console.print(Panel(
+        f"[cyan]Status:[/cyan] {metadata.status.value}\n"
+        f"[cyan]Version:[/cyan] {metadata.version}\n"
+        f"[cyan]Generated by:[/cyan] {metadata.generated_by}\n"
+        f"[cyan]Duration:[/cyan] {duration}",
+        title=f"Project: {metadata.project_name}",
+        border_style="cyan"
+    ))
+    console.print()
+
+    if not field or field == "overview":
+        if metadata.project_overview:
+            console.print(Panel(
+                metadata.project_overview, title="Project Overview", border_style="green"
+            ))
+            console.print()
+
+    if not field or field == "features":
+        if metadata.core_features:
+            console.print("[bold cyan]Core Features:[/bold cyan]")
+            for feature in metadata.core_features:
+                console.print(f"  [green]{feature.name}[/green]")
+                console.print(f"    {feature.description}")
+                if feature.key_files:
+                    console.print(f"    [dim]Files: {', '.join(feature.key_files[:3])}[/dim]")
+            console.print()
+
+    if not field or field == "architecture":
+        if metadata.architecture_diagram:
+            console.print(Panel(
+                metadata.architecture_diagram, title="Architecture", border_style="blue"
+            ))
+            console.print()
+
+    if not field or field == "tech":
+        if metadata.tech_stack:
+            console.print("[bold cyan]Tech Stack:[/bold cyan]")
+            if metadata.tech_stack.languages:
+                langs = ", ".join(
+                    f"{lang['name']} ({lang.get('usage_percentage', '?')}%)"
+                    for lang in metadata.tech_stack.languages
+                )
+                console.print(f"  [cyan]Languages:[/cyan] {langs}")
+            if metadata.tech_stack.frameworks:
+                fws = ", ".join(f['name'] for f in metadata.tech_stack.frameworks)
+                console.print(f"  [cyan]Frameworks:[/cyan] {fws}")
+            if metadata.tech_stack.tools:
+                console.print(f"  [cyan]Tools:[/cyan] {', '.join(metadata.tech_stack.tools)}")
+            if metadata.tech_stack.build_system:
+                console.print(f"  [cyan]Build System:[/cyan] {metadata.tech_stack.build_system}")
+            console.print()
+
+    if not field or field == "deps":
+        if metadata.dependencies:
+            total = metadata.dependencies.total_count
+            console.print(f"[bold cyan]Dependencies[/bold cyan] ({total} total):")
+            if metadata.dependencies.runtime:
+                rt_count = len(metadata.dependencies.runtime)
+                console.print(f"  [cyan]Runtime:[/cyan] {rt_count}")
+            if metadata.dependencies.development:
+                dev_count = len(metadata.dependencies.development)
+                console.print(f"  [cyan]Development:[/cyan] {dev_count}")
+            console.print()
+
+    if not field or field == "entry":
+        if metadata.entry_points:
+            console.print("[bold cyan]Entry Points:[/bold cyan]")
+            for ep in metadata.entry_points:
+                console.print(f"  [green]{ep.path}[/green] ({ep.type})")
+                console.print(f"    {ep.description}")
+            console.print()
+
+    if not field or field == "folders":
+        if metadata.folder_structure:
+            tree = Tree(f"[bold]{metadata.folder_structure.name}[/bold]")
+            _build_folder_tree(tree, metadata.folder_structure.children)
+            console.print(tree)
+
+
+def _build_folder_tree(tree, children: list) -> None:
+    """Recursively build a Rich tree from folder structure."""
+    for child in children:
+        if child.type == "directory":
+            subtree = tree.add(f"[blue]{child.name}/[/blue]")
+            if child.children:
+                _build_folder_tree(subtree, child.children)
+        else:
+            tree.add(f"[dim]{child.name}[/dim]")
+
+
+async def run_metadata_regenerate(name: str, field: str | None = None):
+    """Regenerate metadata for a project."""
+    from rich.console import Console
+    from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
+
+    from lattice.database.postgres import PostgresClient
+    from lattice.metadata.generator import GenerationProgress, MetadataGenerator
+    from lattice.metadata.repository import MetadataRepository
+    from lattice.projects.manager import ProjectManager
+
+    console = Console()
+
+    try:
+        async with ProjectManager() as manager:
+            project = await manager.get_project(name)
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        console.print("[yellow]Make sure Docker containers are running.[/yellow]")
+        sys.exit(1)
+
+    if not project or not project.index_paths:
+        console.print(f"[red]Project '{name}' not found in index.[/red]")
+        console.print("[dim]Run 'lattice index <path>' first.[/dim]")
+        sys.exit(1)
+
+    repo_path = Path(project.index_paths[0])
+    if not repo_path.exists():
+        console.print(f"[red]Project path no longer exists: {repo_path}[/red]")
+        sys.exit(1)
+
+    console.print(f"[bold blue]Regenerating metadata[/bold blue] for: [cyan]{name}[/cyan]")
+    if field:
+        console.print(f"[dim]Field: {field}[/dim]")
+    console.print()
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        TimeElapsedColumn(),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Generating...", total=7 if not field else 1)
+
+        def on_progress(p: GenerationProgress) -> None:
+            done = len(p.completed_fields) + len(p.failed_fields)
+            desc = f"Generating {p.current_field}..."
+            progress.update(task, completed=done, description=desc)
+
+        try:
+            generator = MetadataGenerator(
+                repo_path=repo_path,
+                project_name=name,
+                progress_callback=on_progress,
+            )
+
+            if field:
+                result = await generator.generate_field(field)
+                if result.status.value == "completed":
+                    console.print(f"[green]Generated {field} successfully[/green]")
+                else:
+                    console.print(f"[red]Failed to generate {field}: {result.error_message}[/red]")
+                    sys.exit(1)
+            else:
+                metadata = await generator.generate_all()
+
+                async with PostgresClient() as postgres:
+                    repository = MetadataRepository(postgres)
+                    from datetime import datetime
+                    metadata.indexed_at = datetime.now()
+                    await repository.upsert(metadata)
+
+                progress.update(task, completed=7, description="Complete")
+
+        except Exception as e:
+            console.print(f"\n[red]Error: {e}[/red]")
+            sys.exit(1)
+
+    console.print()
+    console.print("[green]Metadata regeneration complete![/green]")
+    console.print(f"[dim]Use 'lattice metadata show {name}' to view.[/dim]")
 
 
 async def run_projects_list():
@@ -408,7 +694,6 @@ async def run_status():
 
     console = Console()
 
-    # Get database stats
     try:
         async with QueryEngine() as engine:
             stats = await engine.get_statistics()

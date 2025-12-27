@@ -78,21 +78,6 @@ class FileChangeHandler:
 
 
 class FileWatcher:
-    """Watches a repository and incrementally updates graph on file changes.
-
-    Real-Time Graph Update Strategy (from reference repo insights):
-    1. Delete all old data from the graph for the changed file
-    2. Clear the specific in-memory state for the file
-    3. Re-parse the file if it was modified or created
-    4. Re-process all function calls across the entire codebase
-       (This fixes the "island" problem - changes reflect in all relations)
-    5. Flush all collected changes to the database
-
-    Note: The CALLS relationship recalculation is critical for accuracy
-    because when a file changes, other files' call references to it
-    may become valid or invalid.
-    """
-
     def __init__(
         self,
         repo_path: Path,
@@ -113,10 +98,8 @@ class FileWatcher:
         self._running = False
         self._update_queue: asyncio.Queue[tuple[str, Path]] = asyncio.Queue()
         self._update_task = None
-
-        # Track pending changes for batch processing
         self._pending_changes: set[Path] = set()
-        self._batch_delay = 1.0  # Seconds to wait before processing batch
+        self._batch_delay = 1.0
 
         self.files_updated = 0
         self.files_deleted = 0
@@ -223,15 +206,6 @@ class FileWatcher:
                 self.errors += 1
 
     async def _handle_file_changed(self, file_path: Path) -> None:
-        """Handle a file change event.
-
-        This follows the reference repo's update strategy:
-        1. Delete old entities for this file from the graph
-        2. Clear in-memory state (AST cache)
-        3. Re-parse the file
-        4. Rebuild graph entities
-        5. Optionally recalculate CALLS relationships across the codebase
-        """
         logger.info(f"Processing file change: {file_path}")
 
         try:
@@ -276,23 +250,18 @@ class FileWatcher:
             if parsed_file:
                 relative_path = str(file_path.relative_to(self.repo_path))
 
-                # Step 1: Delete old entities from graph
                 await self.graph_builder.delete_file_entities(relative_path)
 
-                # Step 2: Clear from AST cache
                 if file_path in self.ast_cache:
                     del self.ast_cache[file_path]
 
-                # Step 3 & 4: Rebuild graph with new parsed content
                 await self.graph_builder.build_from_parsed_file(parsed_file)
 
-                # Step 5: Update vector embeddings
                 await self.vector_indexer.index_file(
                     parsed_file,
                     project_name=self.repo_path.name,
                 )
 
-                # Cache the new AST for future call resolution
                 if hasattr(parsed_file, "_tree") and parsed_file._tree:
                     self.ast_cache[file_path] = (
                         parsed_file._tree.root_node,
@@ -302,9 +271,6 @@ class FileWatcher:
                 self.files_updated += 1
                 logger.info(f"Updated: {file_path}")
 
-                # Step 6: Recalculate CALLS relationships if enabled
-                # This is critical for accuracy - when a file changes,
-                # other files' call references to it may become valid or invalid
                 if self.recalculate_calls:
                     await self._recalculate_calls_for_file(file_path)
 
@@ -313,32 +279,16 @@ class FileWatcher:
             self.errors += 1
 
     async def _recalculate_calls_for_file(self, changed_file: Path) -> None:
-        """Recalculate CALLS relationships affected by a file change.
-
-        When a file changes (function renamed, added, or removed),
-        other files that call or are called by this file need their
-        CALLS relationships updated.
-
-        This prevents "island" problems where graph relationships
-        become stale.
-        """
         try:
             relative_path = str(changed_file.relative_to(self.repo_path))
 
-            # Delete existing CALLS relationships involving this file
             await self.graph_builder.delete_calls_for_file(relative_path)
-
-            # Rebuild CALLS relationships for this file
-            # The graph builder's build_from_parsed_file should have
-            # already registered the functions, so we just need to
-            # resolve the calls
             await self.graph_builder.rebuild_calls_for_file(relative_path)
 
             self.calls_recalculated += 1
             logger.debug(f"Recalculated CALLS for: {relative_path}")
 
         except AttributeError:
-            # Graph builder may not have these methods yet
             logger.debug("CALLS recalculation not supported by graph builder")
         except Exception as e:
             logger.warning(f"Failed to recalculate CALLS for {changed_file}: {e}")

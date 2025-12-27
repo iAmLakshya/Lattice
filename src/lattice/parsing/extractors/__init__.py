@@ -1,5 +1,3 @@
-"""Language-specific code extractors."""
-
 from lattice.parsing.extractors.base import BaseExtractor
 from lattice.parsing.extractors.javascript import JavaScriptExtractor
 from lattice.parsing.extractors.python import PythonExtractor

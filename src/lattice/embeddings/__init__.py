@@ -1,5 +1,3 @@
-"""Embeddings module for vector operations."""
-
 from lattice.embeddings.chunker import CodeChunk, CodeChunker
 from lattice.embeddings.client import CollectionName, QdrantManager
 from lattice.embeddings.embedder import OpenAIEmbedder

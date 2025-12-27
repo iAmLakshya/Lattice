@@ -59,3 +59,18 @@ class QueryError(CodeRAGError):
 
 class SummarizationError(CodeRAGError):
     pass
+
+
+class PostgresError(CodeRAGError):
+    pass
+
+
+class MetadataError(CodeRAGError):
+    def __init__(
+        self,
+        message: str,
+        field_name: str | None = None,
+        cause: Exception | None = None,
+    ):
+        super().__init__(message, cause)
+        self.field_name = field_name

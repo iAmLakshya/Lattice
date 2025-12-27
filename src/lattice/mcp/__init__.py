@@ -1,20 +1,3 @@
-"""Model Context Protocol (MCP) server for Claude Code integration.
-
-This module provides an MCP server that exposes Lattice functionality
-as tools for use with Claude Code and other MCP-compatible clients.
-
-Usage with Claude Code:
-    claude mcp add --transport stdio lattice \\
-      --env TARGET_REPO_PATH=/path/to/project \\
-      -- uv run lattice mcp-server
-
-Available Tools:
-    - index_repository: Index a codebase into the knowledge graph
-    - query_code_graph: Query the graph using natural language
-    - get_code_snippet: Retrieve code by qualified name
-    - semantic_search: Search code by intent/functionality
-"""
-
 from lattice.mcp.server import MCPServer
 from lattice.mcp.tools import (
     create_code_retrieval_tool,
