@@ -83,6 +83,65 @@ class GraphBuilder:
             {"path": path},
         )
 
+    async def delete_calls_for_file(self, path: str) -> None:
+        """Delete all CALLS relationships involving entities from a file.
+
+        This is called during real-time updates to prevent stale relationships.
+        When a file changes, its call relationships need to be recalculated.
+
+        Args:
+            path: File path.
+        """
+        delete_calls_query = """
+        MATCH (caller)-[r:CALLS]->(callee)
+        WHERE caller.file_path = $path OR callee.file_path = $path
+        DELETE r
+        """
+        try:
+            await self.client.execute(delete_calls_query, {"path": path})
+            logger.debug(f"Deleted CALLS relationships for file: {path}")
+        except Exception as e:
+            logger.warning(f"Failed to delete CALLS for {path}: {e}")
+
+    async def rebuild_calls_for_file(self, path: str) -> None:
+        """Rebuild CALLS relationships for entities in a file.
+
+        This queries the graph for all functions/methods in the file
+        and recreates their CALLS relationships based on the stored
+        call information.
+
+        Args:
+            path: File path.
+        """
+        # Query for all functions and methods in this file with their calls
+        get_callers_query = """
+        MATCH (f:File {path: $path})-[:DEFINES]->(fn)
+        WHERE fn:Function OR fn:Method
+        RETURN fn.qualified_name AS caller_name,
+               fn.calls AS calls_list,
+               labels(fn) AS labels
+        """
+
+        try:
+            results = await self.client.execute(get_callers_query, {"path": path})
+
+            for row in results:
+                caller_name = row.get("caller_name")
+                calls_list = row.get("calls_list") or []
+
+                if caller_name and calls_list:
+                    # Recreate CALLS relationships
+                    for call in calls_list:
+                        await self.client.execute(
+                            RelationshipQueries.CREATE_FUNCTION_CALLS,
+                            {"caller_name": caller_name, "callee_name": call},
+                        )
+
+            logger.debug(f"Rebuilt CALLS relationships for file: {path}")
+
+        except Exception as e:
+            logger.warning(f"Failed to rebuild CALLS for {path}: {e}")
+
     async def build_from_parsed_file(self, parsed_file: ParsedFile) -> None:
         """Build graph nodes and relationships from a parsed file.
 

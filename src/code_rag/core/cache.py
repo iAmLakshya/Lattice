@@ -115,11 +115,21 @@ class ASTCache(BoundedCache[Path, tuple[Any, str]]):
 
 
 class FunctionRegistry:
-    """Registry for tracking function/class definitions with trie-based lookups."""
+    """Registry for tracking function/class definitions with trie-based lookups.
 
-    def __init__(self):
+    Provides O(1) lookups by qualified name, O(1) lookups by simple name suffix,
+    and O(k) prefix-based lookups where k is the number of results.
+
+    The registry maintains three data structures:
+    - _entries: Direct QN -> entity_type mapping for O(1) exact lookups
+    - _simple_name_index: Simple name -> set of QNs for O(1) suffix lookups
+    - _trie: Hierarchical trie for O(k) prefix queries
+    """
+
+    def __init__(self, simple_name_lookup: dict[str, set[str]] | None = None):
         self._entries: dict[str, str] = {}
-        self._simple_name_index: dict[str, set[str]] = {}
+        # Use provided lookup or create new one (allows sharing between components)
+        self._simple_name_index: dict[str, set[str]] = simple_name_lookup or {}
         self._trie: dict[str, Any] = {}
 
     def register(self, qualified_name: str, entity_type: str) -> None:
@@ -184,9 +194,31 @@ class FunctionRegistry:
         return len(self._entries)
 
     def find_by_simple_name(self, simple_name: str) -> list[str]:
+        """Find all qualified names ending with the given simple name. O(1) lookup."""
         return list(self._simple_name_index.get(simple_name, []))
 
+    def find_ending_with(self, suffix: str) -> list[str]:
+        """Find all qualified names ending with .suffix. O(1) lookup via index.
+
+        This uses the simple_name_index for O(1) lookup when the suffix
+        matches a simple name. Falls back to linear scan for dotted suffixes.
+
+        Args:
+            suffix: The suffix to match (without leading dot)
+
+        Returns:
+            List of qualified names ending with the suffix
+        """
+        # O(1) lookup via the simple name index
+        if suffix in self._simple_name_index:
+            return list(self._simple_name_index[suffix])
+
+        # Fallback to linear scan for dotted suffixes
+        suffix_with_dot = f".{suffix}"
+        return [qn for qn in self._entries if qn.endswith(suffix_with_dot)]
+
     def find_with_prefix(self, prefix: str) -> list[tuple[str, str]]:
+        """Find all entries with qualified names starting with prefix. O(k) where k=results."""
         results = []
         prefix_parts = prefix.split(".")
 
@@ -206,11 +238,55 @@ class FunctionRegistry:
         collect_entries(current)
         return results
 
+    def find_with_prefix_and_suffix(
+        self, prefix: str, suffix: str
+    ) -> list[str]:
+        """Find qualified names matching both prefix and suffix pattern.
+
+        Efficiently combines prefix navigation with suffix filtering.
+
+        Args:
+            prefix: The prefix to match (e.g., "myapp.models")
+            suffix: The suffix to match (e.g., "save")
+
+        Returns:
+            List of qualified names matching both patterns
+        """
+        prefix_matches = self.find_with_prefix(prefix)
+        suffix_pattern = f".{suffix}"
+        return [qn for qn, _ in prefix_matches if qn.endswith(suffix_pattern)]
+
     def remove_by_prefix(self, prefix: str) -> int:
+        """Remove all entries with qualified names starting with prefix."""
         entries_to_remove = [qn for qn, _ in self.find_with_prefix(prefix)]
         for qn in entries_to_remove:
             self.unregister(qn)
         return len(entries_to_remove)
 
     def all_entries(self) -> dict[str, str]:
+        """Return a copy of all entries."""
         return dict(self._entries)
+
+    def keys(self):
+        """Return view of all qualified names."""
+        return self._entries.keys()
+
+    def items(self):
+        """Return view of all (qualified_name, entity_type) pairs."""
+        return self._entries.items()
+
+    def __iter__(self):
+        """Iterate over qualified names."""
+        return iter(self._entries)
+
+    def __getitem__(self, qualified_name: str) -> str:
+        """Get entity type by qualified name. Raises KeyError if not found."""
+        return self._entries[qualified_name]
+
+    def __setitem__(self, qualified_name: str, entity_type: str) -> None:
+        """Register an entry using dict-like syntax."""
+        self.register(qualified_name, entity_type)
+
+    def __delitem__(self, qualified_name: str) -> None:
+        """Unregister an entry using dict-like syntax."""
+        self.unregister(qualified_name)

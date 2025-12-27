@@ -1,3 +1,5 @@
+"""Type inference engine for resolving variable and method types."""
+
 from __future__ import annotations
 
 import logging
@@ -38,7 +40,6 @@ class TypeInferenceEngine:
         self.ast_cache = ast_cache or ASTCache()
         self.module_qn_to_file_path = module_qn_to_file_path or {}
         self.simple_name_lookup = simple_name_lookup or {}
-
         self._method_return_type_cache: dict[str, str | None] = {}
         self._type_inference_in_progress: set[str] = set()
 
@@ -49,17 +50,173 @@ class TypeInferenceEngine:
         language: str,
     ) -> dict[str, str]:
         local_var_types: dict[str, str] = {}
-
-        if language != "python":
-            return local_var_types
-
         try:
-            self._infer_parameter_types(caller_node, local_var_types, module_qn)
-            self._traverse_single_pass(caller_node, local_var_types, module_qn)
+            if language == "python":
+                self._infer_parameter_types(caller_node, local_var_types, module_qn)
+                self._traverse_single_pass(caller_node, local_var_types, module_qn)
+            elif language in ("javascript", "typescript", "jsx", "tsx"):
+                self._infer_js_ts_types(caller_node, local_var_types, module_qn, language)
         except Exception as e:
             logger.debug(f"Failed to build local variable type map: {e}")
-
         return local_var_types
+
+    def _infer_js_ts_types(
+        self,
+        caller_node: Node,
+        local_var_types: dict[str, str],
+        module_qn: str,
+        language: str,
+    ) -> None:
+        self._infer_js_parameter_types(caller_node, local_var_types, module_qn, language)
+
+        declarations = []
+        assignments = []
+        stack = [caller_node]
+
+        while stack:
+            node = stack.pop()
+            node_type = node.type
+            if node_type in ("variable_declarator", "lexical_declaration", "variable_declaration"):
+                declarations.append(node)
+            if node_type == "assignment_expression":
+                assignments.append(node)
+            stack.extend(reversed(node.children))
+
+        for decl in declarations:
+            self._process_js_declaration(decl, local_var_types, module_qn, language)
+        for assign in assignments:
+            self._process_js_assignment(assign, local_var_types, module_qn)
+
+    def _infer_js_parameter_types(
+        self,
+        caller_node: Node,
+        local_var_types: dict[str, str],
+        module_qn: str,
+        language: str,
+    ) -> None:
+        for child in caller_node.children:
+            if child.type == "formal_parameters":
+                for param in child.children:
+                    self._process_js_param(param, local_var_types, module_qn, language)
+
+    def _process_js_param(
+        self,
+        param: Node,
+        local_var_types: dict[str, str],
+        module_qn: str,
+        language: str,
+    ) -> None:
+        if param.type == "identifier":
+            param_name = safe_decode_text(param)
+            if param_name:
+                inferred_type = self._infer_type_from_parameter_name(param_name, module_qn)
+                if inferred_type:
+                    local_var_types[param_name] = inferred_type
+
+        elif param.type in ("required_parameter", "optional_parameter"):
+            name_node = param.child_by_field_name("pattern")
+            type_node = param.child_by_field_name("type")
+            if name_node and type_node:
+                param_name = safe_decode_text(name_node)
+                param_type = safe_decode_text(type_node)
+                if param_name and param_type:
+                    local_var_types[param_name] = self._clean_ts_type(param_type)
+
+        elif param.type == "assignment_pattern":
+            left = param.child_by_field_name("left")
+            right = param.child_by_field_name("right")
+            if left:
+                param_name = safe_decode_text(left)
+                if param_name and right:
+                    inferred_type = self._infer_type_from_expression_simple(right, module_qn)
+                    if inferred_type:
+                        local_var_types[param_name] = inferred_type
+
+    def _process_js_declaration(
+        self,
+        decl: Node,
+        local_var_types: dict[str, str],
+        module_qn: str,
+        language: str,
+    ) -> None:
+        if decl.type == "variable_declarator":
+            name_node = decl.child_by_field_name("name")
+            value_node = decl.child_by_field_name("value")
+            type_node = decl.child_by_field_name("type")
+
+            if name_node:
+                var_name = safe_decode_text(name_node)
+                if not var_name:
+                    return
+                if type_node:
+                    type_str = safe_decode_text(type_node)
+                    if type_str:
+                        local_var_types[var_name] = self._clean_ts_type(type_str)
+                        return
+                if value_node:
+                    inferred_type = self._infer_js_expression_type(value_node, module_qn)
+                    if inferred_type:
+                        local_var_types[var_name] = inferred_type
+
+        elif decl.type in ("lexical_declaration", "variable_declaration"):
+            for child in decl.children:
+                if child.type == "variable_declarator":
+                    self._process_js_declaration(child, local_var_types, module_qn, language)
+
+    def _process_js_assignment(
+        self,
+        assign: Node,
+        local_var_types: dict[str, str],
+        module_qn: str,
+    ) -> None:
+        left = assign.child_by_field_name("left")
+        right = assign.child_by_field_name("right")
+        if left and right and left.type == "identifier":
+            var_name = safe_decode_text(left)
+            if var_name and var_name not in local_var_types:
+                inferred_type = self._infer_js_expression_type(right, module_qn)
+                if inferred_type:
+                    local_var_types[var_name] = inferred_type
+
+    def _infer_js_expression_type(self, node: Node, module_qn: str) -> str | None:
+        node_type = node.type
+
+        if node_type == "new_expression":
+            constructor = node.child_by_field_name("constructor")
+            if constructor:
+                return safe_decode_text(constructor)
+
+        if node_type == "call_expression":
+            func_node = node.child_by_field_name("function")
+            if func_node and func_node.type == "identifier":
+                func_name = safe_decode_text(func_node)
+                if func_name and func_name[0].isupper():
+                    return func_name
+
+        if node_type == "array":
+            return "Array"
+        if node_type == "object":
+            return "Object"
+        if node_type in ("string", "template_string"):
+            return "String"
+        if node_type == "number":
+            return "Number"
+        if node_type in ("true", "false"):
+            return "Boolean"
+
+        return None
+
+    def _clean_ts_type(self, type_str: str) -> str:
+        type_str = type_str.strip()
+        if "<" in type_str:
+            type_str = type_str.split("<")[0]
+        if type_str.endswith("[]"):
+            type_str = type_str[:-2]
+        if "|" in type_str:
+            type_str = type_str.split("|")[0].strip()
+        if "&" in type_str:
+            type_str = type_str.split("&")[0].strip()
+        return type_str
 
     def _infer_parameter_types(
         self,
@@ -75,9 +232,7 @@ class TypeInferenceEngine:
             if param.type == "identifier":
                 param_name = safe_decode_text(param)
                 if param_name and param_name not in ("self", "cls"):
-                    inferred_type = self._infer_type_from_parameter_name(
-                        param_name, module_qn
-                    )
+                    inferred_type = self._infer_type_from_parameter_name(param_name, module_qn)
                     if inferred_type:
                         local_var_types[param_name] = inferred_type
             elif param.type == "typed_parameter":
@@ -89,11 +244,7 @@ class TypeInferenceEngine:
                     if param_name and param_type:
                         local_var_types[param_name] = param_type
 
-    def _infer_type_from_parameter_name(
-        self,
-        param_name: str,
-        module_qn: str,
-    ) -> str | None:
+    def _infer_type_from_parameter_name(self, param_name: str, module_qn: str) -> str | None:
         available_class_names = []
 
         for qn, entity_type in self.function_registry.all_entries().items():
@@ -114,7 +265,6 @@ class TypeInferenceEngine:
         for class_name in available_class_names:
             class_lower = class_name.lower()
             score = 0
-
             if param_lower == class_lower:
                 score = 100
             elif class_lower.endswith(param_lower) or param_lower.endswith(class_lower):
@@ -134,7 +284,6 @@ class TypeInferenceEngine:
         local_var_types: dict[str, str],
         module_qn: str,
     ) -> None:
-        """Single-pass AST traversal combining multiple inference operations."""
         assignments: list[Node] = []
         comprehensions: list[Node] = []
         for_statements: list[Node] = []
@@ -143,28 +292,22 @@ class TypeInferenceEngine:
         while stack:
             current = stack.pop()
             node_type = current.type
-
             if node_type == "assignment":
                 assignments.append(current)
             elif node_type == "list_comprehension":
                 comprehensions.append(current)
             elif node_type == "for_statement":
                 for_statements.append(current)
-
             stack.extend(reversed(current.children))
 
         for assignment in assignments:
             self._process_assignment_simple(assignment, local_var_types, module_qn)
-
         for assignment in assignments:
             self._process_assignment_complex(assignment, local_var_types, module_qn)
-
         for comp in comprehensions:
             self._analyze_comprehension(comp, local_var_types, module_qn)
-
         for for_stmt in for_statements:
             self._analyze_for_loop(for_stmt, local_var_types, module_qn)
-
         self._infer_instance_variable_types_from_assignments(
             assignments, local_var_types, module_qn
         )
@@ -177,7 +320,6 @@ class TypeInferenceEngine:
     ) -> None:
         left_node = assignment_node.child_by_field_name("left")
         right_node = assignment_node.child_by_field_name("right")
-
         if not left_node or not right_node:
             return
 
@@ -197,7 +339,6 @@ class TypeInferenceEngine:
     ) -> None:
         left_node = assignment_node.child_by_field_name("left")
         right_node = assignment_node.child_by_field_name("right")
-
         if not left_node or not right_node:
             return
 
@@ -211,23 +352,17 @@ class TypeInferenceEngine:
         if inferred_type:
             local_var_types[var_name] = inferred_type
 
-    def _infer_type_from_expression_simple(
-        self,
-        node: Node,
-        module_qn: str,
-    ) -> str | None:
+    def _infer_type_from_expression_simple(self, node: Node, module_qn: str) -> str | None:
         if node.type == "call":
             func_node = node.child_by_field_name("function")
             if func_node and func_node.type == "identifier":
                 class_name = safe_decode_text(func_node)
                 if class_name and class_name[0].isupper():
                     return class_name
-
         elif node.type == "list_comprehension":
             body_node = node.child_by_field_name("body")
             if body_node:
                 return self._infer_type_from_expression_simple(body_node, module_qn)
-
         return None
 
     def _infer_type_from_expression_complex(
@@ -244,7 +379,6 @@ class TypeInferenceEngine:
                     return self._infer_method_call_return_type(
                         method_call_text, module_qn, local_var_types
                     )
-
         return None
 
     def _analyze_comprehension(
@@ -270,11 +404,8 @@ class TypeInferenceEngine:
     ) -> None:
         left_node = for_node.child_by_field_name("left")
         right_node = for_node.child_by_field_name("right")
-
         if left_node and right_node:
-            self._infer_loop_var_from_iterable(
-                left_node, right_node, local_var_types, module_qn
-            )
+            self._infer_loop_var_from_iterable(left_node, right_node, local_var_types, module_qn)
 
     def _infer_loop_var_from_iterable(
         self,
@@ -286,10 +417,7 @@ class TypeInferenceEngine:
         loop_var = self._extract_variable_name(left_node)
         if not loop_var:
             return
-
-        element_type = self._infer_iterable_element_type(
-            right_node, local_var_types, module_qn
-        )
+        element_type = self._infer_iterable_element_type(right_node, local_var_types, module_qn)
         if element_type:
             local_var_types[loop_var] = element_type
 
@@ -307,14 +435,12 @@ class TypeInferenceEngine:
                         class_name = safe_decode_text(func_node)
                         if class_name and class_name[0].isupper():
                             return class_name
-
         elif iterable_node.type == "identifier":
             var_name = safe_decode_text(iterable_node)
             if var_name and var_name in local_var_types:
                 var_type = local_var_types[var_name]
                 if var_type and var_type != "list":
                     return var_type
-
         return None
 
     def _infer_instance_variable_types_from_assignments(
@@ -326,13 +452,10 @@ class TypeInferenceEngine:
         for assignment in assignments:
             left_node = assignment.child_by_field_name("left")
             right_node = assignment.child_by_field_name("right")
-
             if left_node and right_node and left_node.type == "attribute":
                 left_text = safe_decode_text(left_node)
                 if left_text and left_text.startswith("self."):
-                    assigned_type = self._infer_type_from_expression_simple(
-                        right_node, module_qn
-                    )
+                    assigned_type = self._infer_type_from_expression_simple(right_node, module_qn)
                     if assigned_type:
                         local_var_types[left_text] = assigned_type
 
@@ -343,7 +466,6 @@ class TypeInferenceEngine:
         local_var_types: dict[str, str] | None = None,
     ) -> str | None:
         cache_key = f"{module_qn}:{method_call}"
-
         if cache_key in self._type_inference_in_progress:
             logger.debug(f"Recursion guard: skipping {method_call}")
             return None
@@ -351,13 +473,8 @@ class TypeInferenceEngine:
         self._type_inference_in_progress.add(cache_key)
         try:
             if "." in method_call and self._is_method_chain(method_call):
-                return self._infer_chained_call_return_type(
-                    method_call, module_qn, local_var_types
-                )
-
-            return self._infer_simple_method_return_type(
-                method_call, module_qn, local_var_types
-            )
+                return self._infer_chained_call_return_type(method_call, module_qn, local_var_types)
+            return self._infer_simple_method_return_type(method_call, module_qn, local_var_types)
         finally:
             self._type_inference_in_progress.discard(cache_key)
 
@@ -378,7 +495,6 @@ class TypeInferenceEngine:
 
         final_method = match.group(1)
         object_expr = call_name[:match.start()]
-
         object_type = self._infer_object_type_for_chained_call(
             object_expr, module_qn, local_var_types
         )
@@ -386,7 +502,6 @@ class TypeInferenceEngine:
         if object_type:
             method_qn = f"{object_type}.{final_method}"
             return self._get_method_return_type_from_registry(method_qn)
-
         return None
 
     def _infer_object_type_for_chained_call(
@@ -397,12 +512,8 @@ class TypeInferenceEngine:
     ) -> str | None:
         if "(" not in object_expr and local_var_types and object_expr in local_var_types:
             return local_var_types[object_expr]
-
         if "(" in object_expr and ")" in object_expr:
-            return self._infer_method_call_return_type(
-                object_expr, module_qn, local_var_types
-            )
-
+            return self._infer_method_call_return_type(object_expr, module_qn, local_var_types)
         return None
 
     def _infer_simple_method_return_type(
@@ -430,13 +541,11 @@ class TypeInferenceEngine:
         if resolved_class:
             method_qn = f"{resolved_class}.{method_name}"
             return self._get_method_return_type_from_registry(method_qn)
-
         return None
 
     def _get_method_return_type_from_registry(self, method_qn: str) -> str | None:
         if method_qn in self._method_return_type_cache:
             return self._method_return_type_cache[method_qn]
-
         self._method_return_type_cache[method_qn] = None
         return None
 
@@ -444,16 +553,13 @@ class TypeInferenceEngine:
         local_qn = f"{module_qn}.{class_name}"
         if local_qn in self.function_registry:
             return local_qn
-
         if module_qn in self.import_mapping:
             if class_name in self.import_mapping[module_qn]:
                 return self.import_mapping[module_qn][class_name]
-
         if class_name in self.simple_name_lookup:
             matches = self.simple_name_lookup[class_name]
             if len(matches) == 1:
                 return next(iter(matches))
-
         return None
 
     def _extract_variable_name(self, node: Node) -> str | None:
