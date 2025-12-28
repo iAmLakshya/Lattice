@@ -30,6 +30,7 @@ class GraphBuilder:
         client: MemgraphClient,
         call_processor: CallProcessor | None = None,
         project_name: str | None = None,
+        project_id: str | None = None,
     ):
         """Initialize graph builder.
 
@@ -37,10 +38,12 @@ class GraphBuilder:
             client: Memgraph client instance.
             call_processor: Optional processor for enhanced call resolution.
             project_name: Project name for qualified name resolution.
+            project_id: Project ID for entity tagging. Defaults to project_name.
         """
         self.client = client
         self.call_processor = call_processor
         self.project_name = project_name
+        self.project_id = project_id if project_id is not None else project_name
         self._current_file_path: str | None = None
         self._current_module_qn: str | None = None
 
@@ -222,6 +225,7 @@ class GraphBuilder:
             "start_line": entity.start_line,
             "end_line": entity.end_line,
             "file_path": file_path,
+            "project_id": self.project_id,
         }
 
     async def _create_defines_relationship(

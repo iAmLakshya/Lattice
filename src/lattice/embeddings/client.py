@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 class CollectionName(str, Enum):
     CODE_CHUNKS = "code_chunks"
     SUMMARIES = "summaries"
+    DOCUMENT_CHUNKS = "document_chunks"
 
 
 class QdrantManager:
@@ -87,6 +88,21 @@ class QdrantManager:
                     ["file_path", "entity_type"],
                 )
                 logger.info(f"Created collection: {CollectionName.SUMMARIES.value}")
+
+            if CollectionName.DOCUMENT_CHUNKS.value not in existing:
+                await self._create_collection_with_indexes(
+                    CollectionName.DOCUMENT_CHUNKS.value,
+                    [
+                        "project_name",
+                        "document_path",
+                        "document_type",
+                        "heading_level",
+                        "drift_status",
+                        "chunk_id",
+                        "content_hash",
+                    ],
+                )
+                logger.info(f"Created collection: {CollectionName.DOCUMENT_CHUNKS.value}")
         except Exception as e:
             raise VectorStoreError("Failed to create collections", cause=e)
 
@@ -210,7 +226,11 @@ class QdrantManager:
             )
 
     async def clear_collections(self) -> None:
-        for collection in [CollectionName.CODE_CHUNKS, CollectionName.SUMMARIES]:
+        for collection in [
+            CollectionName.CODE_CHUNKS,
+            CollectionName.SUMMARIES,
+            CollectionName.DOCUMENT_CHUNKS,
+        ]:
             try:
                 await self.client.delete_collection(collection.value)
                 logger.info(f"Deleted collection: {collection.value}")

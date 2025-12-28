@@ -108,6 +108,45 @@ Examples:
 
     subparsers.add_parser("settings", help="Show current configuration")
 
+    docs_parser = subparsers.add_parser("docs", help="Manage documentation")
+    docs_subparsers = docs_parser.add_subparsers(dest="docs_command")
+
+    docs_index_parser = docs_subparsers.add_parser("index", help="Index documentation")
+    docs_index_parser.add_argument("path", help="Path to documentation directory or file")
+    docs_index_parser.add_argument(
+        "--project", "-p", required=True, help="Project name to link to"
+    )
+    docs_index_parser.add_argument(
+        "--type", "-t", default="markdown", help="Document type (default: markdown)"
+    )
+    docs_index_parser.add_argument(
+        "--force", "-f", action="store_true", help="Force re-index all"
+    )
+
+    docs_drift_parser = docs_subparsers.add_parser("drift", help="Check for drift")
+    docs_drift_parser.add_argument("--project", "-p", required=True, help="Project name")
+    docs_drift_parser.add_argument("--document", "-d", help="Check specific document")
+    docs_drift_parser.add_argument(
+        "--entity", "-e", help="Check documentation for specific entity"
+    )
+
+    docs_list_parser = docs_subparsers.add_parser("list", help="List indexed documents")
+    docs_list_parser.add_argument("--project", "-p", required=True, help="Project name")
+    docs_list_parser.add_argument(
+        "--drifted", action="store_true", help="Show only drifted"
+    )
+    docs_list_parser.add_argument("--json", action="store_true", help="Output as JSON")
+
+    docs_links_parser = docs_subparsers.add_parser("links", help="Show document-code links")
+    docs_links_parser.add_argument("--document", "-d", help="Document path")
+    docs_links_parser.add_argument("--entity", "-e", help="Entity qualified name")
+    docs_links_parser.add_argument("--project", "-p", help="Project name")
+
+    docs_show_parser = docs_subparsers.add_parser("show", help="Show document details")
+    docs_show_parser.add_argument("path", help="Document path")
+    docs_show_parser.add_argument("--project", "-p", required=True)
+    docs_show_parser.add_argument("--chunks", action="store_true", help="Show chunks")
+
     args = parser.parse_args()
 
     if args.command is None:
@@ -137,6 +176,19 @@ Examples:
         asyncio.run(run_status())
     elif args.command == "settings":
         run_settings()
+    elif args.command == "docs":
+        if args.docs_command == "index":
+            asyncio.run(run_docs_index(args.path, args.project, args.type, args.force))
+        elif args.docs_command == "drift":
+            asyncio.run(run_docs_drift(args.project, args.document, args.entity))
+        elif args.docs_command == "list":
+            asyncio.run(run_docs_list(args.project, args.drifted, args.json))
+        elif args.docs_command == "links":
+            asyncio.run(run_docs_links(args.document, args.entity, args.project))
+        elif args.docs_command == "show":
+            asyncio.run(run_docs_show(args.path, args.project, args.chunks))
+        else:
+            docs_parser.print_help()
     else:
         parser.print_help()
 
@@ -791,6 +843,383 @@ def run_settings():
             border_style="dim",
         )
     )
+
+
+async def run_docs_index(
+    path: str, project: str, doc_type: str = "markdown", force: bool = False
+):
+    from rich.console import Console
+    from rich.progress import (
+        BarColumn,
+        Progress,
+        SpinnerColumn,
+        TaskProgressColumn,
+        TextColumn,
+        TimeElapsedColumn,
+    )
+
+    from lattice.database.postgres import PostgresClient
+    from lattice.documents.service import DocumentService, IndexingProgress
+    from lattice.embeddings.client import QdrantManager
+    from lattice.embeddings.embedder import Embedder
+    from lattice.graph.client import MemgraphClient
+
+    console = Console()
+    path_obj = Path(path).resolve()
+
+    if not path_obj.exists():
+        console.print(f"[red]Error: Path does not exist: {path_obj}[/red]")
+        sys.exit(1)
+
+    console.print(f"[bold blue]Indexing documentation[/bold blue]: [cyan]{path_obj}[/cyan]")
+    console.print(f"[dim]Project: {project}, Type: {doc_type}[/dim]")
+    console.print()
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        TimeElapsedColumn(),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Starting...", total=100)
+
+        def on_progress(p: IndexingProgress):
+            pct = int((p.current / max(p.total, 1)) * 100)
+            progress.update(task, completed=pct, description=p.message)
+
+        try:
+            async with PostgresClient() as postgres:
+                async with QdrantManager() as qdrant:
+                    async with MemgraphClient() as memgraph:
+                        await qdrant.create_collections()
+                        embedder = Embedder()
+                        service = DocumentService(postgres, qdrant, embedder, memgraph)
+
+                        result = await service.index_documents(
+                            path=path_obj,
+                            project_name=project,
+                            document_type=doc_type,
+                            force=force,
+                            progress_callback=on_progress,
+                        )
+
+            progress.update(task, completed=100, description="Complete")
+        except Exception as e:
+            console.print(f"\n[red]Error: {e}[/red]")
+            sys.exit(1)
+
+    console.print()
+    console.print("[green]Documentation indexing complete![/green]")
+    console.print(f"  [cyan]Documents indexed:[/cyan]  {result.documents_indexed}")
+    console.print(f"  [cyan]Chunks created:[/cyan]     {result.chunks_created}")
+    console.print(f"  [cyan]Links established:[/cyan]  {result.links_established}")
+    console.print(f"  [cyan]Time elapsed:[/cyan]       {result.elapsed_seconds:.1f}s")
+
+
+async def run_docs_drift(
+    project: str, document: str | None = None, entity: str | None = None
+):
+    from rich.console import Console
+    from rich.progress import (
+        BarColumn,
+        Progress,
+        SpinnerColumn,
+        TaskProgressColumn,
+        TextColumn,
+        TimeElapsedColumn,
+    )
+    from rich.table import Table
+
+    from lattice.database.postgres import PostgresClient
+    from lattice.documents.service import DocumentService, IndexingProgress
+    from lattice.embeddings.client import QdrantManager
+    from lattice.embeddings.embedder import Embedder
+    from lattice.graph.client import MemgraphClient
+
+    console = Console()
+    console.print(f"[bold blue]Checking drift[/bold blue] for project: [cyan]{project}[/cyan]")
+    if document:
+        console.print(f"[dim]Document: {document}[/dim]")
+    if entity:
+        console.print(f"[dim]Entity: {entity}[/dim]")
+    console.print()
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        TimeElapsedColumn(),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Starting drift analysis...", total=100)
+
+        def on_progress(p: IndexingProgress):
+            pct = int((p.current / max(p.total, 1)) * 100)
+            progress.update(task, completed=pct, description=p.message)
+
+        try:
+            async with PostgresClient() as postgres:
+                async with QdrantManager() as qdrant:
+                    async with MemgraphClient() as memgraph:
+                        embedder = Embedder()
+                        service = DocumentService(postgres, qdrant, embedder, memgraph)
+
+                        analyses = await service.check_drift(
+                            project_name=project,
+                            document_path=document,
+                            entity_name=entity,
+                            progress_callback=on_progress,
+                        )
+
+            progress.update(task, completed=100, description="Complete")
+
+        except Exception as e:
+            console.print(f"\n[red]Error: {e}[/red]")
+            sys.exit(1)
+
+    console.print()
+
+    if not analyses:
+        console.print("[yellow]No drift analyses performed.[/yellow]")
+        console.print("[dim]Make sure documents are indexed and linked first.[/dim]")
+        return
+
+    aligned = sum(1 for a in analyses if a.drift_severity.value == "aligned")
+    minor = sum(1 for a in analyses if a.drift_severity.value == "minor_drift")
+    major = sum(1 for a in analyses if a.drift_severity.value == "major_drift")
+
+    console.print(f"[green]Drift analysis complete![/green]")
+    console.print(f"  [cyan]Total analyzed:[/cyan]  {len(analyses)}")
+    console.print(f"  [green]Aligned:[/green]        {aligned}")
+    console.print(f"  [yellow]Minor drift:[/yellow]    {minor}")
+    console.print(f"  [red]Major drift:[/red]      {major}")
+    console.print()
+
+    table = Table(title="Drift Analysis Results")
+    table.add_column("Document", style="cyan")
+    table.add_column("Entity", style="green")
+    table.add_column("Status", style="magenta")
+    table.add_column("Score", justify="right")
+    table.add_column("Summary", style="dim", max_width=50)
+
+    for analysis in analyses:
+        status_style = {
+            "aligned": "green",
+            "minor_drift": "yellow",
+            "major_drift": "red",
+            "unknown": "dim",
+        }.get(analysis.drift_severity.value, "dim")
+
+        table.add_row(
+            analysis.document_path[:40] if analysis.document_path else "",
+            analysis.linked_entity_qualified_name[:30],
+            f"[{status_style}]{analysis.drift_severity.value}[/{status_style}]",
+            f"{analysis.drift_score:.2f}",
+            analysis.explanation[:60] if analysis.explanation else "",
+        )
+
+    console.print(table)
+
+
+async def run_docs_list(project: str, drifted: bool = False, as_json: bool = False):
+    import json as json_module
+
+    from rich.console import Console
+    from rich.table import Table
+
+    from lattice.database.postgres import PostgresClient
+    from lattice.documents.service import DocumentService
+    from lattice.embeddings.client import QdrantManager
+    from lattice.embeddings.embedder import Embedder
+
+    console = Console()
+
+    try:
+        async with PostgresClient() as postgres:
+            async with QdrantManager() as qdrant:
+                embedder = Embedder()
+                service = DocumentService(postgres, qdrant, embedder)
+
+                if drifted:
+                    documents = await service.list_drifted_documents(project)
+                else:
+                    documents = await service.list_documents(project)
+
+        if as_json:
+            output = [
+                {
+                    "file_path": doc.file_path,
+                    "title": doc.title,
+                    "document_type": doc.document_type,
+                    "chunk_count": doc.chunk_count,
+                    "link_count": doc.link_count,
+                    "drift_status": doc.drift_status.value,
+                    "drift_score": doc.drift_score,
+                }
+                for doc in documents
+            ]
+            console.print(json_module.dumps(output, indent=2))
+            return
+
+        if not documents:
+            console.print(f"[yellow]No documents found for project '{project}'.[/yellow]")
+            console.print("[dim]Use 'lattice docs index <path>' to index documentation.[/dim]")
+            return
+
+        title = f"Documents ({project})" + (" - Drifted Only" if drifted else "")
+        table = Table(title=title)
+        table.add_column("Title", style="cyan")
+        table.add_column("Path", style="dim")
+        table.add_column("Type", style="magenta")
+        table.add_column("Chunks", justify="right")
+        table.add_column("Links", justify="right")
+        table.add_column("Drift", style="yellow")
+
+        for doc in documents:
+            drift_display = doc.drift_status.value
+            if doc.drift_score:
+                drift_display += f" ({doc.drift_score:.2f})"
+
+            table.add_row(
+                doc.title or "(no title)",
+                doc.relative_path[:40],
+                doc.document_type,
+                str(doc.chunk_count),
+                str(doc.link_count),
+                drift_display,
+            )
+
+        console.print(table)
+
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        sys.exit(1)
+
+
+async def run_docs_links(
+    document: str | None = None, entity: str | None = None, project: str | None = None
+):
+    from rich.console import Console
+    from rich.table import Table
+
+    from lattice.database.postgres import PostgresClient
+    from lattice.documents.service import DocumentService
+    from lattice.embeddings.client import QdrantManager
+    from lattice.embeddings.embedder import Embedder
+
+    console = Console()
+
+    if not document and not entity:
+        console.print("[red]Error: Must specify --document or --entity[/red]")
+        sys.exit(1)
+
+    try:
+        async with PostgresClient() as postgres:
+            async with QdrantManager() as qdrant:
+                embedder = Embedder()
+                service = DocumentService(postgres, qdrant, embedder)
+
+                links = await service.get_document_links(
+                    document_path=document,
+                    entity_name=entity,
+                )
+
+        if not links:
+            console.print("[yellow]No links found.[/yellow]")
+            return
+
+        table = Table(title="Document-Code Links")
+        table.add_column("Entity", style="cyan")
+        table.add_column("Type", style="magenta")
+        table.add_column("File", style="dim")
+        table.add_column("Link Type", style="green")
+        table.add_column("Confidence", justify="right")
+        table.add_column("Reasoning", style="dim")
+
+        for link in links:
+            table.add_row(
+                link.code_entity_qualified_name[:40],
+                link.code_entity_type,
+                link.code_file_path[:30] if link.code_file_path else "",
+                link.link_type.value,
+                f"{link.confidence_score:.2f}",
+                link.reasoning[:40] if link.reasoning else "",
+            )
+
+        console.print(table)
+
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        sys.exit(1)
+
+
+async def run_docs_show(path: str, project: str, show_chunks: bool = False):
+    from rich.console import Console
+    from rich.panel import Panel
+    from rich.table import Table
+
+    from lattice.database.postgres import PostgresClient
+    from lattice.documents.repository import DocumentChunkRepository, DocumentRepository
+
+    console = Console()
+    path_obj = Path(path).resolve()
+
+    try:
+        async with PostgresClient() as postgres:
+            doc_repo = DocumentRepository(postgres)
+            chunk_repo = DocumentChunkRepository(postgres)
+
+            doc = await doc_repo.get_by_path(project, str(path_obj))
+
+            if not doc:
+                console.print(f"[red]Document not found: {path}[/red]")
+                sys.exit(1)
+
+            info = (
+                f"[cyan]Title:[/cyan] {doc.title or '(no title)'}\n"
+                f"[cyan]Type:[/cyan] {doc.document_type}\n"
+                f"[cyan]Path:[/cyan] {doc.relative_path}\n"
+                f"[cyan]Chunks:[/cyan] {doc.chunk_count}\n"
+                f"[cyan]Links:[/cyan] {doc.link_count}\n"
+                f"[cyan]Drift Status:[/cyan] {doc.drift_status.value}"
+            )
+            if doc.drift_score:
+                info += f" (score: {doc.drift_score:.2f})"
+
+            console.print(Panel(info, title=f"Document: {doc.relative_path}", border_style="cyan"))
+
+            if show_chunks:
+                chunks = await chunk_repo.get_by_document(doc.id)
+
+                if chunks:
+                    console.print()
+                    table = Table(title="Chunks")
+                    table.add_column("Heading", style="cyan")
+                    table.add_column("Lines", style="dim")
+                    table.add_column("Level", justify="right")
+                    table.add_column("Drift", style="yellow")
+                    table.add_column("Preview", style="dim")
+
+                    for chunk in chunks:
+                        heading = " > ".join(chunk.heading_path) if chunk.heading_path else "(root)"
+                        preview = chunk.content[:60].replace("\n", " ")
+
+                        table.add_row(
+                            heading[:40],
+                            f"{chunk.start_line}-{chunk.end_line}",
+                            str(chunk.heading_level),
+                            chunk.drift_status.value,
+                            preview,
+                        )
+
+                    console.print(table)
+
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

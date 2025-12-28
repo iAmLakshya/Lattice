@@ -63,6 +63,7 @@ class BatchGraphBuilder:
         client: MemgraphClient,
         call_processor: CallProcessor | None = None,
         project_name: str | None = None,
+        project_id: str | None = None,
         batch_size: int = 1000,
     ):
         """Initialize batch graph builder.
@@ -71,11 +72,13 @@ class BatchGraphBuilder:
             client: Memgraph client instance.
             call_processor: Optional processor for enhanced call resolution.
             project_name: Project name for qualified name resolution.
+            project_id: Project ID for entity tagging. Defaults to project_name.
             batch_size: Number of items to buffer before auto-flush.
         """
         self.client = client
         self.call_processor = call_processor
         self.project_name = project_name
+        self.project_id = project_id if project_id is not None else project_name
         self.batch_size = batch_size
 
         self._entity_buffer = EntityBuffer()
@@ -176,6 +179,7 @@ class BatchGraphBuilder:
             "start_line": entity.start_line,
             "end_line": entity.end_line,
             "file_path": file_path,
+            "project_id": self.project_id,
         }
 
     async def _add_class(self, entity: CodeEntity, file_path: str) -> None:
