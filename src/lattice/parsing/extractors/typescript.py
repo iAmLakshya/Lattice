@@ -1,6 +1,6 @@
-from lattice.shared.types import EntityType
 from lattice.parsing.extractors.javascript import JavaScriptExtractor
 from lattice.parsing.models import CodeEntity, ImportInfo
+from lattice.shared.types import EntityType
 
 
 class TypeScriptExtractor(JavaScriptExtractor):

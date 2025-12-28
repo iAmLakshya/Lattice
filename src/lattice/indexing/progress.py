@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from threading import Lock
 
-from lattice.shared.config.loader import PipelineConfig
+from lattice.shared.config import PipelineConfig
 from lattice.shared.types import PipelineStage
 
 logger = logging.getLogger(__name__)

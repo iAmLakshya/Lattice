@@ -1,6 +1,6 @@
 import asyncio
 
-from lattice.infrastructure.memgraph.client import MemgraphClient
+from lattice.infrastructure.memgraph import MemgraphClient
 from lattice.querying.graph_reasoning.graph_queries import (
     find_class_with_methods,
     find_file_context,
@@ -10,8 +10,8 @@ from lattice.querying.graph_reasoning.traversal import (
     find_call_chain,
     find_full_hierarchy,
     find_implementation_context,
-    find_transitive_callers,
     find_transitive_callees,
+    find_transitive_callers,
 )
 from lattice.querying.query_planner import QueryPlan
 
@@ -100,7 +100,9 @@ async def gather_hierarchy_context(
             context.callers.extend(callers)
 
     resolved_names = {e.name.lower() for e in context.primary_entities}
-    resolved_names.update(e.qualified_name.lower() for e in context.primary_entities if e.qualified_name)
+    resolved_names.update(
+        e.qualified_name.lower() for e in context.primary_entities if e.qualified_name
+    )
 
     for plan_entity in plan.entities:
         if plan_entity.name.lower() not in resolved_names:

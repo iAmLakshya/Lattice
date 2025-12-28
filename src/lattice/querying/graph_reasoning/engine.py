@@ -1,12 +1,11 @@
 import logging
 from typing import Any
 
-from lattice.shared.exceptions import QueryError
-from lattice.infrastructure.memgraph.client import MemgraphClient
+from lattice.infrastructure.memgraph import MemgraphClient
 from lattice.querying.graph_reasoning.context_builder import (
-    gather_caller_context,
-    gather_callee_context,
     gather_call_chain_context,
+    gather_callee_context,
+    gather_caller_context,
     gather_comprehensive_context,
     gather_dependency_context,
     gather_hierarchy_context,
@@ -19,20 +18,23 @@ from lattice.querying.graph_reasoning.graph_queries import (
     get_entity_centrality,
 )
 from lattice.querying.graph_reasoning.models import (
+    MAX_PATH_LENGTH,
     MAX_RESULTS_PER_QUERY,
     GraphContext,
     GraphNode,
     GraphPath,
 )
+from lattice.shared.config import QueryConfig
 from lattice.querying.graph_reasoning.node_utils import dict_to_node, result_to_node
 from lattice.querying.graph_reasoning.traversal import (
     find_call_chain,
     find_full_hierarchy,
     find_implementation_context,
-    find_transitive_callers,
     find_transitive_callees,
+    find_transitive_callers,
 )
 from lattice.querying.query_planner import QueryIntent, QueryPlan
+from lattice.shared.exceptions import QueryError
 
 logger = logging.getLogger(__name__)
 
@@ -79,13 +81,19 @@ class GraphReasoningEngine:
             elif plan.primary_intent == QueryIntent.FIND_CALL_CHAIN:
                 await gather_call_chain_context(self.client, context, plan)
 
-            elif plan.primary_intent in (QueryIntent.FIND_HIERARCHY, QueryIntent.FIND_IMPLEMENTATIONS):
+            elif plan.primary_intent in (
+                QueryIntent.FIND_HIERARCHY,
+                QueryIntent.FIND_IMPLEMENTATIONS,
+            ):
                 await gather_hierarchy_context(self.client, context, plan)
 
             elif plan.primary_intent == QueryIntent.EXPLAIN_IMPLEMENTATION:
                 await gather_implementation_context(self.client, context, plan)
 
-            elif plan.primary_intent in (QueryIntent.FIND_DEPENDENCIES, QueryIntent.FIND_DEPENDENTS):
+            elif plan.primary_intent in (
+                QueryIntent.FIND_DEPENDENCIES,
+                QueryIntent.FIND_DEPENDENTS,
+            ):
                 await gather_dependency_context(self.client, context, plan)
 
             else:
@@ -105,7 +113,7 @@ class GraphReasoningEngine:
     async def find_transitive_callers(
         self,
         entity_name: str,
-        max_hops: int = 3,
+        max_hops: int = QueryConfig.fallback_max_hops,
         limit: int = MAX_RESULTS_PER_QUERY,
     ) -> list[GraphNode]:
         return await find_transitive_callers(self.client, entity_name, max_hops, limit)
@@ -113,7 +121,7 @@ class GraphReasoningEngine:
     async def find_transitive_callees(
         self,
         entity_name: str,
-        max_hops: int = 3,
+        max_hops: int = QueryConfig.fallback_max_hops,
         limit: int = MAX_RESULTS_PER_QUERY,
     ) -> list[GraphNode]:
         return await find_transitive_callees(self.client, entity_name, max_hops, limit)
@@ -122,7 +130,7 @@ class GraphReasoningEngine:
         self,
         source_name: str,
         target_name: str,
-        max_hops: int = 5,
+        max_hops: int = MAX_PATH_LENGTH,
     ) -> list[GraphPath]:
         return await find_call_chain(self.client, source_name, target_name, max_hops)
 

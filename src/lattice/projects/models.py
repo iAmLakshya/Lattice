@@ -117,9 +117,7 @@ class Project:
         return {
             "name": self.name,
             "created_at": self.created_at.isoformat(),
-            "last_indexed_at": (
-                self.last_indexed_at.isoformat() if self.last_indexed_at else None
-            ),
+            "last_indexed_at": (self.last_indexed_at.isoformat() if self.last_indexed_at else None),
             "indexes": [idx.to_dict() for idx in self.indexes],
         }
 
@@ -133,9 +131,7 @@ class Project:
         if last_indexed_at and isinstance(last_indexed_at, str):
             last_indexed_at = datetime.fromisoformat(last_indexed_at)
 
-        indexes = tuple(
-            ProjectIndex.from_dict(idx) for idx in data.get("indexes", [])
-        )
+        indexes = tuple(ProjectIndex.from_dict(idx) for idx in data.get("indexes", []))
 
         return cls(
             name=data["name"],

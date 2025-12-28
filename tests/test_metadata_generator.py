@@ -14,6 +14,7 @@ from lattice.metadata.models import (
     EntryPoint,
     CoreFeature,
 )
+from lattice.metadata.parsers import extract_json, parse_field_response, strip_code_blocks
 
 
 class TestGenerationProgress:
@@ -71,14 +72,7 @@ class TestMetadataGenerator:
 class TestJsonExtraction:
     """Tests for JSON extraction from agent responses."""
 
-    @pytest.fixture
-    def generator(self, tmp_path):
-        return MetadataGenerator(
-            repo_path=tmp_path,
-            project_name="test",
-        )
-
-    def test_extract_json_from_code_block(self, generator):
+    def test_extract_json_from_code_block(self):
         content = '''
 Here is the analysis:
 
@@ -88,32 +82,31 @@ Here is the analysis:
 
 That's the structure.
 '''
-        result = generator._extract_json(content)
+        result = extract_json(content)
         assert result is not None
         parsed = json.loads(result)
         assert parsed["name"] == "test"
 
-    def test_extract_json_without_code_block(self, generator):
+    def test_extract_json_without_code_block(self):
         content = '''
 The structure is: {"name": "root", "children": []}
 '''
-        result = generator._extract_json(content)
+        result = extract_json(content)
         assert result is not None
         parsed = json.loads(result)
         assert parsed["name"] == "root"
 
-    def test_extract_json_array(self, generator):
-        # Array should come before any object for proper extraction
+    def test_extract_json_array(self):
         content = '''
 Features:
 [{"name": "Auth"}, {"name": "Search"}]
 '''
-        result = generator._extract_json(content)
+        result = extract_json(content)
         assert result is not None
         parsed = json.loads(result)
         assert len(parsed) == 2
 
-    def test_extract_nested_json(self, generator):
+    def test_extract_nested_json(self):
         content = '''
 ```json
 {
@@ -124,28 +117,21 @@ Features:
 }
 ```
 '''
-        result = generator._extract_json(content)
+        result = extract_json(content)
         assert result is not None
         parsed = json.loads(result)
         assert "languages" in parsed
 
-    def test_extract_json_no_json(self, generator):
+    def test_extract_json_no_json(self):
         content = "This is plain text without JSON"
-        result = generator._extract_json(content)
+        result = extract_json(content)
         assert result is None
 
 
 class TestParseFieldResponse:
     """Tests for parsing field responses into models."""
 
-    @pytest.fixture
-    def generator(self, tmp_path):
-        return MetadataGenerator(
-            repo_path=tmp_path,
-            project_name="test",
-        )
-
-    def test_parse_folder_structure(self, generator):
+    def test_parse_folder_structure(self):
         content = '''
 ```json
 {
@@ -158,12 +144,12 @@ class TestParseFieldResponse:
 }
 ```
 '''
-        result = generator._parse_field_response("folder_structure", content)
+        result = parse_field_response("folder_structure", content)
         assert isinstance(result, FolderNode)
         assert result.name == "project"
         assert len(result.children) == 2
 
-    def test_parse_tech_stack(self, generator):
+    def test_parse_tech_stack(self):
         content = '''
 ```json
 {
@@ -175,12 +161,12 @@ class TestParseFieldResponse:
 }
 ```
 '''
-        result = generator._parse_field_response("tech_stack", content)
+        result = parse_field_response("tech_stack", content)
         assert isinstance(result, TechStack)
         assert len(result.languages) == 1
         assert result.build_system == "hatch"
 
-    def test_parse_dependencies(self, generator):
+    def test_parse_dependencies(self):
         content = '''
 ```json
 {
@@ -191,11 +177,11 @@ class TestParseFieldResponse:
 }
 ```
 '''
-        result = generator._parse_field_response("dependencies", content)
+        result = parse_field_response("dependencies", content)
         assert isinstance(result, DependencyInfo)
         assert result.total_count == 2
 
-    def test_parse_entry_points(self, generator):
+    def test_parse_entry_points(self):
         content = '''
 ```json
 [
@@ -204,12 +190,12 @@ class TestParseFieldResponse:
 ]
 ```
 '''
-        result = generator._parse_field_response("entry_points", content)
+        result = parse_field_response("entry_points", content)
         assert isinstance(result, list)
         assert len(result) == 2
         assert all(isinstance(ep, EntryPoint) for ep in result)
 
-    def test_parse_core_features(self, generator):
+    def test_parse_core_features(self):
         content = '''
 ```json
 [
@@ -222,13 +208,13 @@ class TestParseFieldResponse:
 ]
 ```
 '''
-        result = generator._parse_field_response("core_features", content)
+        result = parse_field_response("core_features", content)
         assert isinstance(result, list)
         assert len(result) == 1
         assert isinstance(result[0], CoreFeature)
         assert result[0].name == "Graph Search"
 
-    def test_parse_project_overview(self, generator):
+    def test_parse_project_overview(self):
         content = '''
 This is a code intelligence tool.
 
@@ -236,11 +222,11 @@ It uses graph and vector search.
 
 The main components are parsers and indexers.
 '''
-        result = generator._parse_field_response("project_overview", content)
+        result = parse_field_response("project_overview", content)
         assert isinstance(result, str)
         assert "code intelligence" in result
 
-    def test_parse_architecture_diagram(self, generator):
+    def test_parse_architecture_diagram(self):
         content = '''
 ```
 +--------+     +--------+
@@ -248,37 +234,30 @@ The main components are parsers and indexers.
 +--------+     +--------+
 ```
 '''
-        result = generator._parse_field_response("architecture_diagram", content)
+        result = parse_field_response("architecture_diagram", content)
         assert isinstance(result, str)
         assert "+--------+" in result
 
-    def test_parse_invalid_json_raises(self, generator):
+    def test_parse_invalid_json_raises(self):
         content = "not valid json at all"
         with pytest.raises(ValueError, match="No JSON found"):
-            generator._parse_field_response("tech_stack", content)
+            parse_field_response("tech_stack", content)
 
 
 class TestStripCodeBlocks:
     """Tests for stripping markdown code blocks."""
 
-    @pytest.fixture
-    def generator(self, tmp_path):
-        return MetadataGenerator(
-            repo_path=tmp_path,
-            project_name="test",
-        )
-
-    def test_strip_json_block(self, generator):
+    def test_strip_json_block(self):
         content = "```json\n{\"key\": \"value\"}\n```"
-        result = generator._strip_code_blocks(content)
+        result = strip_code_blocks(content)
         assert result == '{"key": "value"}'
 
-    def test_strip_plain_block(self, generator):
+    def test_strip_plain_block(self):
         content = "```\nsome text\n```"
-        result = generator._strip_code_blocks(content)
+        result = strip_code_blocks(content)
         assert result == "some text"
 
-    def test_no_blocks(self, generator):
+    def test_no_blocks(self):
         content = "just plain text"
-        result = generator._strip_code_blocks(content)
+        result = strip_code_blocks(content)
         assert result == "just plain text"

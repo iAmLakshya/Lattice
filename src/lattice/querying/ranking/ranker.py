@@ -1,18 +1,18 @@
 import logging
 from typing import Any
 
-from lattice.shared.types import ResultSource
 from lattice.querying.graph_reasoning import GraphContext, GraphNode
 from lattice.querying.query_planner import QueryIntent, QueryPlan
 from lattice.querying.ranking.models import RankedResult, RankingConfig
 from lattice.querying.ranking.scorer import ResultScorer
+from lattice.shared.types import ResultSource
 
 logger = logging.getLogger(__name__)
 
 
 class HybridRanker:
-    def __init__(self, config: RankingConfig | None = None):
-        self.config = config or RankingConfig()
+    def __init__(self, config: RankingConfig):
+        self.config = config
         self.scorer = ResultScorer(self.config)
 
     def rank_results(
@@ -22,7 +22,9 @@ class HybridRanker:
         vector_results: list[dict[str, Any]],
         centrality_scores: dict[str, dict[str, int]] | None = None,
     ) -> list[RankedResult]:
-        logger.debug(f"Ranking results: graph={len(self._count_graph_entities(graph_context))}, vector={len(vector_results)}")
+        logger.debug(
+            f"Ranking results: graph={len(self._count_graph_entities(graph_context))}, vector={len(vector_results)}"
+        )
 
         weights = self._get_adjusted_weights(plan.primary_intent)
 

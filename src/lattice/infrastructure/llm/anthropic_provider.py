@@ -11,8 +11,8 @@ Setup:
 import logging
 from typing import TYPE_CHECKING
 
-from lattice.shared.exceptions import SummarizationError
 from lattice.infrastructure.llm.base import BaseLLMProvider, ProviderConfig
+from lattice.shared.exceptions import SummarizationError
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,7 @@ def _get_anthropic_client(api_key: str | None) -> "AsyncAnthropic":
     """
     try:
         from anthropic import AsyncAnthropic
+
         return AsyncAnthropic(api_key=api_key)
     except ImportError:
         raise ImportError(
@@ -91,10 +92,12 @@ class AnthropicLLMProvider(BaseLLMProvider):
                 if msg["role"] == "system":
                     system_message = msg["content"]
                 else:
-                    anthropic_messages.append({
-                        "role": msg["role"],
-                        "content": msg["content"],
-                    })
+                    anthropic_messages.append(
+                        {
+                            "role": msg["role"],
+                            "content": msg["content"],
+                        }
+                    )
 
             response = await self._client.messages.create(
                 model=self.config.model,

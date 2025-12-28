@@ -9,13 +9,16 @@ from lattice.parsing.models import (
     ImportInfo,
     ParsedFile,
 )
-from lattice.parsing.parser import CodeParser
+from lattice.parsing.parser import CodeParser, create_code_parser, create_default_extractors
 from lattice.parsing.scanner import FileScanner
+from lattice.parsing.type_inference.engine import TypeInferenceEngine
 
 __all__ = [
     "CallProcessor",
     "CodeEntity",
     "CodeParser",
+    "create_code_parser",
+    "create_default_extractors",
     "EntityType",
     "FileInfo",
     "FileScanner",
@@ -24,4 +27,5 @@ __all__ = [
     "ImportProcessor",
     "InheritanceTracker",
     "ParsedFile",
+    "TypeInferenceEngine",
 ]

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
 
-from lattice.shared.config.loader import RerankerConfig
+from lattice.shared.config import RerankerConfig
 from lattice.shared.types import ResultSource
 
 

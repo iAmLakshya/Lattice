@@ -4,9 +4,8 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from lattice.documents.models import DocumentChunk
-from lattice.infrastructure.qdrant import CollectionName, QdrantManager
-from lattice.infrastructure.qdrant.embedder import embed_with_progress
 from lattice.infrastructure.llm import BaseEmbeddingProvider
+from lattice.infrastructure.qdrant import CollectionName, QdrantManager, embed_with_progress
 
 logger = logging.getLogger(__name__)
 
@@ -51,9 +50,7 @@ class DocumentIndexer:
         )
 
         ids = [str(uuid.uuid4()) for _ in chunks]
-        payloads = [
-            chunk.to_qdrant_payload(document_path, document_type) for chunk in chunks
-        ]
+        payloads = [chunk.to_qdrant_payload(document_path, document_type) for chunk in chunks]
 
         await self.qdrant.upsert(
             collection=CollectionName.DOCUMENT_CHUNKS.value,
@@ -72,9 +69,7 @@ class DocumentIndexer:
         )
         logger.debug(f"Deleted chunks for document: {document_path}")
 
-    async def document_needs_update(
-        self, document_path: str, content_hash: str
-    ) -> bool:
+    async def document_needs_update(self, document_path: str, content_hash: str) -> bool:
         return await self.qdrant.file_needs_update(
             CollectionName.DOCUMENT_CHUNKS.value,
             document_path,

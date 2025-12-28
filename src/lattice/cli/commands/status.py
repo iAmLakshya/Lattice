@@ -4,9 +4,9 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from lattice.shared.config import get_settings
-from lattice.projects.api import ProjectManager
+from lattice.projects.api import create_project_manager
 from lattice.querying.api import create_query_engine
+from lattice.shared.config import get_settings
 
 
 async def run_status() -> None:
@@ -33,11 +33,14 @@ async def run_status() -> None:
     console.print()
 
     try:
-        async with ProjectManager() as manager:
+        manager = await create_project_manager()
+        try:
             projects = await manager.list_projects()
             console.print(f"[cyan]Total projects:[/cyan] {len(projects)}")
             if projects:
                 console.print("[dim]Use 'lattice projects list' for details.[/dim]")
+        finally:
+            await manager.close()
     except Exception:
         pass
 

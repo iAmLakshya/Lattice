@@ -8,9 +8,9 @@ from lattice.documents.models import (
     DriftAnalysis,
     DriftStatus,
 )
-from lattice.prompts import get_prompt
 from lattice.infrastructure.llm import get_llm_provider
-from lattice.shared.config.loader import DriftDetectorConfig
+from lattice.prompts import get_prompt
+from lattice.shared.config import DriftDetectorConfig
 
 logger = logging.getLogger(__name__)
 
@@ -35,14 +35,15 @@ class DriftDetector:
             heading_display = " > ".join(heading_path) if heading_path else "Document"
 
             prompt = get_prompt(
-                "documents", "drift_analysis",
+                "documents",
+                "drift_analysis",
                 heading_path=heading_display,
-                doc_content=doc_chunk.content[:DriftDetectorConfig.doc_content_max],
+                doc_content=doc_chunk.content[: DriftDetectorConfig.doc_content_max],
                 entity_name=entity_qualified_name,
                 entity_type=entity_type,
                 file_path=file_path,
                 language=language,
-                code_content=code_content[:DriftDetectorConfig.code_content_max],
+                code_content=code_content[: DriftDetectorConfig.code_content_max],
             )
 
             response = await self._llm.complete(
@@ -80,8 +81,8 @@ class DriftDetector:
                 drift_score=drift_score,
                 issues=result.get("issues", []),
                 explanation=result.get("summary", ""),
-                doc_excerpt=doc_chunk.content[:DriftDetectorConfig.excerpt_length],
-                code_excerpt=code_content[:DriftDetectorConfig.excerpt_length],
+                doc_excerpt=doc_chunk.content[: DriftDetectorConfig.excerpt_length],
+                code_excerpt=code_content[: DriftDetectorConfig.excerpt_length],
                 doc_version_hash=doc_chunk.content_hash,
                 code_version_hash=code_hash,
                 analyzed_at=datetime.now(),
@@ -102,9 +103,7 @@ class DriftDetector:
             return json.loads(json_str)
         except json.JSONDecodeError:
             logger.warning("Failed to parse drift analysis response as JSON")
-            drift_detected = (
-                "drift_detected" in response.lower() and "true" in response.lower()
-            )
+            drift_detected = "drift_detected" in response.lower() and "true" in response.lower()
             return {
                 "drift_detected": drift_detected,
                 "drift_severity": "unknown",

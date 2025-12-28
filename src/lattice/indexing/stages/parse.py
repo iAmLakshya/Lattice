@@ -3,10 +3,10 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from lattice.shared.types import PipelineStage as PipelineStageEnum
 from lattice.indexing.context import PipelineContext
-from lattice.parsing.api import CallProcessor, ParsedFile
-from lattice.parsing.type_inference.engine import TypeInferenceEngine
+from lattice.parsing.api import CallProcessor, ParsedFile, TypeInferenceEngine
+from lattice.shared.cache import ASTCache
+from lattice.shared.types import PipelineStage as PipelineStageEnum
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +77,9 @@ class ParseStage:
             type_inference = TypeInferenceEngine(
                 function_registry=ctx.function_registry,
                 import_mapping=ctx.import_processor.import_mapping,
+                ast_cache=getattr(ctx.parser, "_ast_cache", None) or ASTCache(),
+                module_qn_to_file_path={},
+                simple_name_lookup={},
             )
             ctx.call_processor = CallProcessor(
                 function_registry=ctx.function_registry,

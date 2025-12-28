@@ -9,7 +9,7 @@ from lattice.indexing.orchestrator import PipelineOrchestrator
 from lattice.indexing.progress import ProgressTracker
 from lattice.shared.types import PipelineStage
 from lattice.parsing.scanner import FileScanner
-from lattice.parsing.parser import CodeParser
+from lattice.parsing.parser import create_code_parser
 
 
 def create_mock_orchestrator(
@@ -26,7 +26,7 @@ def create_mock_orchestrator(
         skip_metadata=skip_metadata,
         memgraph_client=MagicMock(),
         qdrant_client=MagicMock(),
-        parser=CodeParser(),
+        parser=create_code_parser(),
         embedder=MagicMock(),
         summarizer=MagicMock(),
         max_workers=4,
@@ -129,7 +129,7 @@ class TestPipelineScanAndParse:
     async def test_parse_files(self, sample_project_path: Path):
         """Test file parsing stage."""
         scanner = FileScanner(sample_project_path)
-        parser = CodeParser()
+        parser = create_code_parser()
 
         files = scanner.scan_all()
         parsed_files = []

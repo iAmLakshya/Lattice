@@ -4,15 +4,18 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from lattice.projects.api import ProjectManager
+from lattice.projects.api import create_project_manager
 
 
 async def run_projects_list() -> None:
     console = Console()
 
     try:
-        async with ProjectManager() as manager:
+        manager = await create_project_manager()
+        try:
             projects = await manager.list_projects()
+        finally:
+            await manager.close()
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         console.print("[yellow]Make sure Docker containers are running.[/yellow]")
@@ -50,8 +53,11 @@ async def run_projects_show(name: str) -> None:
     console = Console()
 
     try:
-        async with ProjectManager() as manager:
+        manager = await create_project_manager()
+        try:
             stats = await manager.get_project_stats(name)
+        finally:
+            await manager.close()
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         console.print("[yellow]Make sure Docker containers are running.[/yellow]")
@@ -63,9 +69,7 @@ async def run_projects_show(name: str) -> None:
 
     created = stats["created_at"].strftime("%Y-%m-%d %H:%M") if stats["created_at"] else "N/A"
     last_indexed = (
-        stats["last_indexed_at"].strftime("%Y-%m-%d %H:%M")
-        if stats["last_indexed_at"]
-        else "N/A"
+        stats["last_indexed_at"].strftime("%Y-%m-%d %H:%M") if stats["last_indexed_at"] else "N/A"
     )
 
     info = (
@@ -105,8 +109,11 @@ async def run_projects_delete(name: str, skip_confirm: bool = False) -> None:
             return
 
     try:
-        async with ProjectManager() as manager:
+        manager = await create_project_manager()
+        try:
             deleted = await manager.delete_project(name)
+        finally:
+            await manager.close()
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         sys.exit(1)

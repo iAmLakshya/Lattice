@@ -6,6 +6,8 @@ from lattice.infrastructure.qdrant.api import (
     VectorIndexer,
     VectorSearcher,
     create_embedder,
+    create_qdrant_manager,
+    qdrant_models,
 )
 from lattice.infrastructure.qdrant.chunker import CodeChunk, chunk_file, count_tokens
 from lattice.infrastructure.qdrant.embedder import embed_with_progress
@@ -22,5 +24,7 @@ __all__ = [
     "chunk_file",
     "count_tokens",
     "create_embedder",
+    "create_qdrant_manager",
     "embed_with_progress",
+    "qdrant_models",
 ]

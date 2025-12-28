@@ -3,9 +3,8 @@ from functools import lru_cache
 
 import tiktoken
 
-from lattice.shared.config import get_settings
-from lattice.shared.config.loader import ChunkingConfig
 from lattice.parsing.api import CodeEntity, ParsedFile
+from lattice.shared.config import ChunkingConfig, get_settings
 
 
 @dataclass
@@ -63,8 +62,7 @@ def chunk_file(
 
     for entity in parsed_file.all_entities:
         entity_chunks = _chunk_entity(
-            entity, file_path, language, content_hash, project_name,
-            max_tokens, overlap_tokens
+            entity, file_path, language, content_hash, project_name, max_tokens, overlap_tokens
         )
         chunks.extend(entity_chunks)
 

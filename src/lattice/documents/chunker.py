@@ -6,8 +6,16 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
 )
 
-from lattice.shared.config import get_settings
 from lattice.documents.models import DocumentChunk
+from lattice.shared.config import get_settings
+
+
+def create_document_chunker() -> "DocumentChunker":
+    settings = get_settings()
+    return DocumentChunker(
+        max_tokens=settings.chunk_max_tokens,
+        overlap_tokens=settings.chunk_overlap_tokens,
+    )
 
 
 class DocumentChunker:
@@ -22,12 +30,11 @@ class DocumentChunker:
 
     def __init__(
         self,
-        max_tokens: int | None = None,
-        overlap_tokens: int | None = None,
+        max_tokens: int,
+        overlap_tokens: int,
     ):
-        settings = get_settings()
-        self.max_tokens = max_tokens or settings.chunk_max_tokens
-        self.overlap_tokens = overlap_tokens or settings.chunk_overlap_tokens
+        self.max_tokens = max_tokens
+        self.overlap_tokens = overlap_tokens
 
         self._header_splitter = MarkdownHeaderTextSplitter(
             headers_to_split_on=self.HEADERS_TO_SPLIT,

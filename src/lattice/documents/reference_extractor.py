@@ -1,7 +1,7 @@
 import re
 
 from lattice.documents.models import ExplicitReference
-from lattice.shared.config.loader import ReferenceExtractionConfig
+from lattice.shared.config import ReferenceExtractionConfig
 
 
 class ReferenceExtractor:

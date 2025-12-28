@@ -1,8 +1,7 @@
 import logging
 from typing import Any
 
-from lattice.shared.exceptions import GraphError
-from lattice.infrastructure.memgraph.client import MemgraphClient
+from lattice.infrastructure.memgraph import MemgraphClient
 from lattice.querying.graph_reasoning.models import (
     MAX_PATH_LENGTH,
     MAX_RESULTS_PER_QUERY,
@@ -12,6 +11,8 @@ from lattice.querying.graph_reasoning.models import (
 )
 from lattice.querying.graph_reasoning.node_utils import dict_to_node, result_to_node
 from lattice.querying.graph_reasoning.queries import MultiHopGraphQueries
+from lattice.shared.config import QueryConfig
+from lattice.shared.exceptions import GraphError
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 async def find_transitive_callers(
     client: MemgraphClient,
     entity_name: str,
-    max_hops: int = 3,
+    max_hops: int = QueryConfig.fallback_max_hops,
     limit: int = MAX_RESULTS_PER_QUERY,
 ) -> list[GraphNode]:
     max_hops = min(max_hops, MAX_TRAVERSAL_DEPTH)
@@ -39,7 +40,7 @@ async def find_transitive_callers(
 async def find_transitive_callees(
     client: MemgraphClient,
     entity_name: str,
-    max_hops: int = 3,
+    max_hops: int = QueryConfig.fallback_max_hops,
     limit: int = MAX_RESULTS_PER_QUERY,
 ) -> list[GraphNode]:
     max_hops = min(max_hops, MAX_TRAVERSAL_DEPTH)
@@ -60,7 +61,7 @@ async def find_call_chain(
     client: MemgraphClient,
     source_name: str,
     target_name: str,
-    max_hops: int = 5,
+    max_hops: int = MAX_PATH_LENGTH,
 ) -> list[GraphPath]:
     max_hops = min(max_hops, MAX_PATH_LENGTH)
     query = MultiHopGraphQueries.FIND_ALL_PATHS.format(max_hops=max_hops)

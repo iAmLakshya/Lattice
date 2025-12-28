@@ -18,11 +18,9 @@ def safe_decode_text(node: Node) -> str | None:
 class JsTsTypeInference:
     def __init__(
         self,
-        type_resolver: "TypeResolver | None" = None,
+        type_resolver: "TypeResolver",
     ):
-        from lattice.parsing.type_inference.type_resolver import TypeResolver
-
-        self._type_resolver = type_resolver or TypeResolver()
+        self._type_resolver = type_resolver
 
     def infer_types(
         self,
@@ -131,9 +129,7 @@ class JsTsTypeInference:
         elif decl.type in ("lexical_declaration", "variable_declaration"):
             for child in decl.children:
                 if child.type == "variable_declarator":
-                    self._process_declaration(
-                        child, local_var_types, module_qn, language
-                    )
+                    self._process_declaration(child, local_var_types, module_qn, language)
 
     def _process_assignment(
         self,

@@ -47,8 +47,8 @@ class MCPServer:
 
     def __init__(
         self,
-        repo_path: Path | None = None,
-        project_name: str | None = None,
+        repo_path: Path,
+        project_name: str,
     ):
         """Initialize the MCP server.
 
@@ -56,8 +56,8 @@ class MCPServer:
             repo_path: Path to the repository to work with.
             project_name: Name of the project.
         """
-        self.repo_path = repo_path or Path(os.environ.get("TARGET_REPO_PATH", ".")).resolve()
-        self.project_name = project_name or self.repo_path.name
+        self.repo_path = repo_path
+        self.project_name = project_name
         self.tools: dict[str, dict[str, Any]] = {}
         self._running = False
 
@@ -83,18 +83,22 @@ class MCPServer:
 
     async def _create_orchestrator(self, repo_path: Path, project_name: str):
         from lattice.cli.bootstrap import create_pipeline_orchestrator
+
         return await create_pipeline_orchestrator(repo_path=repo_path, project_name=project_name)
 
     async def _create_query_engine(self):
         from lattice.cli.bootstrap import create_query_engine
+
         return await create_query_engine()
 
     def _create_graph_client(self):
-        from lattice.infrastructure.memgraph.client import MemgraphClient
+        from lattice.infrastructure.memgraph import MemgraphClient
+
         return MemgraphClient()
 
     def _create_vector_searcher(self):
-        from lattice.infrastructure.qdrant.indexer import VectorSearcher
+        from lattice.infrastructure.qdrant import VectorSearcher
+
         return VectorSearcher()
 
     async def handle_request(self, request: dict[str, Any]) -> dict[str, Any]:
@@ -169,25 +173,27 @@ class MCPServer:
         tools_list = []
 
         for tool in self.tools.values():
-            tools_list.append({
-                "name": tool["name"],
-                "description": tool["description"],
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        name: {
-                            "type": param.get("type", "string"),
-                            "description": param.get("description", ""),
-                        }
-                        for name, param in tool.get("parameters", {}).items()
+            tools_list.append(
+                {
+                    "name": tool["name"],
+                    "description": tool["description"],
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            name: {
+                                "type": param.get("type", "string"),
+                                "description": param.get("description", ""),
+                            }
+                            for name, param in tool.get("parameters", {}).items()
+                        },
+                        "required": [
+                            name
+                            for name, param in tool.get("parameters", {}).items()
+                            if param.get("required", False)
+                        ],
                     },
-                    "required": [
-                        name
-                        for name, param in tool.get("parameters", {}).items()
-                        if param.get("required", False)
-                    ],
-                },
-            })
+                }
+            )
 
         return {
             "jsonrpc": "2.0",
@@ -266,9 +272,7 @@ class MCPServer:
 
         reader = asyncio.StreamReader()
         protocol = asyncio.StreamReaderProtocol(reader)
-        await asyncio.get_event_loop().connect_read_pipe(
-            lambda: protocol, sys.stdin
-        )
+        await asyncio.get_event_loop().connect_read_pipe(lambda: protocol, sys.stdin)
 
         while self._running:
             try:
@@ -303,7 +307,10 @@ async def main():
         stream=sys.stderr,  # Log to stderr to not interfere with stdio transport
     )
 
-    server = MCPServer()
+    repo_path = Path(os.environ.get("TARGET_REPO_PATH", ".")).resolve()
+    project_name = repo_path.name
+
+    server = MCPServer(repo_path=repo_path, project_name=project_name)
     await server.run_stdio()
 
 

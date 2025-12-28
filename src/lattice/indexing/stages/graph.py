@@ -1,12 +1,10 @@
 import asyncio
 import logging
 
+from lattice.indexing.context import PipelineContext
+from lattice.infrastructure.memgraph import BatchGraphBuilder, GraphBuilder, GraphStatistics
 from lattice.shared.exceptions import IndexingError
 from lattice.shared.types import PipelineStage as PipelineStageEnum
-from lattice.infrastructure.memgraph.batch_builder import BatchGraphBuilder
-from lattice.infrastructure.memgraph.builder import GraphBuilder
-from lattice.infrastructure.memgraph.statistics import GraphStatistics
-from lattice.indexing.context import PipelineContext
 
 logger = logging.getLogger(__name__)
 

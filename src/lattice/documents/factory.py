@@ -1,10 +1,9 @@
 import logging
 
-from lattice.infrastructure.postgres.postgres import PostgresClient
 from lattice.documents.service import DocumentService
-from lattice.infrastructure.qdrant import QdrantManager
-from lattice.infrastructure.qdrant.embedder import create_embedder
-from lattice.infrastructure.memgraph.client import MemgraphClient
+from lattice.infrastructure.memgraph import MemgraphClient
+from lattice.infrastructure.postgres import create_postgres_client
+from lattice.infrastructure.qdrant import QdrantManager, create_embedder
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +13,7 @@ async def create_document_service(
 ) -> DocumentService:
     logger.info("Creating document service with dependencies")
 
-    postgres = PostgresClient()
+    postgres = create_postgres_client()
     await postgres.connect()
 
     qdrant = QdrantManager()

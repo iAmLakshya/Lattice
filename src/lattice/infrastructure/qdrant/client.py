@@ -19,15 +19,15 @@ class CollectionName(str, Enum):
 class QdrantManager:
     def __init__(
         self,
-        host: str | None = None,
-        port: int | None = None,
-        grpc_port: int | None = None,
+        host: str,
+        port: int,
+        grpc_port: int,
+        dimensions: int,
     ):
-        settings = get_settings()
-        self._host = host or settings.qdrant_host
-        self._port = port or settings.qdrant_port
-        self._grpc_port = grpc_port or settings.qdrant_grpc_port
-        self._dimensions = settings.embedding_dimensions
+        self._host = host
+        self._port = port
+        self._grpc_port = grpc_port
+        self._dimensions = dimensions
         self._client: AsyncQdrantClient | None = None
 
     async def connect(self) -> None:
@@ -106,9 +106,7 @@ class QdrantManager:
         except Exception as e:
             raise VectorStoreError("Failed to create collections", cause=e)
 
-    async def _create_collection_with_indexes(
-        self, name: str, index_fields: list[str]
-    ) -> None:
+    async def _create_collection_with_indexes(self, name: str, index_fields: list[str]) -> None:
         await self.client.create_collection(
             collection_name=name,
             vectors_config=models.VectorParams(
@@ -118,9 +116,7 @@ class QdrantManager:
         )
         await self._create_keyword_indexes(name, index_fields)
 
-    async def _create_keyword_indexes(
-        self, collection: str, fields: list[str]
-    ) -> None:
+    async def _create_keyword_indexes(self, collection: str, fields: list[str]) -> None:
         for field in fields:
             await self.client.create_payload_index(
                 collection_name=collection,
@@ -176,9 +172,7 @@ class QdrantManager:
         try:
             await self.client.delete(
                 collection_name=collection,
-                points_selector=models.FilterSelector(
-                    filter=self._build_filter(filters)
-                ),
+                points_selector=models.FilterSelector(filter=self._build_filter(filters)),
             )
             logger.debug(f"Deleted vectors from {collection} with filters: {filters}")
         except Exception as e:
@@ -191,9 +185,7 @@ class QdrantManager:
         ]
         return models.Filter(must=must_conditions)
 
-    async def file_needs_update(
-        self, collection: str, file_path: str, content_hash: str
-    ) -> bool:
+    async def file_needs_update(self, collection: str, file_path: str, content_hash: str) -> bool:
         try:
             result = await self.client.scroll(
                 collection_name=collection,
@@ -209,9 +201,7 @@ class QdrantManager:
 
             existing_hash = points[0].payload.get("content_hash")
             needs_update = existing_hash != content_hash
-            logger.debug(
-                f"File {file_path} {'needs' if needs_update else 'does not need'} update"
-            )
+            logger.debug(f"File {file_path} {'needs' if needs_update else 'does not need'} update")
             return needs_update
         except Exception as e:
             logger.warning(f"Error checking file update status: {e}")
@@ -221,9 +211,7 @@ class QdrantManager:
         try:
             return await self.client.get_collection(collection)
         except Exception as e:
-            raise VectorStoreError(
-                f"Failed to get collection info for {collection}", cause=e
-            )
+            raise VectorStoreError(f"Failed to get collection info for {collection}", cause=e)
 
     async def clear_collections(self) -> None:
         for collection in [
@@ -246,3 +234,13 @@ class QdrantManager:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close()
+
+
+def create_qdrant_manager() -> QdrantManager:
+    settings = get_settings()
+    return QdrantManager(
+        host=settings.qdrant_host,
+        port=settings.qdrant_port,
+        grpc_port=settings.qdrant_grpc_port,
+        dimensions=settings.embedding_dimensions,
+    )

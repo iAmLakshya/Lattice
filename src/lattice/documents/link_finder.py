@@ -2,10 +2,10 @@ import json
 import logging
 
 from lattice.documents.models import DocumentChunk, ImplicitLink
+from lattice.infrastructure.llm import BaseEmbeddingProvider, get_llm_provider
 from lattice.infrastructure.qdrant import CollectionName, QdrantManager
 from lattice.prompts import get_prompt
-from lattice.infrastructure.llm import BaseEmbeddingProvider, get_llm_provider
-from lattice.shared.config.loader import LinkFinderConfig
+from lattice.shared.config import LinkFinderConfig
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +41,7 @@ class AILinkFinder:
             candidates = []
             seen_entities = set()
             for r in results:
-                entity_name = r["payload"].get("graph_node_id") or r["payload"].get(
-                    "entity_name"
-                )
+                entity_name = r["payload"].get("graph_node_id") or r["payload"].get("entity_name")
                 if entity_name and entity_name not in seen_entities:
                     seen_entities.add(entity_name)
                     candidates.append(
@@ -51,7 +49,9 @@ class AILinkFinder:
                             "qualified_name": entity_name,
                             "entity_type": r["payload"].get("entity_type", "unknown"),
                             "file_path": r["payload"].get("file_path", ""),
-                            "content_preview": r["payload"].get("content", "")[:LinkFinderConfig.content_preview_length],
+                            "content_preview": r["payload"].get("content", "")[
+                                : LinkFinderConfig.content_preview_length
+                            ],
                             "score": r["score"],
                         }
                     )
@@ -62,13 +62,14 @@ class AILinkFinder:
             entity_list = "\n".join(
                 f"- {c['qualified_name']} ({c['entity_type']}) in {c['file_path']}\n"
                 f"  Preview: {c['content_preview'][:200]}..."
-                for c in candidates[:LinkFinderConfig.entity_list_limit]
+                for c in candidates[: LinkFinderConfig.entity_list_limit]
             )
 
             prompt = get_prompt(
-                "documents", "link_finder",
+                "documents",
+                "link_finder",
                 heading_path=" > ".join(chunk.heading_path),
-                doc_content=chunk.content[:LinkFinderConfig.doc_content_max],
+                doc_content=chunk.content[: LinkFinderConfig.doc_content_max],
                 entity_list=entity_list,
             )
 

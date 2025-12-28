@@ -10,12 +10,14 @@ from dataclasses import dataclass, field
 
 from tenacity import retry, stop_after_attempt, wait_exponential
 
+from lattice.shared.config import ProvidersConfig
+
 logger = logging.getLogger(__name__)
 
-RETRY_MAX_ATTEMPTS = 5
-RETRY_MULTIPLIER = 1
-RETRY_MIN_WAIT = 1
-RETRY_MAX_WAIT = 60
+RETRY_MAX_ATTEMPTS = ProvidersConfig.retry_max_attempts
+RETRY_MULTIPLIER = ProvidersConfig.retry_multiplier
+RETRY_MIN_WAIT = ProvidersConfig.retry_min_wait
+RETRY_MAX_WAIT = ProvidersConfig.retry_max_wait
 
 
 @dataclass
@@ -31,6 +33,7 @@ class ProviderConfig:
         max_tokens: Default max tokens for completions.
         extra: Additional provider-specific configuration.
     """
+
     provider: str
     model: str
     api_key: str | None = None
@@ -74,7 +77,7 @@ class BaseLLMProvider(ABC):
             config: Provider configuration.
         """
         self.config = config
-        self._semaphore = asyncio.Semaphore(5)  # Default concurrency limit
+        self._semaphore = asyncio.Semaphore(ProvidersConfig.default_concurrency)
 
     @abstractmethod
     async def _complete_impl(
@@ -145,7 +148,7 @@ class BaseEmbeddingProvider(ABC):
             config: Provider configuration.
         """
         self.config = config
-        self._semaphore = asyncio.Semaphore(5)  # Default concurrency limit
+        self._semaphore = asyncio.Semaphore(ProvidersConfig.default_concurrency)
 
     @abstractmethod
     async def _embed_impl(self, texts: list[str]) -> list[list[float]]:
@@ -194,7 +197,7 @@ class BaseEmbeddingProvider(ABC):
     async def embed_batch(
         self,
         texts: Sequence[str],
-        batch_size: int = 100,
+        batch_size: int = ProvidersConfig.default_batch_size,
     ) -> list[list[float]]:
         """Embed multiple texts in batches.
 
@@ -209,7 +212,7 @@ class BaseEmbeddingProvider(ABC):
         texts_list = list(texts)
 
         for i in range(0, len(texts_list), batch_size):
-            batch = texts_list[i:i + batch_size]
+            batch = texts_list[i : i + batch_size]
             embeddings = await self._embed_batch_internal(batch)
             all_embeddings.extend(embeddings)
 

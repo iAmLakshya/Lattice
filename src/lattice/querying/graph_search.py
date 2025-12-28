@@ -3,12 +3,10 @@
 import logging
 from dataclasses import dataclass
 
-from lattice.shared.config.loader import QueryConfig
+from lattice.infrastructure.memgraph import GraphStatistics, MemgraphClient, SearchQueries
+from lattice.shared.config import QueryConfig
 from lattice.shared.exceptions import GraphError, QueryError
 from lattice.shared.types import EntityType
-from lattice.infrastructure.memgraph.client import MemgraphClient
-from lattice.infrastructure.memgraph.queries import SearchQueries
-from lattice.infrastructure.memgraph.statistics import GraphStatistics
 
 logger = logging.getLogger(__name__)
 

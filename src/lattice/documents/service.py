@@ -1,11 +1,13 @@
 from collections.abc import Callable
 from pathlib import Path
 
-from lattice.infrastructure.postgres.postgres import PostgresClient
+from lattice.documents.chunk_repository import DocumentChunkRepository
 from lattice.documents.chunker import DocumentChunker
 from lattice.documents.drift_detector import DriftDetector
+from lattice.documents.drift_repository import DriftAnalysisRepository
 from lattice.documents.indexer import DocumentIndexer, DocumentSearcher
 from lattice.documents.link_finder import AILinkFinder
+from lattice.documents.link_repository import DocumentLinkRepository
 from lattice.documents.models import (
     Document,
     DocumentLink,
@@ -14,15 +16,11 @@ from lattice.documents.models import (
     IndexingResult,
 )
 from lattice.documents.reference_extractor import ReferenceExtractor
-from lattice.documents.repository import (
-    DocumentChunkRepository,
-    DocumentLinkRepository,
-    DocumentRepository,
-    DriftAnalysisRepository,
-)
-from lattice.infrastructure.qdrant import QdrantManager
-from lattice.infrastructure.memgraph.client import MemgraphClient
+from lattice.documents.repository import DocumentRepository
 from lattice.infrastructure.llm import BaseEmbeddingProvider
+from lattice.infrastructure.memgraph import MemgraphClient
+from lattice.infrastructure.postgres import PostgresClient
+from lattice.infrastructure.qdrant import QdrantManager
 
 
 class DocumentService:

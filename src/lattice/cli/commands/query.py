@@ -61,9 +61,7 @@ async def run_query(
         for i, source in enumerate(result.sources[:5], 1):
             score_info = f"[score: {source.final_score:.2f}]" if verbose else ""
             rel_info = (
-                f" [{source.relationship_path}]"
-                if source.relationship_path and verbose
-                else ""
+                f" [{source.relationship_path}]" if source.relationship_path and verbose else ""
             )
             console.print(
                 f"  {i}. {source.file_path}:{source.start_line or '?'} "

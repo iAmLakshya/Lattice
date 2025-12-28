@@ -1,9 +1,9 @@
 import logging
 
-from lattice.shared.exceptions import IndexingError
-from lattice.shared.types import PipelineStage as PipelineStageEnum
 from lattice.indexing.context import PipelineContext
 from lattice.parsing.api import FileScanner
+from lattice.shared.exceptions import IndexingError
+from lattice.shared.types import PipelineStage as PipelineStageEnum
 
 logger = logging.getLogger(__name__)
 

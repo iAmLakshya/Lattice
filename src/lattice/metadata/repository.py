@@ -2,7 +2,7 @@ import json
 import logging
 from uuid import UUID
 
-from lattice.infrastructure.postgres.postgres import PostgresClient
+from lattice.infrastructure.postgres import PostgresClient
 from lattice.metadata.models import (
     CoreFeature,
     DependencyInfo,
@@ -40,21 +40,15 @@ class MetadataRepository:
 
     async def upsert(self, metadata: ProjectMetadata) -> ProjectMetadata:
         folder_json = (
-            metadata.folder_structure.model_dump_json()
-            if metadata.folder_structure
-            else None
+            metadata.folder_structure.model_dump_json() if metadata.folder_structure else None
         )
         features_json = (
             json.dumps([f.model_dump() for f in metadata.core_features])
             if metadata.core_features
             else "[]"
         )
-        tech_stack_json = (
-            metadata.tech_stack.model_dump_json() if metadata.tech_stack else None
-        )
-        deps_json = (
-            metadata.dependencies.model_dump_json() if metadata.dependencies else None
-        )
+        tech_stack_json = metadata.tech_stack.model_dump_json() if metadata.tech_stack else None
+        deps_json = metadata.dependencies.model_dump_json() if metadata.dependencies else None
         entry_points_json = (
             json.dumps([e.model_dump() for e in metadata.entry_points])
             if metadata.entry_points
@@ -177,9 +171,7 @@ class MetadataRepository:
             tokens_used,
         )
 
-    async def get_generation_logs(
-        self, metadata_id: UUID
-    ) -> list[dict]:
+    async def get_generation_logs(self, metadata_id: UUID) -> list[dict]:
         query = """
             SELECT field_name, status, error_message, duration_ms, tokens_used, created_at
             FROM metadata_generation_log

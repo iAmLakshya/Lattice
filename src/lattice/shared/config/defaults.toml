@@ -5,10 +5,18 @@ chunk_name_separator = "_part"
 [query]
 max_context_results = 10
 max_content_length = 2000
-default_search_limit = 10
+default_search_limit = 15
 default_max_depth = 2
 related_entities_limit = 20
 exclude_file_buffer = 5
+planning_temperature = 0.0
+planning_max_tokens = 2000
+completion_max_tokens = 2000
+planning_max_attempts = 2
+planning_retry_multiplier = 1
+planning_retry_min_wait = 1
+planning_retry_max_wait = 10
+fallback_max_hops = 3
 
 [query.reasoning]
 max_traversal_depth = 5
@@ -17,11 +25,20 @@ max_path_length = 10
 max_related_entities = 30
 comprehensive_max_hops = 2
 comprehensive_limit = 10
+max_call_chain_results = 5
+max_path_results = 10
 
 [query.context]
 max_code_snippet_length = 3000
 max_context_entities = 20
 max_related_code_snippets = 5
+entity_code_search_limit = 1
+max_docstring_summary_length = 500
+max_related_entities_per_context = 10
+max_callers_displayed = 5
+max_callees_displayed = 5
+max_files_for_summaries = 10
+max_primary_entities_for_context = 3
 
 [ranking]
 default_graph_weight = 0.5
@@ -32,6 +49,28 @@ entity_match_bonus = 0.3
 relationship_bonus = 0.15
 max_results_per_file = 5
 max_total_results = 50
+
+[ranking.scorer]
+min_depth_score = 0.3
+depth_decay_rate = 0.2
+partial_entity_match_score = 0.5
+relationship_score_primary = 1.0
+relationship_score_caller = 0.8
+relationship_score_callee = 0.7
+relationship_score_default = 0.5
+centrality_normalization_factor = 50
+context_score_summary = 0.3
+context_score_docstring = 0.2
+context_score_signature = 0.2
+context_score_content = 0.3
+quality_optimal_min_chars = 100
+quality_optimal_max_chars = 2000
+quality_acceptable_min_chars = 50
+quality_acceptable_max_chars = 3000
+quality_score_optimal = 0.8
+quality_score_acceptable = 0.5
+quality_score_poor = 0.3
+code_quality_weight = 0.1
 
 [ranking.reranker]
 graph_weight = 0.4
@@ -52,6 +91,8 @@ stage_weight_building_graph = 20
 stage_weight_summarizing = 25
 stage_weight_metadata = 10
 stage_weight_embedding = 25
+max_workers = 4
+max_concurrent_api = 5
 
 [providers]
 retry_max_attempts = 5
@@ -60,6 +101,7 @@ retry_min_wait = 1
 retry_max_wait = 60
 default_concurrency = 5
 default_batch_size = 100
+unixcoder_max_length = 512
 
 [providers.ollama]
 base_url = "http://localhost:11434/v1"
@@ -70,6 +112,7 @@ default_embedding_model = "nomic-embed-text"
 default_budget_usd = 0.50
 default_retry_delay = 1.0
 max_retries = 2
+total_fields = 7
 
 [metadata.ignore_patterns]
 patterns = [
@@ -132,6 +175,21 @@ description = "Creating architecture diagram"
 [documents]
 scanner_extensions = [".md", ".mdx", ".rst", ".txt"]
 scanner_ignore = ["node_modules", "__pycache__", ".git", ".venv", "venv"]
+default_history_limit = 10
+default_search_limit = 10
+
+[mcp]
+query_code_graph_default_limit = 10
+semantic_search_default_limit = 5
+
+[caching]
+max_entries = 1000
+max_memory_mb = 500
+prompt_loader_cache_size = 32
+config_loader_cache_size = 1
+tiktoken_cache_size = 4
+eviction_fraction = 10
+memory_pressure_threshold = 0.8
 
 [documents.reference_extraction]
 backtick_qualified_confidence = 0.90
@@ -162,11 +220,14 @@ default_drift_score = 0.5
 
 [graph]
 default_batch_size = 1000
+batch_size_multiplier = 100
 
 [indexing]
 embed_max_retries = 3
 embed_batch_divisor = 3
 summarize_max_retries = 3
+retry_wait_multiplier = 2
+api_batch_size = 3
 
 [watcher]
 debounce_delay = 0.5
@@ -176,3 +237,6 @@ queue_get_timeout = 1.0
 [drift]
 request_delay = 0.5
 max_retries = 5
+retry_exponential_base = 2
+retry_exponential_multiplier = 2
+retry_base_wait_offset = 5

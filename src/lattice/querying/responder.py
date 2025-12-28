@@ -1,12 +1,10 @@
 import logging
 
-from lattice.shared.config import get_settings
-from lattice.shared.config.loader import QueryConfig
-from lattice.shared.exceptions import QueryError
+from lattice.infrastructure.llm import BaseLLMProvider, get_llm_provider
 from lattice.prompts import get_prompt
-from lattice.infrastructure.llm import get_llm_provider
-from lattice.infrastructure.llm.base import BaseLLMProvider
 from lattice.querying.reranker import SearchResult
+from lattice.shared.config import QueryConfig, get_settings
+from lattice.shared.exceptions import QueryError
 
 logger = logging.getLogger(__name__)
 
@@ -81,8 +79,11 @@ class ResponseGenerator:
 
             if question:
                 prompt = get_prompt(
-                    "query", "explanation_with_question",
-                    language=language, question=question, code=code
+                    "query",
+                    "explanation_with_question",
+                    language=language,
+                    question=question,
+                    code=code,
                 )
             else:
                 prompt = get_prompt("query", "explanation", language=language, code=code)

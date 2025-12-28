@@ -227,6 +227,11 @@ project_overview:
 
     Start by reading the README and key files, then write the overview.
 
+json_output_suffix:
+  description: Suffix appended to prompts requiring JSON output
+  template: |
+    CRITICAL: After gathering key information, output the JSON in a ```json code block. Do not explore indefinitely - be efficient, gather what you need, then output results. Quality over completeness.
+
 architecture_diagram:
   description: Prompt for creating ASCII architecture diagram
   template: |

@@ -3,10 +3,10 @@
 import logging
 from dataclasses import dataclass
 
-from lattice.shared.config.loader import QueryConfig
-from lattice.shared.exceptions import EmbeddingError, QueryError, VectorStoreError
-from lattice.infrastructure.qdrant import CollectionName, QdrantManager
 from lattice.infrastructure.llm import BaseEmbeddingProvider
+from lattice.infrastructure.qdrant import CollectionName, QdrantManager
+from lattice.shared.config import QueryConfig
+from lattice.shared.exceptions import EmbeddingError, QueryError, VectorStoreError
 
 logger = logging.getLogger(__name__)
 

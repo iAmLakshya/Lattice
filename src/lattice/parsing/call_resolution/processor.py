@@ -15,6 +15,8 @@ from lattice.parsing.call_resolution.builtins import (
 )
 from lattice.parsing.call_resolution.extractors import (
     extract_calls_from_node as _extract_calls,
+)
+from lattice.parsing.call_resolution.extractors import (
     safe_decode_text,
 )
 from lattice.parsing.call_resolution.resolvers import (
@@ -33,9 +35,9 @@ __all__ = ["CallProcessor", "safe_decode_text"]
 if TYPE_CHECKING:
     from tree_sitter import Node
 
-    from lattice.shared.cache import FunctionRegistry
     from lattice.parsing.import_processor import ImportProcessor
     from lattice.parsing.type_inference.engine import TypeInferenceEngine
+    from lattice.shared.cache import FunctionRegistry
 
 _RE_METHOD_CHAIN = re.compile(r"\)\.")
 _RE_FINAL_METHOD = re.compile(r"\.([^.()]+)$")

@@ -25,23 +25,21 @@ def safe_decode_text(node: Node) -> str | None:
 class TypeResolver:
     def __init__(
         self,
-        function_registry: FunctionRegistry | None = None,
-        import_mapping: dict[str, dict[str, str]] | None = None,
-        ast_cache: ASTCache | None = None,
-        module_qn_to_file_path: dict[str, Path] | None = None,
-        simple_name_lookup: dict[str, set[str]] | None = None,
+        function_registry: FunctionRegistry,
+        import_mapping: dict[str, dict[str, str]],
+        ast_cache: ASTCache,
+        module_qn_to_file_path: dict[str, Path],
+        simple_name_lookup: dict[str, set[str]],
     ):
-        self.function_registry = function_registry or FunctionRegistry()
-        self.import_mapping = import_mapping or {}
-        self.ast_cache = ast_cache or ASTCache()
-        self.module_qn_to_file_path = module_qn_to_file_path or {}
-        self.simple_name_lookup = simple_name_lookup or {}
+        self.function_registry = function_registry
+        self.import_mapping = import_mapping
+        self.ast_cache = ast_cache
+        self.module_qn_to_file_path = module_qn_to_file_path
+        self.simple_name_lookup = simple_name_lookup
         self._method_return_type_cache: dict[str, str | None] = {}
         self._type_inference_in_progress: set[str] = set()
 
-    def infer_type_from_parameter_name(
-        self, param_name: str, module_qn: str
-    ) -> str | None:
+    def infer_type_from_parameter_name(self, param_name: str, module_qn: str) -> str | None:
         available_class_names = []
 
         for qn, entity_type in self.function_registry.all_entries().items():
@@ -89,12 +87,8 @@ class TypeResolver:
         self._type_inference_in_progress.add(cache_key)
         try:
             if "." in method_call and self._is_method_chain(method_call):
-                return self._infer_chained_call_return_type(
-                    method_call, module_qn, local_var_types
-                )
-            return self._infer_simple_method_return_type(
-                method_call, module_qn, local_var_types
-            )
+                return self._infer_chained_call_return_type(method_call, module_qn, local_var_types)
+            return self._infer_simple_method_return_type(method_call, module_qn, local_var_types)
         finally:
             self._type_inference_in_progress.discard(cache_key)
 
@@ -133,9 +127,7 @@ class TypeResolver:
         if "(" not in object_expr and local_var_types and object_expr in local_var_types:
             return local_var_types[object_expr]
         if "(" in object_expr and ")" in object_expr:
-            return self.infer_method_call_return_type(
-                object_expr, module_qn, local_var_types
-            )
+            return self.infer_method_call_return_type(object_expr, module_qn, local_var_types)
         return None
 
     def _infer_simple_method_return_type(

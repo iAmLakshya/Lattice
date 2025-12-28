@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 
 from lattice.parsing.scanner import FileScanner
-from lattice.parsing.parser import CodeParser
+from lattice.parsing.parser import create_code_parser
 from lattice.parsing.models import Language, EntityType
 
 
@@ -74,7 +74,7 @@ class TestCodeParser:
             line_count=content.count(b"\n") + 1,
         )
 
-        parser = CodeParser()
+        parser = create_code_parser()
         parsed = parser.parse_file(file_info)
 
         assert parsed.content, "Should have content"
@@ -102,7 +102,7 @@ class Greeter:
         """Greet someone."""
         return f"{self.prefix}, {name}!"
 '''
-        parser = CodeParser()
+        parser = create_code_parser()
         parsed = parser.parse_content(code, Language.PYTHON)
 
         # Check functions
@@ -143,7 +143,7 @@ export class Counter extends React.Component {
   }
 }
 '''
-        parser = CodeParser()
+        parser = create_code_parser()
         parsed = parser.parse_content(code, Language.TSX)
 
         # Check imports
@@ -159,7 +159,7 @@ def documented_function():
     """This is the docstring."""
     pass
 '''
-        parser = CodeParser()
+        parser = create_code_parser()
         parsed = parser.parse_content(code, Language.PYTHON)
 
         func = parsed.functions[0]
@@ -174,7 +174,7 @@ def caller():
     other_func()
     obj.method()
 '''
-        parser = CodeParser()
+        parser = create_code_parser()
         parsed = parser.parse_content(code, Language.PYTHON)
 
         func = parsed.functions[0]
@@ -189,7 +189,7 @@ from pathlib import Path
 from typing import Optional, List
 import json as j
 '''
-        parser = CodeParser()
+        parser = create_code_parser()
         parsed = parser.parse_content(code, Language.PYTHON)
 
         import_names = [i.name for i in parsed.imports]
@@ -202,7 +202,7 @@ import json as j
 class Child(Parent, Mixin):
     pass
 '''
-        parser = CodeParser()
+        parser = create_code_parser()
         parsed = parser.parse_content(code, Language.PYTHON)
 
         cls = parsed.classes[0]
@@ -216,7 +216,7 @@ class TestParsingIntegration:
     def test_parse_sample_project(self, sample_project_path: Path):
         """Test parsing the entire sample project."""
         scanner = FileScanner(sample_project_path)
-        parser = CodeParser()
+        parser = create_code_parser()
 
         files = scanner.scan_all()
         assert len(files) > 0, "Should find files"

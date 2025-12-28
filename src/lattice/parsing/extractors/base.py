@@ -11,7 +11,7 @@ class BaseExtractor(ABC):
     def extract_entities(self, root_node, source: str) -> list[CodeEntity]: ...
 
     def _get_node_text(self, node, source: str) -> str:
-        return source[node.start_byte:node.end_byte]
+        return source[node.start_byte : node.end_byte]
 
     def _get_node_line(self, node) -> int:
         return node.start_point[0] + 1
@@ -57,3 +57,9 @@ class BaseExtractor(ABC):
             yield node
         for child in node.children:
             yield from self._walk_tree(child, node_types)
+
+    def _has_keyword(self, node, source: str, keyword: str) -> bool:
+        for child in node.children:
+            if self._get_node_text(child, source) == keyword:
+                return True
+        return False

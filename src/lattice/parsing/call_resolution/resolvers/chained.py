@@ -15,9 +15,9 @@ from lattice.parsing.call_resolution.resolvers.inheritance import resolve_inheri
 from lattice.parsing.call_resolution.resolvers.simple import resolve_class_name
 
 if TYPE_CHECKING:
-    from lattice.shared.cache import FunctionRegistry
     from lattice.parsing.import_processor import ImportProcessor
     from lattice.parsing.type_inference.engine import TypeInferenceEngine
+    from lattice.shared.cache import FunctionRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -53,9 +53,7 @@ def resolve_cpp_operator_call(
 
     matches = function_registry.find_by_simple_name(call_name)
     if matches:
-        same_module_ops = [
-            qn for qn in matches if qn.startswith(module_qn) and call_name in qn
-        ]
+        same_module_ops = [qn for qn in matches if qn.startswith(module_qn) and call_name in qn]
         candidates = same_module_ops or matches
         candidates.sort(key=lambda qn: (len(qn), qn))
         best = candidates[0]
@@ -96,7 +94,9 @@ def resolve_chained_call(
         logger.debug(f"Resolved chained call: {call_name} -> {method_qn}")
         return (entity_type, method_qn)
 
-    inherited = resolve_inherited_method(resolved_class, final_method, class_inheritance, function_registry)
+    inherited = resolve_inherited_method(
+        resolved_class, final_method, class_inheritance, function_registry
+    )
     if inherited:
         logger.debug(f"Resolved chained inherited call: {call_name} -> {inherited[1]}")
         return inherited
@@ -113,7 +113,5 @@ def _infer_expression_type(
         return local_var_types[expr]
     if "(" in expr:
         if type_inference:
-            return type_inference._infer_method_call_return_type(
-                expr, module_qn, local_var_types
-            )
+            return type_inference._infer_method_call_return_type(expr, module_qn, local_var_types)
     return None

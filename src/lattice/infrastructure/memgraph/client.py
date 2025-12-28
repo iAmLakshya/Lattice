@@ -13,14 +13,13 @@ logger = logging.getLogger(__name__)
 class MemgraphClient:
     def __init__(
         self,
-        uri: str | None = None,
-        user: str | None = None,
-        password: str | None = None,
+        uri: str,
+        user: str,
+        password: str,
     ):
-        settings = get_settings()
-        self._uri = uri or settings.memgraph_uri
-        self._user = user or settings.memgraph_user
-        self._password = password or settings.memgraph_password
+        self._uri = uri
+        self._user = user
+        self._password = password
         self._driver: AsyncDriver | None = None
 
     async def connect(self) -> None:
@@ -117,7 +116,6 @@ class MemgraphClient:
         query: str,
         batch: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
-        """Execute batch query using UNWIND. Query should reference 'row' for parameters."""
         if not batch:
             return []
 
@@ -132,9 +130,7 @@ class MemgraphClient:
                 logger.error(f"Batch query execution failed: {e}")
                 logger.debug(f"Query: {batch_query}")
                 logger.debug(f"Batch size: {len(batch)}")
-            raise GraphError(
-                f"Failed to execute batch query: {query[:100]}...", cause=e
-            ) from e
+            raise GraphError(f"Failed to execute batch query: {query[:100]}...", cause=e) from e
 
     async def execute_batch_write(
         self,
@@ -164,3 +160,12 @@ class MemgraphClient:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close()
+
+
+def create_memgraph_client() -> MemgraphClient:
+    settings = get_settings()
+    return MemgraphClient(
+        uri=settings.memgraph_uri,
+        user=settings.memgraph_user,
+        password=settings.memgraph_password,
+    )

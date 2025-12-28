@@ -37,16 +37,15 @@ Examples:
 def _add_index_parser(subparsers: argparse._SubParsersAction) -> None:
     index_parser = subparsers.add_parser("index", help="Index a repository")
     index_parser.add_argument("path", help="Path to the repository")
+    index_parser.add_argument("--name", "-n", help="Project name (defaults to directory name)")
     index_parser.add_argument(
-        "--name", "-n", help="Project name (defaults to directory name)"
+        "--force",
+        "-f",
+        action="store_true",
+        help="Force re-index all files (bypass incremental check)",
     )
     index_parser.add_argument(
-        "--force", "-f", action="store_true",
-        help="Force re-index all files (bypass incremental check)"
-    )
-    index_parser.add_argument(
-        "--skip-metadata", action="store_true",
-        help="Skip AI metadata generation"
+        "--skip-metadata", action="store_true", help="Skip AI metadata generation"
     )
 
 
@@ -57,23 +56,30 @@ def _add_metadata_parser(subparsers: argparse._SubParsersAction) -> None:
     metadata_show_parser = metadata_subparsers.add_parser("show", help="Show project metadata")
     metadata_show_parser.add_argument("name", help="Project name")
     metadata_show_parser.add_argument(
-        "--field", "-f",
+        "--field",
+        "-f",
         choices=["overview", "features", "architecture", "tech", "deps", "entry", "folders"],
-        help="Show specific field only"
+        help="Show specific field only",
     )
-    metadata_show_parser.add_argument(
-        "--json", action="store_true", help="Output as JSON"
-    )
+    metadata_show_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     metadata_regen_parser = metadata_subparsers.add_parser(
         "regenerate", help="Regenerate project metadata"
     )
     metadata_regen_parser.add_argument("name", help="Project name")
     metadata_regen_parser.add_argument(
-        "--field", "-f",
-        choices=["folder_structure", "tech_stack", "dependencies", "entry_points",
-                 "core_features", "project_overview", "architecture_diagram"],
-        help="Only regenerate specific field"
+        "--field",
+        "-f",
+        choices=[
+            "folder_structure",
+            "tech_stack",
+            "dependencies",
+            "entry_points",
+            "core_features",
+            "project_overview",
+            "architecture_diagram",
+        ],
+        help="Only regenerate specific field",
     )
 
 
@@ -99,8 +105,7 @@ def _add_query_parser(subparsers: argparse._SubParsersAction) -> None:
     query_parser.add_argument("--project", "-p", help="Project name to query")
     query_parser.add_argument("--limit", "-l", type=int, default=15, help="Max results")
     query_parser.add_argument(
-        "--verbose", "-v", action="store_true",
-        help="Show detailed execution stats and reasoning"
+        "--verbose", "-v", action="store_true", help="Show detailed execution stats and reasoning"
     )
 
 
@@ -125,28 +130,20 @@ def _add_docs_parser(subparsers: argparse._SubParsersAction) -> None:
 
     docs_index_parser = docs_subparsers.add_parser("index", help="Index documentation")
     docs_index_parser.add_argument("path", help="Path to documentation directory or file")
-    docs_index_parser.add_argument(
-        "--project", "-p", required=True, help="Project name to link to"
-    )
+    docs_index_parser.add_argument("--project", "-p", required=True, help="Project name to link to")
     docs_index_parser.add_argument(
         "--type", "-t", default="markdown", help="Document type (default: markdown)"
     )
-    docs_index_parser.add_argument(
-        "--force", "-f", action="store_true", help="Force re-index all"
-    )
+    docs_index_parser.add_argument("--force", "-f", action="store_true", help="Force re-index all")
 
     docs_drift_parser = docs_subparsers.add_parser("drift", help="Check for drift")
     docs_drift_parser.add_argument("--project", "-p", required=True, help="Project name")
     docs_drift_parser.add_argument("--document", "-d", help="Check specific document")
-    docs_drift_parser.add_argument(
-        "--entity", "-e", help="Check documentation for specific entity"
-    )
+    docs_drift_parser.add_argument("--entity", "-e", help="Check documentation for specific entity")
 
     docs_list_parser = docs_subparsers.add_parser("list", help="List indexed documents")
     docs_list_parser.add_argument("--project", "-p", required=True, help="Project name")
-    docs_list_parser.add_argument(
-        "--drifted", action="store_true", help="Show only drifted"
-    )
+    docs_list_parser.add_argument("--drifted", action="store_true", help="Show only drifted")
     docs_list_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     docs_links_parser = docs_subparsers.add_parser("links", help="Show document-code links")

@@ -8,6 +8,7 @@ from lattice.shared.types import EntityType, Language
 from lattice.shared.exceptions import SummarizationError
 from lattice.summarization.summarizer import CodeSummarizer
 from lattice.parsing.models import CodeEntity, FileInfo, ParsedFile
+from lattice.parsing.parser import create_code_parser
 
 
 # ============================================================================
@@ -27,7 +28,12 @@ class TestCodeSummarizer:
     @pytest.fixture
     def summarizer_with_provider(self, mock_llm_provider):
         """Create summarizer with custom LLM provider."""
-        return CodeSummarizer(llm_provider=mock_llm_provider)
+        return CodeSummarizer(
+            llm_provider=mock_llm_provider,
+            max_concurrent=5,
+            max_tokens=500,
+            temperature=0.7,
+        )
 
     @pytest.fixture
     def sample_file_info(self) -> FileInfo:
@@ -256,7 +262,12 @@ class TestCodeSummarizer:
     @pytest.mark.asyncio
     async def test_semaphore_limits_concurrency(self, mock_llm_provider):
         """Test that semaphore limits concurrent requests."""
-        summarizer = CodeSummarizer(llm_provider=mock_llm_provider, max_concurrent=3)
+        summarizer = CodeSummarizer(
+            llm_provider=mock_llm_provider,
+            max_concurrent=3,
+            max_tokens=500,
+            temperature=0.7,
+        )
 
         assert summarizer._semaphore._value == 3
 
@@ -276,91 +287,6 @@ class TestCodeSummarizer:
 
 
 # ============================================================================
-# Prompt Generation Tests
-# ============================================================================
-
-class TestSummaryPrompts:
-    """Tests for SummaryPrompts."""
-
-    def test_file_prompt_contains_required_info(self):
-        """Test that file prompt contains required information."""
-        from lattice.summarization.prompts import SummaryPrompts
-
-        prompt = SummaryPrompts.get_file_prompt(
-            file_path="src/main.py",
-            language="python",
-            content="def main(): pass",
-        )
-
-        assert "src/main.py" in prompt
-        assert "python" in prompt.lower()
-        assert "def main()" in prompt
-
-    def test_function_prompt_contains_required_info(self):
-        """Test that function prompt contains required information."""
-        from lattice.summarization.prompts import SummaryPrompts
-
-        prompt = SummaryPrompts.get_function_prompt(
-            name="process_data",
-            file_path="src/utils.py",
-            signature="def process_data(data: list)",
-            code="def process_data(data): return data",
-            language="python",
-            docstring="Process the data.",
-        )
-
-        assert "process_data" in prompt
-        assert "src/utils.py" in prompt
-        assert "Process the data" in prompt
-
-    def test_class_prompt_contains_required_info(self):
-        """Test that class prompt contains required information."""
-        from lattice.summarization.prompts import SummaryPrompts
-
-        prompt = SummaryPrompts.get_class_prompt(
-            name="DataProcessor",
-            file_path="src/processor.py",
-            code="class DataProcessor: pass",
-            language="python",
-            docstring="Handles data processing.",
-        )
-
-        assert "DataProcessor" in prompt
-        assert "src/processor.py" in prompt
-        assert "Handles data processing" in prompt
-
-    def test_function_prompt_without_docstring(self):
-        """Test function prompt when no docstring is provided."""
-        from lattice.summarization.prompts import SummaryPrompts
-
-        prompt = SummaryPrompts.get_function_prompt(
-            name="helper",
-            file_path="src/utils.py",
-            signature="def helper()",
-            code="def helper(): pass",
-            language="python",
-            docstring=None,
-        )
-
-        assert "helper" in prompt
-        # Should still be valid prompt
-
-    def test_class_prompt_without_docstring(self):
-        """Test class prompt when no docstring is provided."""
-        from lattice.summarization.prompts import SummaryPrompts
-
-        prompt = SummaryPrompts.get_class_prompt(
-            name="Service",
-            file_path="src/service.py",
-            code="class Service: pass",
-            language="python",
-            docstring=None,
-        )
-
-        assert "Service" in prompt
-
-
-# ============================================================================
 # Integration Tests
 # ============================================================================
 
@@ -377,12 +303,11 @@ class TestSummarizationIntegration:
         if not sample_project_path.exists():
             pytest.skip("Sample project not found")
 
-        from lattice.parsing.parser import CodeParser
         from lattice.parsing.scanner import FileScanner
 
         # Parse a real file
         scanner = FileScanner(sample_project_path)
-        parser = CodeParser()
+        parser = create_code_parser()
 
         user_file = sample_project_path / "src" / "models" / "user.py"
         if not user_file.exists():
@@ -395,7 +320,12 @@ class TestSummarizationIntegration:
         mock_provider = AsyncMock()
         mock_provider.complete = AsyncMock(return_value="Test summary for code")
 
-        summarizer = CodeSummarizer(llm_provider=mock_provider)
+        summarizer = CodeSummarizer(
+            llm_provider=mock_provider,
+            max_concurrent=5,
+            max_tokens=500,
+            temperature=0.7,
+        )
 
         # Summarize
         summaries = await summarizer.summarize_parsed_file(parsed_file)
@@ -416,11 +346,10 @@ class TestSummarizationIntegration:
         if not sample_project_path.exists():
             pytest.skip("Sample project not found")
 
-        from lattice.parsing.parser import CodeParser
         from lattice.parsing.scanner import FileScanner
 
         scanner = FileScanner(sample_project_path)
-        parser = CodeParser()
+        parser = create_code_parser()
 
         auth_file = sample_project_path / "src" / "api" / "auth.py"
         if not auth_file.exists():
@@ -432,7 +361,12 @@ class TestSummarizationIntegration:
         mock_provider = AsyncMock()
         mock_provider.complete = AsyncMock(return_value="Summary")
 
-        summarizer = CodeSummarizer(llm_provider=mock_provider)
+        summarizer = CodeSummarizer(
+            llm_provider=mock_provider,
+            max_concurrent=5,
+            max_tokens=500,
+            temperature=0.7,
+        )
         summaries = await summarizer.summarize_parsed_file(parsed_file)
 
         # Check for method qualified names (e.g., AuthService.login)

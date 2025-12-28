@@ -2,18 +2,19 @@ import asyncio
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from lattice.shared.cache import FunctionRegistry
-from lattice.infrastructure.qdrant import QdrantManager
-from lattice.infrastructure.memgraph.client import MemgraphClient
 from lattice.indexing.progress import ProgressTracker
+from lattice.infrastructure.llm import BaseEmbeddingProvider
+from lattice.infrastructure.memgraph import MemgraphClient
+from lattice.infrastructure.qdrant import QdrantManager
 from lattice.parsing.api import (
     CallProcessor,
+    CodeParser,
     ImportProcessor,
     InheritanceTracker,
     ParsedFile,
-    CodeParser,
 )
-from lattice.infrastructure.llm import BaseEmbeddingProvider
+from lattice.shared.cache import FunctionRegistry
+from lattice.shared.config import PipelineRuntimeConfig
 from lattice.summarization.api import CodeSummarizer
 
 
@@ -28,8 +29,8 @@ class PipelineContext:
     embedder: BaseEmbeddingProvider
     summarizer: CodeSummarizer
 
-    max_workers: int = 4
-    max_concurrent_api: int = 5
+    max_workers: int = PipelineRuntimeConfig.max_workers
+    max_concurrent_api: int = PipelineRuntimeConfig.max_concurrent_api
     force: bool = False
     skip_metadata: bool = False
 

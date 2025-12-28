@@ -2,8 +2,8 @@
 
 import pytest
 
-from lattice.infrastructure.memgraph.client import MemgraphClient
-from lattice.infrastructure.qdrant.client import QdrantManager, CollectionName
+from lattice.infrastructure.memgraph import create_memgraph_client
+from lattice.infrastructure.qdrant import CollectionName, create_qdrant_manager
 
 
 class TestMemgraphConnection:
@@ -12,7 +12,7 @@ class TestMemgraphConnection:
     @pytest.mark.asyncio
     async def test_connect_to_memgraph(self):
         """Test connecting to Memgraph."""
-        client = MemgraphClient()
+        client = create_memgraph_client()
         try:
             await client.connect()
             assert await client.health_check(), "Memgraph should be healthy"
@@ -22,14 +22,14 @@ class TestMemgraphConnection:
     @pytest.mark.asyncio
     async def test_execute_query(self):
         """Test executing a simple query."""
-        async with MemgraphClient() as client:
+        async with create_memgraph_client() as client:
             result = await client.execute("RETURN 1 + 1 AS result")
             assert result[0]["result"] == 2
 
     @pytest.mark.asyncio
     async def test_create_and_query_node(self):
         """Test creating and querying a node."""
-        async with MemgraphClient() as client:
+        async with create_memgraph_client() as client:
             # Create a test node
             await client.execute(
                 "CREATE (t:TestNode {name: $name})",
@@ -53,7 +53,7 @@ class TestMemgraphConnection:
     @pytest.mark.asyncio
     async def test_get_node_count(self):
         """Test getting node count."""
-        async with MemgraphClient() as client:
+        async with create_memgraph_client() as client:
             count = await client.get_node_count()
             assert isinstance(count, int)
             assert count >= 0
@@ -65,7 +65,7 @@ class TestQdrantConnection:
     @pytest.mark.asyncio
     async def test_connect_to_qdrant(self):
         """Test connecting to Qdrant."""
-        manager = QdrantManager()
+        manager = create_qdrant_manager()
         try:
             await manager.connect()
             assert await manager.health_check(), "Qdrant should be healthy"
@@ -75,7 +75,7 @@ class TestQdrantConnection:
     @pytest.mark.asyncio
     async def test_create_collections(self):
         """Test creating collections."""
-        async with QdrantManager() as manager:
+        async with create_qdrant_manager() as manager:
             await manager.create_collections()
 
             collections = await manager.client.get_collections()
@@ -89,7 +89,7 @@ class TestQdrantConnection:
         """Test upserting and searching vectors."""
         import uuid
 
-        async with QdrantManager() as manager:
+        async with create_qdrant_manager() as manager:
             await manager.create_collections()
 
             test_vector = [0.1] * 1536
@@ -131,11 +131,11 @@ class TestDatabaseIntegration:
     async def test_both_databases_accessible(self):
         """Test that both databases are accessible."""
         # Test Memgraph
-        async with MemgraphClient() as memgraph:
+        async with create_memgraph_client() as memgraph:
             mg_healthy = await memgraph.health_check()
 
         # Test Qdrant
-        async with QdrantManager() as qdrant:
+        async with create_qdrant_manager() as qdrant:
             qd_healthy = await qdrant.health_check()
 
         assert mg_healthy, "Memgraph should be accessible"

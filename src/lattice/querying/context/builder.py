@@ -3,9 +3,8 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from lattice.shared.exceptions import QueryError
+from lattice.infrastructure.memgraph import MemgraphClient
 from lattice.infrastructure.qdrant import CollectionName, QdrantManager
-from lattice.infrastructure.memgraph.client import MemgraphClient
 from lattice.querying.context.models import (
     MAX_CODE_SNIPPET_LENGTH,
     MAX_CONTEXT_ENTITIES,
@@ -16,6 +15,7 @@ from lattice.querying.context.models import (
 )
 from lattice.querying.graph_reasoning import GraphContext, GraphNode, GraphPath
 from lattice.querying.query_planner import QueryPlan
+from lattice.shared.exceptions import QueryError
 
 logger = logging.getLogger(__name__)
 
@@ -71,9 +71,7 @@ class ContextBuilder:
                 )
 
             if graph_context.parent_classes or graph_context.child_classes:
-                enriched.hierarchy_explanations = self._build_hierarchy_explanations(
-                    graph_context
-                )
+                enriched.hierarchy_explanations = self._build_hierarchy_explanations(graph_context)
 
             relevant_files = self._collect_relevant_files(graph_context, vector_results)
             enriched.file_summaries = await self._build_file_summaries(relevant_files)
@@ -189,10 +187,7 @@ class ContextBuilder:
 
         for chain in call_chains[:5]:
             if len(chain.nodes) >= 2:
-                path_desc = " → ".join(
-                    f"{node.name} ({node.node_type})"
-                    for node in chain.nodes
-                )
+                path_desc = " → ".join(f"{node.name} ({node.node_type})" for node in chain.nodes)
                 explanation = f"Call chain ({chain.total_length} hops): {path_desc}"
                 explanations.append(explanation)
 
@@ -202,15 +197,11 @@ class ContextBuilder:
         explanations = []
 
         if graph_context.parent_classes:
-            ancestors = " → ".join(
-                p.name for p in graph_context.parent_classes[:5]
-            )
+            ancestors = " → ".join(p.name for p in graph_context.parent_classes[:5])
             explanations.append(f"Inherits from: {ancestors}")
 
         if graph_context.child_classes:
-            children = ", ".join(
-                c.name for c in graph_context.child_classes[:5]
-            )
+            children = ", ".join(c.name for c in graph_context.child_classes[:5])
             count = len(graph_context.child_classes)
             if count > 5:
                 children += f" (and {count - 5} more)"
@@ -267,7 +258,9 @@ class ContextBuilder:
                     summary = r.get("summary", "")
 
                     if summary:
-                        summaries[file_path] = f"{file_name} ({language}, {entity_count} entities): {summary}"
+                        summaries[file_path] = (
+                            f"{file_name} ({language}, {entity_count} entities): {summary}"
+                        )
                     else:
                         summaries[file_path] = f"{file_name} ({language}, {entity_count} entities)"
 
@@ -281,7 +274,9 @@ class ContextBuilder:
 
         if graph_context.primary_entities:
             entity_names = ", ".join(e.name for e in graph_context.primary_entities[:3])
-            parts.append(f"Found {len(graph_context.primary_entities)} primary entities: {entity_names}")
+            parts.append(
+                f"Found {len(graph_context.primary_entities)} primary entities: {entity_names}"
+            )
 
         if graph_context.callers:
             parts.append(f"{len(graph_context.callers)} callers found")

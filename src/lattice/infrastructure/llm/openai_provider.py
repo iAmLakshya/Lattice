@@ -4,12 +4,12 @@ import logging
 
 from openai import AsyncOpenAI
 
-from lattice.shared.exceptions import EmbeddingError, SummarizationError
 from lattice.infrastructure.llm.base import (
     BaseEmbeddingProvider,
     BaseLLMProvider,
     ProviderConfig,
 )
+from lattice.shared.exceptions import EmbeddingError, SummarizationError
 
 logger = logging.getLogger(__name__)
 

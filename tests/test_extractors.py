@@ -7,7 +7,7 @@ from lattice.shared.types import EntityType, Language
 from lattice.parsing.extractors.python import PythonExtractor
 from lattice.parsing.extractors.javascript import JavaScriptExtractor
 from lattice.parsing.extractors.typescript import TypeScriptExtractor
-from lattice.parsing.parser import CodeParser
+from lattice.parsing.parser import create_code_parser
 
 
 # ============================================================================
@@ -23,7 +23,7 @@ class TestPythonExtractor:
 
     @pytest.fixture
     def parser(self):
-        return CodeParser()
+        return create_code_parser()
 
     def test_extract_simple_function(self, parser):
         """Test extraction of a simple function."""
@@ -314,7 +314,7 @@ class TestJavaScriptExtractor:
 
     @pytest.fixture
     def parser(self):
-        return CodeParser()
+        return create_code_parser()
 
     def test_extract_function_declaration(self, parser):
         """Test extraction of function declaration."""
@@ -502,7 +502,7 @@ class TestTypeScriptExtractor:
 
     @pytest.fixture
     def parser(self):
-        return CodeParser()
+        return create_code_parser()
 
     def test_extract_interface(self, parser):
         """Test extraction of TypeScript interface."""
@@ -646,7 +646,7 @@ class TestExtractorsIntegration:
 
     @pytest.fixture
     def parser(self):
-        return CodeParser()
+        return create_code_parser()
 
     def test_parse_user_model(self, parser, sample_project_path):
         """Test parsing the User model from sample project."""

@@ -1,14 +1,20 @@
-from lattice.documents.chunker import DocumentChunker
-from lattice.documents.drift_detector import DriftDetector
-from lattice.documents.factory import create_document_service
-from lattice.documents.indexer import DocumentIndexer, DocumentSearcher
-from lattice.documents.link_finder import AILinkFinder
-from lattice.documents.models import (
+from lattice.documents.api import (
+    AILinkFinder,
     Document,
     DocumentChunk,
+    DocumentChunker,
+    DocumentChunkRepository,
+    DocumentIndexer,
     DocumentInfo,
     DocumentLink,
+    DocumentLinkRepository,
+    DocumentRepository,
+    DocumentScanner,
+    DocumentSearcher,
+    DocumentService,
     DriftAnalysis,
+    DriftAnalysisRepository,
+    DriftDetector,
     DriftStatus,
     ExplicitReference,
     HeadingSection,
@@ -16,30 +22,32 @@ from lattice.documents.models import (
     IndexingProgress,
     IndexingResult,
     LinkType,
-)
-from lattice.documents.operations import (
+    ReferenceExtractor,
     check_drift,
+    create_document_chunker,
+    create_document_service,
     establish_links,
     get_known_entities,
     index_documents,
     search_documents,
 )
-from lattice.documents.reference_extractor import ReferenceExtractor
-from lattice.documents.scanner import DocumentScanner
-from lattice.documents.service import DocumentService
 
 __all__ = [
     "AILinkFinder",
     "Document",
     "DocumentChunk",
+    "DocumentChunkRepository",
     "DocumentChunker",
     "DocumentIndexer",
     "DocumentInfo",
     "DocumentLink",
+    "DocumentLinkRepository",
+    "DocumentRepository",
     "DocumentScanner",
     "DocumentSearcher",
     "DocumentService",
     "DriftAnalysis",
+    "DriftAnalysisRepository",
     "DriftDetector",
     "DriftStatus",
     "ExplicitReference",
@@ -50,6 +58,7 @@ __all__ = [
     "LinkType",
     "ReferenceExtractor",
     "check_drift",
+    "create_document_chunker",
     "create_document_service",
     "establish_links",
     "get_known_entities",

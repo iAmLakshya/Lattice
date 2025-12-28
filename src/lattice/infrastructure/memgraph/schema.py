@@ -24,8 +24,7 @@ class GraphSchema:
 
     def _generate_index_queries(self) -> list[str]:
         return [
-            f"CREATE INDEX ON :{label}({property});"
-            for label, property in self.INDEX_DEFINITIONS
+            f"CREATE INDEX ON :{label}({property});" for label, property in self.INDEX_DEFINITIONS
         ]
 
     async def setup(self) -> None:

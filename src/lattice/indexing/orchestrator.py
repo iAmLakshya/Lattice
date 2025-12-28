@@ -3,10 +3,6 @@ import logging
 from collections.abc import Callable
 from pathlib import Path
 
-from lattice.shared.cache import FunctionRegistry
-from lattice.shared.exceptions import IndexingError
-from lattice.infrastructure.qdrant import QdrantManager
-from lattice.infrastructure.memgraph.client import MemgraphClient
 from lattice.indexing.context import PipelineContext
 from lattice.indexing.progress import ProgressTracker
 from lattice.indexing.stages import (
@@ -17,8 +13,12 @@ from lattice.indexing.stages import (
     ScanStage,
     SummarizeStage,
 )
-from lattice.parsing.api import ImportProcessor, InheritanceTracker, CodeParser
 from lattice.infrastructure.llm import BaseEmbeddingProvider
+from lattice.infrastructure.memgraph import MemgraphClient
+from lattice.infrastructure.qdrant import QdrantManager
+from lattice.parsing.api import CodeParser, ImportProcessor, InheritanceTracker
+from lattice.shared.cache import FunctionRegistry
+from lattice.shared.exceptions import IndexingError
 from lattice.summarization.api import CodeSummarizer
 
 logger = logging.getLogger(__name__)

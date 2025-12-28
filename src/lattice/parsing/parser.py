@@ -6,15 +6,29 @@ from typing import TYPE_CHECKING, ClassVar
 
 from tree_sitter_language_pack import get_parser
 
-from lattice.shared.types import Language
 from lattice.parsing.extractors.base import BaseExtractor
 from lattice.parsing.extractors.javascript import JavaScriptExtractor
 from lattice.parsing.extractors.python import PythonExtractor
 from lattice.parsing.extractors.typescript import TypeScriptExtractor
 from lattice.parsing.models import CodeEntity, FileInfo, ImportInfo, ParsedFile
+from lattice.shared.types import Language
 
 if TYPE_CHECKING:
     from tree_sitter import Parser
+
+
+def create_default_extractors() -> dict[Language, BaseExtractor]:
+    return {
+        Language.PYTHON: PythonExtractor(),
+        Language.JAVASCRIPT: JavaScriptExtractor(),
+        Language.JSX: JavaScriptExtractor(),
+        Language.TYPESCRIPT: TypeScriptExtractor(),
+        Language.TSX: TypeScriptExtractor(),
+    }
+
+
+def create_code_parser() -> "CodeParser":
+    return CodeParser(extractors=create_default_extractors())
 
 
 class CodeParser:
@@ -28,19 +42,10 @@ class CodeParser:
 
     def __init__(
         self,
-        extractors: dict[Language, BaseExtractor] | None = None,
+        extractors: dict[Language, BaseExtractor],
     ) -> None:
         self._parsers: dict[str, Parser] = {}
-        if extractors is not None:
-            self._extractors = extractors
-        else:
-            self._extractors = {
-                Language.PYTHON: PythonExtractor(),
-                Language.JAVASCRIPT: JavaScriptExtractor(),
-                Language.JSX: JavaScriptExtractor(),
-                Language.TYPESCRIPT: TypeScriptExtractor(),
-                Language.TSX: TypeScriptExtractor(),
-            }
+        self._extractors = extractors
 
     def _get_parser(self, language: Language) -> Parser:
         lang_id = self.LANGUAGE_MAP.get(language)

@@ -163,14 +163,16 @@ class ImportProcessor:
             module_name = text[dots:]
 
         if dots > 0:
-            target_parts = module_parts[: -(dots)]
+            target_parts = module_parts[:-(dots)]
         else:
             target_parts = module_parts[:]
 
         if module_name:
             target_parts.extend(module_name.split("."))
 
-        return f"{self.project_name}.{'.'.join(target_parts)}" if target_parts else self.project_name
+        return (
+            f"{self.project_name}.{'.'.join(target_parts)}" if target_parts else self.project_name
+        )
 
     def _resolve_python_module(self, module_name: str) -> str:
         """Resolve module name, checking if local (in repo) or external."""
@@ -261,7 +263,9 @@ class ImportProcessor:
                                     module_path = safe_decode_text(arg)
                                     if var_name and module_path:
                                         module_path = module_path.strip("'\"")
-                                        resolved = self._resolve_js_module_path(module_path, module_qn)
+                                        resolved = self._resolve_js_module_path(
+                                            module_path, module_qn
+                                        )
                                         self.import_mapping[module_qn][var_name] = resolved
                                         logger.debug(f"JS require: {var_name} -> {resolved}")
                                     break

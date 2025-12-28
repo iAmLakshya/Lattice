@@ -3,17 +3,15 @@ import logging
 from collections.abc import Callable
 from pathlib import Path
 
+from lattice.documents.chunk_repository import DocumentChunkRepository
 from lattice.documents.drift_detector import DriftDetector
+from lattice.documents.drift_repository import DriftAnalysisRepository
+from lattice.documents.link_repository import DocumentLinkRepository
 from lattice.documents.models import (
     DriftAnalysis,
     IndexingProgress,
 )
-from lattice.documents.repository import (
-    DocumentChunkRepository,
-    DocumentLinkRepository,
-    DocumentRepository,
-    DriftAnalysisRepository,
-)
+from lattice.documents.repository import DocumentRepository
 
 logger = logging.getLogger(__name__)
 
@@ -56,10 +54,11 @@ async def check_drift(
     analyses = []
 
     if progress_callback:
-        progress_callback(IndexingProgress(
-            stage="drift", current=0, total=1,
-            message="Loading documents and chunks..."
-        ))
+        progress_callback(
+            IndexingProgress(
+                stage="drift", current=0, total=1, message="Loading documents and chunks..."
+            )
+        )
 
     if document_path:
         doc = await doc_repo.get_by_path(project_name, document_path)
@@ -74,35 +73,41 @@ async def check_drift(
             chunks.extend(doc_chunks)
 
     if progress_callback:
-        progress_callback(IndexingProgress(
-            stage="drift", current=0, total=1,
-            message=f"Found {len(chunks)} chunks, loading links..."
-        ))
+        progress_callback(
+            IndexingProgress(
+                stage="drift",
+                current=0,
+                total=1,
+                message=f"Found {len(chunks)} chunks, loading links...",
+            )
+        )
 
     all_links = []
     for chunk in chunks:
         links = await link_repo.get_by_chunk(chunk.id)
         if entity_name:
-            links = [
-                lnk for lnk in links
-                if lnk.code_entity_qualified_name == entity_name
-            ]
+            links = [lnk for lnk in links if lnk.code_entity_qualified_name == entity_name]
         for link in links:
             all_links.append((chunk, link))
 
     if not all_links:
         if progress_callback:
-            progress_callback(IndexingProgress(
-                stage="drift", current=1, total=1,
-                message="No links found to analyze"
-            ))
+            progress_callback(
+                IndexingProgress(
+                    stage="drift", current=1, total=1, message="No links found to analyze"
+                )
+            )
         return []
 
     if progress_callback:
-        progress_callback(IndexingProgress(
-            stage="drift", current=0, total=len(all_links),
-            message=f"Analyzing {len(all_links)} doc-code links (parallel={max_parallel})..."
-        ))
+        progress_callback(
+            IndexingProgress(
+                stage="drift",
+                current=0,
+                total=len(all_links),
+                message=f"Analyzing {len(all_links)} doc-code links (parallel={max_parallel})...",
+            )
+        )
 
     semaphore = asyncio.Semaphore(max_parallel)
     completed = 0
@@ -150,11 +155,13 @@ async def check_drift(
                 last_error = e
                 error_str = str(e).lower()
                 is_rate_limit = (
-                    "rate" in error_str or "limit" in error_str
-                    or "429" in error_str or "overloaded" in error_str
+                    "rate" in error_str
+                    or "limit" in error_str
+                    or "429" in error_str
+                    or "overloaded" in error_str
                 )
                 if is_rate_limit:
-                    wait_time = (2 ** attempt) * 2 + 5
+                    wait_time = (2**attempt) * 2 + 5
                     logger.warning(
                         f"Rate limit hit for {link.code_entity_qualified_name}, "
                         f"retry {attempt + 1}/{max_retries} in {wait_time}s"
@@ -167,10 +174,14 @@ async def check_drift(
         async with results_lock:
             completed += 1
             if progress_callback:
-                progress_callback(IndexingProgress(
-                    stage="drift", current=completed, total=len(all_links),
-                    message=f"Analyzing ({completed}/{len(all_links)})..."
-                ))
+                progress_callback(
+                    IndexingProgress(
+                        stage="drift",
+                        current=completed,
+                        total=len(all_links),
+                        message=f"Analyzing ({completed}/{len(all_links)})...",
+                    )
+                )
 
             if analysis is None:
                 skipped += 1
@@ -190,10 +201,7 @@ async def check_drift(
             analysis.drift_score,
         )
 
-    tasks = [
-        analyze_with_retry(idx, chunk, link)
-        for idx, (chunk, link) in enumerate(all_links)
-    ]
+    tasks = [analyze_with_retry(idx, chunk, link) for idx, (chunk, link) in enumerate(all_links)]
     await asyncio.gather(*tasks, return_exceptions=True)
 
     for analysis in entity_analyses.values():
@@ -201,9 +209,13 @@ async def check_drift(
         analyses.append(saved_analysis)
 
     if progress_callback:
-        progress_callback(IndexingProgress(
-            stage="drift", current=len(all_links), total=len(all_links),
-            message=f"Complete ({skipped} skipped, {len(analyses)} analyzed)"
-        ))
+        progress_callback(
+            IndexingProgress(
+                stage="drift",
+                current=len(all_links),
+                total=len(all_links),
+                message=f"Complete ({skipped} skipped, {len(analyses)} analyzed)",
+            )
+        )
 
     return analyses

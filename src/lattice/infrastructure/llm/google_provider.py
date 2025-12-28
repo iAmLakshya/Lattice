@@ -11,12 +11,12 @@ Setup:
 import logging
 from typing import TYPE_CHECKING
 
-from lattice.shared.exceptions import EmbeddingError, SummarizationError
 from lattice.infrastructure.llm.base import (
     BaseEmbeddingProvider,
     BaseLLMProvider,
     ProviderConfig,
 )
+from lattice.shared.exceptions import EmbeddingError, SummarizationError
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +35,7 @@ def _configure_google(api_key: str | None) -> None:
     """
     try:
         import google.generativeai as genai
+
         genai.configure(api_key=api_key)
     except ImportError:
         raise ImportError(
@@ -65,6 +66,7 @@ class GoogleLLMProvider(BaseLLMProvider):
         _configure_google(config.api_key)
 
         import google.generativeai as genai
+
         self._model = genai.GenerativeModel(config.model)
         logger.info(f"Initialized Google LLM provider with model {config.model}")
 

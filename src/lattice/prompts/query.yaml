@@ -1,3 +1,9 @@
+planning_system:
+  description: System prompt for query planner analysis
+  template: |
+    You are an expert code search strategist. Analyze developer questions to determine
+    the optimal search strategy. Respond with valid JSON only - no markdown, no code blocks.
+
 system:
   description: Main system prompt for code analysis responses
   template: |

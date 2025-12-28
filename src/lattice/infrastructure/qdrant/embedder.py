@@ -1,8 +1,8 @@
 import logging
 from collections.abc import Callable, Sequence
 
-from lattice.shared.config import get_settings
 from lattice.infrastructure.llm import BaseEmbeddingProvider, get_embedding_provider
+from lattice.shared.config import ProvidersConfig, get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ def create_embedder(
 async def embed_with_progress(
     provider: BaseEmbeddingProvider,
     texts: Sequence[str],
-    batch_size: int = 100,
+    batch_size: int = ProvidersConfig.default_batch_size,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> list[list[float]]:
     all_embeddings = []

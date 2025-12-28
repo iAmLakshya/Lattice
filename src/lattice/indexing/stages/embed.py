@@ -1,9 +1,9 @@
 import asyncio
 import logging
 
-from lattice.shared.types import PipelineStage as PipelineStageEnum
-from lattice.infrastructure.qdrant.indexer import VectorIndexer
 from lattice.indexing.context import PipelineContext
+from lattice.infrastructure.qdrant import VectorIndexer
+from lattice.shared.types import PipelineStage as PipelineStageEnum
 
 logger = logging.getLogger(__name__)
 

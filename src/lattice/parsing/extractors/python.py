@@ -1,6 +1,6 @@
-from lattice.shared.types import EntityType
 from lattice.parsing.extractors.base import BaseExtractor
 from lattice.parsing.models import CodeEntity, ImportInfo
+from lattice.shared.types import EntityType
 
 
 class PythonExtractor(BaseExtractor):
@@ -96,7 +96,14 @@ class PythonExtractor(BaseExtractor):
 
         return entities
 
-    def _extract_callable_base(self, node, source: str, func_node=None, entity_type: EntityType = EntityType.FUNCTION, parent_class: str | None = None):
+    def _extract_callable_base(
+        self,
+        node,
+        source: str,
+        func_node=None,
+        entity_type: EntityType = EntityType.FUNCTION,
+        parent_class: str | None = None,
+    ):
         if func_node is None:
             func_node = node
 
@@ -128,7 +135,9 @@ class PythonExtractor(BaseExtractor):
             end_line=self._get_node_end_line(node),
             is_async=is_async,
             is_static="@staticmethod" in decorators if entity_type == EntityType.METHOD else False,
-            is_classmethod="@classmethod" in decorators if entity_type == EntityType.METHOD else False,
+            is_classmethod="@classmethod" in decorators
+            if entity_type == EntityType.METHOD
+            else False,
             decorators=decorators,
             parent_class=parent_class,
             calls=calls,

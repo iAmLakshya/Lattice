@@ -62,7 +62,9 @@ def format_context_for_llm(enriched: EnrichedContext) -> str:
         sections.append("\n## Related Code\n")
         for snippet in enriched.code_snippets[:3]:
             sections.append(f"### {snippet.entity_name} ({snippet.entity_type})\n")
-            sections.append(f"**File**: `{snippet.file_path}` (lines {snippet.start_line}-{snippet.end_line})\n")
+            sections.append(
+                f"**File**: `{snippet.file_path}` (lines {snippet.start_line}-{snippet.end_line})\n"
+            )
             lang = snippet.language or ""
             sections.append(f"```{lang}\n{snippet.content}\n```\n")
 

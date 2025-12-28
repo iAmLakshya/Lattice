@@ -6,14 +6,14 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from lattice.shared.config import get_settings
+from lattice.indexing.handlers import FileUpdateHandler
 from lattice.shared.cache import ASTCache
-from lattice.parsing.api import get_config_for_file
+from lattice.shared.config import WatcherConfig, get_settings
 
 if TYPE_CHECKING:
-    from lattice.infrastructure.qdrant.indexer import VectorIndexer
-    from lattice.infrastructure.memgraph.builder import GraphBuilder
-    from lattice.parsing.parser import CodeParser
+    from lattice.infrastructure.memgraph import GraphBuilder
+    from lattice.infrastructure.qdrant import VectorIndexer
+    from lattice.parsing.api import CodeParser
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +26,7 @@ def _import_watchdog():
         return FileSystemEventHandler, Observer
     except ImportError:
         raise ImportError(
-            "Real-time updates require the 'watchdog' package. "
-            "Install with: pip install watchdog"
+            "Real-time updates require the 'watchdog' package. Install with: pip install watchdog"
         )
 
 
@@ -47,7 +46,7 @@ class FileChangeHandler:
         self.supported_extensions = set(settings.supported_extensions)
 
         self._pending_changes: dict[Path, str] = {}
-        self._debounce_delay = 0.5
+        self._debounce_delay = WatcherConfig.debounce_delay
 
     def _is_relevant(self, path: Path) -> bool:
         if path.suffix.lower() not in self.supported_extensions:
@@ -84,27 +83,40 @@ class FileWatcher:
         graph_builder: GraphBuilder,
         vector_indexer: VectorIndexer,
         parser: CodeParser,
-        ast_cache: ASTCache | None = None,
+        ast_cache: ASTCache,
         recalculate_calls: bool = True,
     ):
         self.repo_path = repo_path.resolve()
-        self.graph_builder = graph_builder
-        self.vector_indexer = vector_indexer
-        self.parser = parser
-        self.ast_cache = ast_cache or ASTCache()
-        self.recalculate_calls = recalculate_calls
+        self._handler = FileUpdateHandler(
+            repo_path=self.repo_path,
+            graph_builder=graph_builder,
+            vector_indexer=vector_indexer,
+            parser=parser,
+            ast_cache=ast_cache,
+            recalculate_calls=recalculate_calls,
+        )
 
         self._observer = None
         self._running = False
         self._update_queue: asyncio.Queue[tuple[str, Path]] = asyncio.Queue()
         self._update_task = None
         self._pending_changes: set[Path] = set()
-        self._batch_delay = 1.0
 
-        self.files_updated = 0
-        self.files_deleted = 0
-        self.calls_recalculated = 0
-        self.errors = 0
+    @property
+    def files_updated(self) -> int:
+        return self._handler.files_updated
+
+    @property
+    def files_deleted(self) -> int:
+        return self._handler.files_deleted
+
+    @property
+    def calls_recalculated(self) -> int:
+        return self._handler.calls_recalculated
+
+    @property
+    def errors(self) -> int:
+        return self._handler.errors
 
     async def start(self) -> None:
         if self._running:
@@ -166,7 +178,9 @@ class FileWatcher:
             self._update_task = None
 
         logger.info(f"Stopped watching: {self.repo_path}")
-        logger.info(f"Stats: {self.files_updated} updated, {self.files_deleted} deleted, {self.errors} errors")
+        logger.info(
+            f"Stats: {self.files_updated} updated, {self.files_deleted} deleted, {self.errors} errors"
+        )
 
     async def run_forever(self) -> None:
         await self.start()
@@ -193,9 +207,9 @@ class FileWatcher:
                 )
 
                 if action == "changed":
-                    await self._handle_file_changed(path)
+                    await self._handler.handle_file_changed(path)
                 elif action == "deleted":
-                    await self._handle_file_deleted(path)
+                    await self._handler.handle_file_deleted(path)
 
             except TimeoutError:
                 continue
@@ -203,114 +217,6 @@ class FileWatcher:
                 break
             except Exception as e:
                 logger.error(f"Error processing update: {e}")
-                self.errors += 1
-
-    async def _handle_file_changed(self, file_path: Path) -> None:
-        logger.info(f"Processing file change: {file_path}")
-
-        try:
-            if not file_path.exists():
-                logger.debug(f"File no longer exists: {file_path}")
-                return
-
-            lang_config = get_config_for_file(file_path)
-            if not lang_config:
-                logger.debug(f"Unsupported file type: {file_path}")
-                return
-
-            from lattice.shared.types import Language
-            from lattice.parsing.models import FileInfo
-
-            content = file_path.read_text(encoding="utf-8", errors="replace")
-            import hashlib
-
-            content_hash = hashlib.sha256(content.encode()).hexdigest()
-
-            lang_map = {
-                "python": Language.PYTHON,
-                "javascript": Language.JAVASCRIPT,
-                "typescript": Language.TYPESCRIPT,
-                "jsx": Language.JSX,
-                "tsx": Language.TSX,
-            }
-            language = lang_map.get(lang_config.name, Language.PYTHON)
-            file_info = FileInfo(
-                path=file_path,
-                relative_path=str(file_path.relative_to(self.repo_path)),
-                language=language,
-                content_hash=content_hash,
-                size_bytes=len(content.encode()),
-                line_count=content.count("\n") + 1,
-            )
-
-            parsed_file = await asyncio.to_thread(
-                self.parser.parse_file, file_info
-            )
-
-            if parsed_file:
-                relative_path = str(file_path.relative_to(self.repo_path))
-
-                await self.graph_builder.delete_file_entities(relative_path)
-
-                if file_path in self.ast_cache:
-                    del self.ast_cache[file_path]
-
-                await self.graph_builder.build_from_parsed_file(parsed_file)
-
-                await self.vector_indexer.index_file(
-                    parsed_file,
-                    project_name=self.repo_path.name,
-                )
-
-                if hasattr(parsed_file, "_tree") and parsed_file._tree:
-                    self.ast_cache[file_path] = (
-                        parsed_file._tree.root_node,
-                        lang_config.name,
-                    )
-
-                self.files_updated += 1
-                logger.info(f"Updated: {file_path}")
-
-                if self.recalculate_calls:
-                    await self._recalculate_calls_for_file(file_path)
-
-        except Exception as e:
-            logger.error(f"Failed to update {file_path}: {e}")
-            self.errors += 1
-
-    async def _recalculate_calls_for_file(self, changed_file: Path) -> None:
-        try:
-            relative_path = str(changed_file.relative_to(self.repo_path))
-
-            await self.graph_builder.delete_calls_for_file(relative_path)
-            await self.graph_builder.rebuild_calls_for_file(relative_path)
-
-            self.calls_recalculated += 1
-            logger.debug(f"Recalculated CALLS for: {relative_path}")
-
-        except AttributeError:
-            logger.debug("CALLS recalculation not supported by graph builder")
-        except Exception as e:
-            logger.warning(f"Failed to recalculate CALLS for {changed_file}: {e}")
-
-    async def _handle_file_deleted(self, file_path: Path) -> None:
-        logger.info(f"Processing file deletion: {file_path}")
-
-        try:
-            relative_path = str(file_path.relative_to(self.repo_path))
-
-            await self.graph_builder.delete_file_entities(relative_path)
-            await self.vector_indexer.delete_file(relative_path)
-
-            if file_path in self.ast_cache:
-                del self.ast_cache[file_path]
-
-            self.files_deleted += 1
-            logger.info(f"Deleted: {file_path}")
-
-        except Exception as e:
-            logger.error(f"Failed to delete {file_path}: {e}")
-            self.errors += 1
 
 
 async def start_watcher(
@@ -318,12 +224,14 @@ async def start_watcher(
     graph_builder: GraphBuilder,
     vector_indexer: VectorIndexer,
     parser: CodeParser,
+    ast_cache: ASTCache,
 ) -> FileWatcher:
     watcher = FileWatcher(
         repo_path=Path(repo_path),
         graph_builder=graph_builder,
         vector_indexer=vector_indexer,
         parser=parser,
+        ast_cache=ast_cache,
     )
     await watcher.start()
     return watcher

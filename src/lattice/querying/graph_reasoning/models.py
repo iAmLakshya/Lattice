@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from lattice.shared.config.loader import QueryReasoningConfig
+from lattice.shared.config import QueryReasoningConfig
 
 MAX_TRAVERSAL_DEPTH = QueryReasoningConfig.max_traversal_depth
 MAX_RESULTS_PER_QUERY = QueryReasoningConfig.max_results_per_query
@@ -54,3 +54,20 @@ class GraphContext:
     dependents: list[GraphNode]
     call_chains: list[GraphPath]
     inheritance_chains: list[GraphPath]
+
+    @classmethod
+    def empty(cls) -> "GraphContext":
+        return cls(
+            primary_entities=[],
+            callers=[],
+            callees=[],
+            parent_classes=[],
+            child_classes=[],
+            methods=[],
+            containing_class=None,
+            file_context=[],
+            dependencies=[],
+            dependents=[],
+            call_chains=[],
+            inheritance_chains=[],
+        )

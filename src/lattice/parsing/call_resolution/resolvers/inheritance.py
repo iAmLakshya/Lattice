@@ -39,7 +39,9 @@ def resolve_super_call(
         logger.debug(f"No inheritance info for {class_context}")
         return None
 
-    result = resolve_inherited_method(class_context, method_name, class_inheritance, function_registry)
+    result = resolve_inherited_method(
+        class_context, method_name, class_inheritance, function_registry
+    )
     if result:
         logger.debug(f"Resolved super() call: {call_name} -> {result[1]}")
         return result

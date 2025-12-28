@@ -1,26 +1,27 @@
-from lattice.metadata.generator import GenerationProgress, MetadataGenerator
-from lattice.metadata.models import (
+from lattice.metadata.api import (
     CoreFeature,
     DependencyInfo,
     EntryPoint,
     FolderNode,
+    GenerationProgress,
     MetadataGenerationResult,
+    MetadataGenerator,
+    MetadataRepository,
     MetadataStatus,
     ProjectMetadata,
     TechStack,
 )
-from lattice.metadata.repository import MetadataRepository
 
 __all__ = [
-    "MetadataStatus",
-    "FolderNode",
     "CoreFeature",
-    "TechStack",
     "DependencyInfo",
     "EntryPoint",
-    "ProjectMetadata",
-    "MetadataGenerationResult",
-    "MetadataRepository",
-    "MetadataGenerator",
+    "FolderNode",
     "GenerationProgress",
+    "MetadataGenerationResult",
+    "MetadataGenerator",
+    "MetadataRepository",
+    "MetadataStatus",
+    "ProjectMetadata",
+    "TechStack",
 ]

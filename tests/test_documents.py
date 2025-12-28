@@ -19,7 +19,7 @@ from lattice.documents.models import (
     LinkType,
 )
 from lattice.documents.scanner import DocumentScanner, DocumentScanStatistics
-from lattice.documents.chunker import DocumentChunker
+from lattice.documents.chunker import DocumentChunker, create_document_chunker
 
 
 class TestDriftStatus:
@@ -478,7 +478,7 @@ This function returns hello.
         if not sample_docs_path.exists():
             pytest.skip("Sample docs not found")
 
-        chunker = DocumentChunker()
+        chunker = create_document_chunker()
         auth_file = sample_docs_path / "authentication.md"
         content = auth_file.read_text()
 
@@ -526,7 +526,7 @@ class TestDocumentChunkerIntegration:
             pytest.skip("Sample docs not found")
 
         scanner = DocumentScanner(sample_docs_path)
-        chunker = DocumentChunker()
+        chunker = create_document_chunker()
 
         total_chunks = 0
         for doc_info in scanner.scan():

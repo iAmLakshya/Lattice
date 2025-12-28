@@ -1,11 +1,11 @@
 import logging
 from datetime import datetime
 
+from lattice.indexing.context import PipelineContext
+from lattice.infrastructure.postgres import create_postgres_client
+from lattice.metadata.api import GenerationProgress, MetadataGenerator, MetadataRepository
 from lattice.shared.config import get_settings
 from lattice.shared.types import PipelineStage as PipelineStageEnum
-from lattice.infrastructure.postgres.postgres import PostgresClient
-from lattice.indexing.context import PipelineContext
-from lattice.metadata.api import GenerationProgress, MetadataGenerator, MetadataRepository
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class MetadataStage:
 
         postgres = None
         try:
-            postgres = PostgresClient()
+            postgres = create_postgres_client()
             await postgres.connect()
 
             generator = MetadataGenerator(
@@ -60,8 +60,7 @@ class MetadataStage:
             )
 
             logger.info(
-                f"Metadata generation complete: "
-                f"{completed_count} succeeded, {failed_count} failed"
+                f"Metadata generation complete: {completed_count} succeeded, {failed_count} failed"
             )
 
         except Exception as e:

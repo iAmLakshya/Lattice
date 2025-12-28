@@ -11,26 +11,37 @@ from lattice.shared.exceptions import PostgresError
 logger = logging.getLogger(__name__)
 
 
+def create_postgres_client() -> "PostgresClient":
+    settings = get_settings().postgres
+    return PostgresClient(
+        host=settings.postgres_host,
+        port=settings.postgres_port,
+        database=settings.postgres_database,
+        user=settings.postgres_user,
+        password=settings.postgres_password.get_secret_value(),
+        min_pool=settings.postgres_pool_min,
+        max_pool=settings.postgres_pool_max,
+    )
+
+
 class PostgresClient:
     def __init__(
         self,
-        host: str | None = None,
-        port: int | None = None,
-        database: str | None = None,
-        user: str | None = None,
-        password: str | None = None,
-        min_pool: int | None = None,
-        max_pool: int | None = None,
+        host: str,
+        port: int,
+        database: str,
+        user: str,
+        password: str,
+        min_pool: int,
+        max_pool: int,
     ):
-        settings = get_settings().postgres
-
-        self._host = host or settings.postgres_host
-        self._port = port or settings.postgres_port
-        self._database = database or settings.postgres_database
-        self._user = user or settings.postgres_user
-        self._password = password or settings.postgres_password.get_secret_value()
-        self._min_pool = min_pool or settings.postgres_pool_min
-        self._max_pool = max_pool or settings.postgres_pool_max
+        self._host = host
+        self._port = port
+        self._database = database
+        self._user = user
+        self._password = password
+        self._min_pool = min_pool
+        self._max_pool = max_pool
 
         self._pool: Pool | None = None
 

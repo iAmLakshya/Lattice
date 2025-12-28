@@ -6,6 +6,11 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Generic, TypeVar
 
+from lattice.shared.config import CachingConfig
+
+DEFAULT_MAX_ENTRIES = CachingConfig.max_entries
+DEFAULT_MAX_MEMORY_MB = CachingConfig.max_memory_mb
+
 logger = logging.getLogger(__name__)
 
 K = TypeVar("K")
@@ -13,7 +18,11 @@ V = TypeVar("V")
 
 
 class BoundedCache(Generic[K, V]):
-    def __init__(self, max_entries: int = 1000, max_memory_mb: int = 500):
+    def __init__(
+        self,
+        max_entries: int = DEFAULT_MAX_ENTRIES,
+        max_memory_mb: int = DEFAULT_MAX_MEMORY_MB,
+    ):
         self._cache: OrderedDict[K, V] = OrderedDict()
         self.max_entries = max_entries
         self.max_memory_bytes = max_memory_mb * 1024 * 1024
@@ -70,7 +79,7 @@ class BoundedCache(Generic[K, V]):
             logger.debug(f"Evicted {evicted_key} due to entry limit")
 
         if self._should_evict_for_memory():
-            entries_to_remove = max(1, len(self._cache) // 10)
+            entries_to_remove = max(1, len(self._cache) // CachingConfig.eviction_fraction)
             for _ in range(entries_to_remove):
                 if self._cache:
                     evicted_key, _ = self._cache.popitem(last=False)
@@ -81,7 +90,9 @@ class BoundedCache(Generic[K, V]):
             cache_size = sum(sys.getsizeof(v) for v in self._cache.values())
             return cache_size > self.max_memory_bytes
         except Exception:
-            return len(self._cache) > int(self.max_entries * 0.8)
+            return len(self._cache) > int(
+                self.max_entries * CachingConfig.memory_pressure_threshold
+            )
 
     @property
     def hit_rate(self) -> float:

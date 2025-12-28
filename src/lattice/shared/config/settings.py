@@ -95,9 +95,7 @@ class FileSettings(BaseSettings):
         extra="ignore",
     )
 
-    supported_extensions: list[str] = Field(
-        default=[".py", ".js", ".jsx", ".ts", ".tsx"]
-    )
+    supported_extensions: list[str] = Field(default=[".py", ".js", ".jsx", ".ts", ".tsx"])
     ignore_patterns: list[str] = Field(
         default=[
             "node_modules",

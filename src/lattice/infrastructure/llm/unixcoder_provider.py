@@ -28,12 +28,14 @@ _TRANSFORMERS_AVAILABLE = False
 
 try:
     import torch
+
     _TORCH_AVAILABLE = True
 except ImportError:
     pass
 
 try:
     import transformers
+
     _TRANSFORMERS_AVAILABLE = True
 except ImportError:
     pass
@@ -68,9 +70,7 @@ if has_unixcoder_dependencies():
             self.tokenizer: RobertaTokenizer = RobertaTokenizer.from_pretrained(model_name)
             self.config: RobertaConfig = RobertaConfig.from_pretrained(model_name)
             self.config.is_decoder = True
-            self.model: RobertaModel = RobertaModel.from_pretrained(
-                model_name, config=self.config
-            )
+            self.model: RobertaModel = RobertaModel.from_pretrained(model_name, config=self.config)
 
             self.register_buffer(
                 "bias",

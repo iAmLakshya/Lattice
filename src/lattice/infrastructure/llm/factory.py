@@ -2,13 +2,13 @@
 
 import logging
 
-from lattice.shared.config import get_settings
-from lattice.shared.exceptions import ConfigurationError
 from lattice.infrastructure.llm.base import (
     BaseEmbeddingProvider,
     BaseLLMProvider,
     ProviderConfig,
 )
+from lattice.shared.config import get_settings
+from lattice.shared.exceptions import ConfigurationError
 
 logger = logging.getLogger(__name__)
 
@@ -178,18 +178,22 @@ def _create_llm_provider(config: ProviderConfig) -> BaseLLMProvider:
 
     if provider_name == "openai":
         from lattice.infrastructure.llm.openai_provider import OpenAILLMProvider
+
         return OpenAILLMProvider(config)
 
     elif provider_name == "ollama":
         from lattice.infrastructure.llm.ollama_provider import OllamaLLMProvider
+
         return OllamaLLMProvider(config)
 
     elif provider_name == "anthropic":
         from lattice.infrastructure.llm.anthropic_provider import AnthropicLLMProvider
+
         return AnthropicLLMProvider(config)
 
     elif provider_name == "google":
         from lattice.infrastructure.llm.google_provider import GoogleLLMProvider
+
         return GoogleLLMProvider(config)
 
     else:
@@ -215,18 +219,22 @@ def _create_embedding_provider(config: ProviderConfig) -> BaseEmbeddingProvider:
 
     if provider_name == "openai":
         from lattice.infrastructure.llm.openai_provider import OpenAIEmbeddingProvider
+
         return OpenAIEmbeddingProvider(config)
 
     elif provider_name == "ollama":
         from lattice.infrastructure.llm.ollama_provider import OllamaEmbeddingProvider
+
         return OllamaEmbeddingProvider(config)
 
     elif provider_name == "google":
         from lattice.infrastructure.llm.google_provider import GoogleEmbeddingProvider
+
         return GoogleEmbeddingProvider(config)
 
     elif provider_name == "unixcoder":
         from lattice.infrastructure.llm.unixcoder_provider import UniXcoderEmbeddingProvider
+
         return UniXcoderEmbeddingProvider(config)
 
     elif provider_name == "anthropic":

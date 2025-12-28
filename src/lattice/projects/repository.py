@@ -3,9 +3,9 @@
 import logging
 from datetime import datetime
 
-from lattice.shared.exceptions import GraphError
-from lattice.infrastructure.memgraph.client import MemgraphClient
+from lattice.infrastructure.memgraph import MemgraphClient
 from lattice.projects.models import Project, ProjectIndex
+from lattice.shared.exceptions import GraphError
 
 logger = logging.getLogger(__name__)
 
@@ -54,12 +54,14 @@ class ProjectRepository:
 
             if path:
                 entity_count = await self._get_entity_count(path)
-                projects_dict[name]["indexes"].append({
-                    "path": path,
-                    "file_count": file_count,
-                    "entity_count": entity_count,
-                    "indexed_at": self._parse_datetime(last_indexed_at),
-                })
+                projects_dict[name]["indexes"].append(
+                    {
+                        "path": path,
+                        "file_count": file_count,
+                        "entity_count": entity_count,
+                        "indexed_at": self._parse_datetime(last_indexed_at),
+                    }
+                )
 
         return [
             Project(

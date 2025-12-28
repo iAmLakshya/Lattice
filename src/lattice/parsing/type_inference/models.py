@@ -101,7 +101,7 @@ class MethodCallInfo:
     @classmethod
     def from_text(cls, text: str) -> MethodCallInfo | None:
         if "(" in text:
-            text_no_args = text[:text.index("(")]
+            text_no_args = text[: text.index("(")]
         else:
             text_no_args = text
 

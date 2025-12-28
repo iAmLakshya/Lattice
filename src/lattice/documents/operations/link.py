@@ -1,19 +1,17 @@
 import logging
 from collections.abc import Callable
 
+from lattice.documents.chunk_repository import DocumentChunkRepository
 from lattice.documents.link_finder import AILinkFinder
+from lattice.documents.link_repository import DocumentLinkRepository
 from lattice.documents.models import (
     DocumentLink,
     IndexingProgress,
     LinkType,
 )
 from lattice.documents.reference_extractor import ReferenceExtractor
-from lattice.documents.repository import (
-    DocumentChunkRepository,
-    DocumentLinkRepository,
-    DocumentRepository,
-)
-from lattice.infrastructure.memgraph.client import MemgraphClient
+from lattice.documents.repository import DocumentRepository
+from lattice.infrastructure.memgraph import EntityQueries, MemgraphClient
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +62,6 @@ async def get_known_entities(
     project_id = project_name
 
     try:
-        from lattice.infrastructure.memgraph.queries import EntityQueries
         await memgraph.execute(EntityQueries.BACKFILL_PROJECT_ID, {})
 
         query = """
@@ -112,9 +109,7 @@ async def establish_links(
                 )
 
             if known_entities:
-                explicit_refs = reference_extractor.extract(
-                    chunk.content, known_entities
-                )
+                explicit_refs = reference_extractor.extract(chunk.content, known_entities)
 
                 for ref in explicit_refs:
                     details = entity_details.get(ref.entity_qualified_name, {})

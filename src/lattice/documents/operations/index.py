@@ -4,9 +4,11 @@ from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 
+from lattice.documents.chunk_repository import DocumentChunkRepository
 from lattice.documents.chunker import DocumentChunker
 from lattice.documents.indexer import DocumentIndexer
 from lattice.documents.link_finder import AILinkFinder
+from lattice.documents.link_repository import DocumentLinkRepository
 from lattice.documents.models import (
     Document,
     IndexingProgress,
@@ -14,14 +16,9 @@ from lattice.documents.models import (
 )
 from lattice.documents.operations.link import establish_links, get_known_entities
 from lattice.documents.reference_extractor import ReferenceExtractor
-from lattice.documents.repository import (
-    DocumentChunkRepository,
-    DocumentLinkRepository,
-    DocumentRepository,
-)
+from lattice.documents.repository import DocumentRepository
 from lattice.documents.scanner import DocumentScanner
-from lattice.infrastructure.memgraph.client import MemgraphClient
-from lattice.infrastructure.memgraph.queries import DocumentQueries
+from lattice.infrastructure.memgraph import DocumentQueries, MemgraphClient
 
 logger = logging.getLogger(__name__)
 

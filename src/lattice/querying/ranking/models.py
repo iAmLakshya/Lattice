@@ -2,8 +2,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from lattice.shared.types import ResultSource
 from lattice.querying.query_planner import QueryIntent
+from lattice.shared.types import ResultSource
 
 DEFAULT_GRAPH_WEIGHT = 0.5
 DEFAULT_VECTOR_WEIGHT = 0.5

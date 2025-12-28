@@ -584,10 +584,10 @@ class TestEmbeddingsIntegration:
             pytest.skip("Sample project not found")
 
         from lattice.parsing.scanner import FileScanner
-        from lattice.parsing.parser import CodeParser
+        from lattice.parsing.parser import create_code_parser
 
         scanner = FileScanner(sample_project_path)
-        parser = CodeParser()
+        parser = create_code_parser()
 
         total_chunks = 0
         files_processed = 0
@@ -613,10 +613,10 @@ class TestEmbeddingsIntegration:
             pytest.skip("Sample project not found")
 
         from lattice.parsing.scanner import FileScanner
-        from lattice.parsing.parser import CodeParser
+        from lattice.parsing.parser import create_code_parser
 
         scanner = FileScanner(sample_project_path)
-        parser = CodeParser()
+        parser = create_code_parser()
 
         user_file = sample_project_path / "src" / "models" / "user.py"
         if not user_file.exists():

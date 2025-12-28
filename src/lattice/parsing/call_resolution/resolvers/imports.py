@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING
 from lattice.parsing.call_resolution.resolvers.inheritance import resolve_inherited_method
 
 if TYPE_CHECKING:
-    from lattice.shared.cache import FunctionRegistry
     from lattice.parsing.import_processor import ImportProcessor
+    from lattice.shared.cache import FunctionRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +41,13 @@ def resolve_via_imports(
 
             if local_var_types and object_name in local_var_types:
                 var_type = local_var_types[object_name]
-                class_qn = _resolve_type_to_class(var_type, module_qn, import_map, function_registry)
+                class_qn = _resolve_type_to_class(
+                    var_type, module_qn, import_map, function_registry
+                )
                 if class_qn:
-                    return _try_resolve_method(class_qn, method_name, class_inheritance, function_registry)
+                    return _try_resolve_method(
+                        class_qn, method_name, class_inheritance, function_registry
+                    )
 
             if object_name in import_map:
                 imported_qn = import_map[object_name]

@@ -2,52 +2,62 @@ import asyncio
 import logging
 from collections.abc import Callable
 
-from lattice.shared.config import get_settings
-from lattice.shared.config.loader import SummarizationConfig
-from lattice.shared.exceptions import SummarizationError
-from lattice.shared.protocols import LLMProvider
-from lattice.shared.types import EntityType
+from lattice.infrastructure.llm import BaseLLMProvider, get_llm_provider
 from lattice.parsing.api import CodeEntity, ParsedFile
 from lattice.prompts import get_prompt
-from lattice.infrastructure.llm import get_llm_provider
-from lattice.infrastructure.llm.base import BaseLLMProvider
+from lattice.shared.config import SummarizationConfig, get_settings
+from lattice.shared.exceptions import SummarizationError
+from lattice.shared.api import LLMProviderProtocol as LLMProvider
+from lattice.shared.types import EntityType
 
 logger = logging.getLogger(__name__)
+
+
+def create_code_summarizer(
+    provider: str | None = None,
+    model: str | None = None,
+    api_key: str | None = None,
+    base_url: str | None = None,
+    max_concurrent: int | None = None,
+    max_tokens: int | None = None,
+    temperature: float | None = None,
+) -> "CodeSummarizer":
+    settings = get_settings()
+    final_max_tokens = max_tokens or SummarizationConfig.default_max_tokens
+    final_temperature = temperature if temperature is not None else SummarizationConfig.default_temperature
+    final_max_concurrent = max_concurrent or settings.max_concurrent_requests
+
+    llm_provider = get_llm_provider(
+        provider=provider,
+        model=model,
+        api_key=api_key,
+        base_url=base_url,
+        temperature=final_temperature,
+        max_tokens=final_max_tokens,
+    )
+
+    return CodeSummarizer(
+        llm_provider=llm_provider,
+        max_concurrent=final_max_concurrent,
+        max_tokens=final_max_tokens,
+        temperature=final_temperature,
+    )
 
 
 class CodeSummarizer:
     def __init__(
         self,
-        llm_provider: LLMProvider | BaseLLMProvider | None = None,
-        provider: str | None = None,
-        model: str | None = None,
-        api_key: str | None = None,
-        base_url: str | None = None,
-        max_concurrent: int | None = None,
-        max_tokens: int | None = None,
-        temperature: float | None = None,
+        llm_provider: LLMProvider | BaseLLMProvider,
+        max_concurrent: int,
+        max_tokens: int,
+        temperature: float,
     ):
-        settings = get_settings()
-        self.max_tokens = max_tokens or SummarizationConfig.default_max_tokens
-        if temperature is not None:
-            self.temperature = temperature
-        else:
-            self.temperature = SummarizationConfig.default_temperature
-        self.max_concurrent = max_concurrent or settings.max_concurrent_requests
+        self.max_tokens = max_tokens
+        self.temperature = temperature
+        self.max_concurrent = max_concurrent
+        self._llm_provider = llm_provider
 
-        if llm_provider is not None:
-            self._llm_provider = llm_provider
-        else:
-            self._llm_provider = get_llm_provider(
-                provider=provider,
-                model=model,
-                api_key=api_key,
-                base_url=base_url,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens,
-            )
-
-        if hasattr(self._llm_provider, 'set_concurrency'):
+        if hasattr(self._llm_provider, "set_concurrency"):
             self._llm_provider.set_concurrency(self.max_concurrent)
 
         self._semaphore = asyncio.Semaphore(self.max_concurrent)
@@ -57,10 +67,7 @@ class CodeSummarizer:
             EntityType.METHOD: self._summarize_function,
         }
 
-        logger.info(
-            f"Initialized CodeSummarizer with "
-            f"{getattr(self._llm_provider, 'config', {})}"
-        )
+        logger.info(f"Initialized CodeSummarizer with {getattr(self._llm_provider, 'config', {})}")
 
     async def _complete(self, system_message: str, user_message: str) -> str:
         try:
@@ -79,9 +86,10 @@ class CodeSummarizer:
 
     async def summarize_file(self, parsed_file: ParsedFile) -> str:
         logger.debug(f"Summarizing file: {parsed_file.file_info.relative_path}")
-        content = parsed_file.content[:SummarizationConfig.file_code_max_chars]
+        content = parsed_file.content[: SummarizationConfig.file_code_max_chars]
         prompt = get_prompt(
-            "summarization", "file",
+            "summarization",
+            "file",
             file_path=parsed_file.file_info.relative_path,
             language=parsed_file.file_info.language.value,
             content=content,
@@ -96,10 +104,11 @@ class CodeSummarizer:
         language: str,
     ) -> str:
         logger.debug(f"Summarizing function: {entity.qualified_name}")
-        code = entity.code[:SummarizationConfig.function_code_max_chars]
+        code = entity.code[: SummarizationConfig.function_code_max_chars]
         docstring_section = f"Existing docstring:\n{entity.docstring}" if entity.docstring else ""
         prompt = get_prompt(
-            "summarization", "function",
+            "summarization",
+            "function",
             entity_name=entity.name,
             file_path=file_path,
             signature=entity.signature or "",
@@ -117,10 +126,11 @@ class CodeSummarizer:
         language: str,
     ) -> str:
         logger.debug(f"Summarizing class: {entity.qualified_name}")
-        code = entity.code[:SummarizationConfig.class_code_max_chars]
+        code = entity.code[: SummarizationConfig.class_code_max_chars]
         docstring_section = f"Existing docstring:\n{entity.docstring}" if entity.docstring else ""
         prompt = get_prompt(
-            "summarization", "class",
+            "summarization",
+            "class",
             entity_name=entity.name,
             file_path=file_path,
             code=code,

@@ -1,8 +1,8 @@
-from lattice.shared.exceptions import GraphError
-from lattice.infrastructure.memgraph.client import MemgraphClient
+from lattice.infrastructure.memgraph import MemgraphClient
 from lattice.querying.graph_reasoning.models import GraphNode
 from lattice.querying.graph_reasoning.node_utils import result_to_node
 from lattice.querying.graph_reasoning.queries import MultiHopGraphQueries
+from lattice.shared.exceptions import GraphError
 
 
 async def find_entity(

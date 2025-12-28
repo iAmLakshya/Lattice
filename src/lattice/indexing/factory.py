@@ -3,14 +3,12 @@ import os
 from collections.abc import Callable
 from pathlib import Path
 
-from lattice.shared.config import get_settings
-from lattice.infrastructure.qdrant import QdrantManager
-from lattice.infrastructure.qdrant.embedder import create_embedder
-from lattice.infrastructure.memgraph.client import MemgraphClient
-from lattice.infrastructure.memgraph.schema import GraphSchema
 from lattice.indexing.orchestrator import PipelineOrchestrator
-from lattice.parsing.api import CodeParser
-from lattice.summarization.api import CodeSummarizer
+from lattice.infrastructure.memgraph import GraphSchema, MemgraphClient
+from lattice.infrastructure.qdrant import QdrantManager, create_embedder
+from lattice.parsing.api import CodeParser, create_default_extractors
+from lattice.shared.config import get_settings
+from lattice.summarization.api import create_code_summarizer
 
 logger = logging.getLogger(__name__)
 
@@ -38,9 +36,9 @@ async def create_pipeline_orchestrator(
     await qdrant.connect()
     await qdrant.create_collections()
 
-    parser = CodeParser()
+    parser = CodeParser(extractors=create_default_extractors())
     embedder = create_embedder()
-    summarizer = CodeSummarizer()
+    summarizer = create_code_summarizer()
 
     logger.info(
         f"Pipeline initialized with {max_workers} workers, "

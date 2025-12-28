@@ -80,9 +80,7 @@ def infer_method_return_type(
     if func_node.type == "identifier":
         func_name = get_node_text(func_node)
         if func_name and func_name[0].isupper():
-            resolved_qn = resolve_type_name(
-                func_name, context, import_mapping, function_registry
-            )
+            resolved_qn = resolve_type_name(func_name, context, import_mapping, function_registry)
             return InferredType(
                 type_name=func_name,
                 qualified_name=resolved_qn,
@@ -152,9 +150,7 @@ def infer_iterable_element_type(
     if iterable_node.type == "list":
         for child in iterable_node.children:
             if child.type == "call":
-                elem_type = infer_simple_type(
-                    child, context, import_mapping, function_registry
-                )
+                elem_type = infer_simple_type(child, context, import_mapping, function_registry)
                 if elem_type:
                     elem_type.source = TypeSource.LOOP_VARIABLE
                     return elem_type

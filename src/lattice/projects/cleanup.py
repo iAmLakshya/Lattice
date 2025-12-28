@@ -2,10 +2,8 @@
 
 import logging
 
-from qdrant_client import models
-
+from lattice.infrastructure.qdrant import CollectionName, QdrantManager, qdrant_models
 from lattice.shared.exceptions import VectorStoreError
-from lattice.infrastructure.qdrant import CollectionName, QdrantManager
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +50,7 @@ class ProjectCleanupService:
 
         await self._qdrant.client.delete(
             collection_name=collection.value,
-            points_selector=models.FilterSelector(filter=filter_condition),
+            points_selector=qdrant_models.FilterSelector(filter=filter_condition),
         )
 
         count_result = await self._qdrant.client.count(
@@ -62,12 +60,12 @@ class ProjectCleanupService:
 
         return count_result.count
 
-    def _build_path_filter(self, path: str) -> models.Filter:
-        return models.Filter(
+    def _build_path_filter(self, path: str) -> qdrant_models.Filter:
+        return qdrant_models.Filter(
             must=[
-                models.FieldCondition(
+                qdrant_models.FieldCondition(
                     key="file_path",
-                    match=models.MatchText(text=path),
+                    match=qdrant_models.MatchText(text=path),
                 )
             ]
         )

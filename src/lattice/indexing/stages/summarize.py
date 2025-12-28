@@ -1,8 +1,8 @@
 import asyncio
 import logging
 
-from lattice.shared.types import PipelineStage as PipelineStageEnum
 from lattice.indexing.context import PipelineContext
+from lattice.shared.types import PipelineStage as PipelineStageEnum
 
 logger = logging.getLogger(__name__)
 
