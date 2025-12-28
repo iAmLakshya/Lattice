@@ -2,23 +2,17 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/lattice-dark.png">
     <source media="(prefers-color-scheme: light)" srcset="assets/lattice-light.png">
-    <img alt="Lattice" src="assets/lattice-light.png" height="80">
+    <img alt="Lattice" src="assets/lattice-light.png" height="100">
   </picture>
 </p>
-
 <h1 align="center">Lattice</h1>
-
 <p align="center">
   <em>Graph-Augmented RAG for Code Intelligence</em>
 </p>
-
 <p align="center">
   Build a knowledge graph of your codebase. Ask questions in natural language.<br>
   Get answers grounded in both code structure and semantics.
 </p>
-
-<br>
-
 <p align="center">
   <a href="#quick-start"><strong>Quick Start</strong></a> ·
   <a href="#features"><strong>Features</strong></a> ·
@@ -26,36 +20,17 @@
   <a href="#status--roadmap"><strong>Roadmap</strong></a>
 </p>
 
-<br>
-
 ---
 
 Lattice is a **hybrid retrieval system** that combines the precision of knowledge graphs with the flexibility of semantic search. Unlike traditional code search that finds files containing keywords, or semantic search that finds similar-looking code, Lattice understands how your code actually connects—the call chains, inheritance hierarchies, and module dependencies that define real software architecture.
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                                                                             │
-│   "How does authentication work?"                                           │
-│                                                                             │
-│         │                                                                   │
-│         ▼                                                                   │
-│                                                                             │
-│   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                    │
-│   │    Graph    │    │   Vector    │    │   Merged    │                    │
-│   │   Search    │ +  │   Search    │ =  │   Results   │                    │
-│   │             │    │             │    │             │                    │
-│   │ "What calls │    │ "Similar to │    │ Complete    │                    │
-│   │  AuthSvc?"  │    │  'login'"   │    │ auth flow   │                    │
-│   └─────────────┘    └─────────────┘    └─────────────┘                    │
-│                                                                             │
-│         │                                                                   │
-│         ▼                                                                   │
-│                                                                             │
-│   Answer: "Authentication flows through AuthMiddleware → AuthService →     │
-│   TokenValidator. The middleware intercepts requests at line 45..."        │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/diagrams/hero-hybrid-search-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/diagrams/hero-hybrid-search-light.png">
+    <img alt="Hybrid Search: Graph + Vector = Complete Results" src="assets/diagrams/hero-hybrid-search-light.png" width="700">
+  </picture>
+</p>
 
 ---
 
@@ -121,32 +96,13 @@ When you ask an AI assistant "How does authentication work?", it typically:
 
 This exploration loop is **expensive**:
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                     THE CONTEXT WINDOW PROBLEM                              │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   AI Assistant Context Window (200K-400K tokens)                            │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│   │
-│   │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│   │
-│   │░░░ EXPLORATION ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│   │
-│   │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│   │
-│   │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│   │
-│   │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│   │
-│   │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│████ REASONING ████│░░░░░░░░░░│   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│   Problem: Most of the context window is consumed by exploration,           │
-│   leaving limited space for actual reasoning and code generation.           │
-│                                                                             │
-│   • File reads consume tokens (a 500-line file ≈ 2,000 tokens)              │
-│   • Search results consume tokens                                           │
-│   • Each exploration step compounds                                         │
-│   • Context compaction loses important details                              │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/diagrams/context-window-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/diagrams/context-window-light.png">
+    <img alt="The Context Window Problem" src="assets/diagrams/context-window-light.png" width="700">
+  </picture>
+</p>
 
 As [noted in Gemini CLI's feature requests](https://github.com/google-gemini/gemini-cli/issues/2065), codebases can quickly exceed the context window's capacity, leading to incomplete understanding. [Claude Code auto-compacts at 75% context usage](https://www.eesel.ai/blog/claude-code-context-window-size), losing details. [Codex uses "compaction" to work across context windows](https://openai.com/index/gpt-5-1-codex-max/), but this introduces coherence challenges.
 
@@ -154,50 +110,13 @@ As [noted in Gemini CLI's feature requests](https://github.com/google-gemini/gem
 
 Lattice **pre-indexes** your codebase into a persistent knowledge graph and vector database. When an AI assistant queries Lattice via MCP, it gets **precise, grounded answers instantly**—no exploration required:
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                      WITH LATTICE: INSTANT KNOWLEDGE                        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   AI Assistant asks: "How does authentication work?"                        │
-│                              │                                              │
-│                              ▼                                              │
-│                     ┌─────────────────┐                                     │
-│                     │   Lattice MCP   │  ← Single tool call                 │
-│                     │     Server      │                                     │
-│                     └────────┬────────┘                                     │
-│                              │                                              │
-│            ┌─────────────────┼─────────────────┐                            │
-│            ▼                 ▼                 ▼                            │
-│     ┌────────────┐   ┌────────────┐   ┌────────────┐                       │
-│     │   Graph    │   │   Vector   │   │    Doc     │                       │
-│     │  Database  │   │  Database  │   │  Database  │                       │
-│     │            │   │            │   │            │                       │
-│     │ Structural │   │  Semantic  │   │ Doc links  │                       │
-│     │relationships   │ similarity │   │ & context  │                       │
-│     └────────────┘   └────────────┘   └────────────┘                       │
-│            │                 │                 │                            │
-│            └─────────────────┼─────────────────┘                            │
-│                              ▼                                              │
-│                   ┌───────────────────┐                                     │
-│                   │  Grounded Answer  │                                     │
-│                   │  + Source Codes   │                                     │
-│                   │  + Call Chains    │                                     │
-│                   │  + Documentation  │                                     │
-│                   └───────────────────┘                                     │
-│                              │                                              │
-│                              ▼                                              │
-│                                                                             │
-│   AI Assistant Context Window                                               │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │░░│████████████████████████ REASONING █████████████████████████████│   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│        ↑                                                                    │
-│        │                                                                    │
-│   Minimal context consumed—Lattice returns only what's relevant             │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/diagrams/lattice-instant-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/diagrams/lattice-instant-light.png">
+    <img alt="With Lattice: Instant Knowledge" src="assets/diagrams/lattice-instant-light.png" width="700">
+  </picture>
+</p>
 
 ### The Benefits
 
@@ -214,33 +133,29 @@ Lattice **pre-indexes** your codebase into a persistent knowledge graph and vect
 
 Large codebases often have multiple implementations of similar concepts. An AI assistant exploring on-demand might find the wrong one:
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         AGENT GUIDANCE PROBLEM                              │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   User: "Add a new payment method"                                          │
-│                                                                             │
-│   Without Lattice:                                                          │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │  Agent searches for "payment"...                                    │   │
-│   │  Finds: /legacy/payments.py (deprecated, 2 years old)               │   │
-│   │  Agent implements new payment method following legacy patterns      │   │
-│   │  Result: Code works but doesn't follow current architecture         │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│   With Lattice:                                                             │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │  Agent queries: "How do payment methods work?"                      │   │
-│   │  Lattice returns:                                                   │   │
-│   │  • Current PaymentService with call graph showing active usage      │   │
-│   │  • PaymentMethodBase class and existing implementations             │   │
-│   │  • Related documentation (which would flag legacy as deprecated)    │   │
-│   │  • Test patterns for payment methods                                │   │
-│   │  Result: Agent follows current patterns, integrates correctly       │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph without["Without Lattice"]
+        direction TB
+        w1["Agent searches for 'payment'..."]
+        w2["Finds: /legacy/payments.py<br/>(deprecated, 2 years old)"]
+        w3["Agent implements new payment<br/>following legacy patterns"]
+        w4["Result: Code doesn't follow<br/>current architecture"]
+        w1 --> w2 --> w3 --> w4
+    end
+
+    subgraph with["With Lattice"]
+        direction TB
+        l1["Agent queries: 'How do<br/>payment methods work?'"]
+        l2["Lattice returns:<br/>• Current PaymentService (active usage)<br/>• PaymentMethodBase + implementations<br/>• Related docs (flags legacy deprecated)<br/>• Test patterns for payments"]
+        l3["Result: Agent follows current<br/>patterns, integrates correctly"]
+        l1 --> l2 --> l3
+    end
+
+    style without fill:#fff5f5,stroke:#fa5252
+    style with fill:#ebfbee,stroke:#40c057
+    style w4 fill:#ffe3e3,stroke:#fa5252
+    style l3 fill:#d3f9d8,stroke:#40c057
 ```
 
 Lattice's graph structure reveals what's **actively used** (high centrality, many callers) versus what's **abandoned** (low centrality, no recent callers). The documentation linking surfaces relevant guides and flags stale information through drift detection.
@@ -267,73 +182,13 @@ The key insight: these tools are great at **reasoning and generating code**, but
 
 When you run `lattice index`, the system processes your codebase through six stages to build a queryable knowledge base:
 
-```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                              INDEXING PIPELINE                               │
-└──────────────────────────────────────────────────────────────────────────────┘
-
-  Your Codebase
-       │
-       ▼
-  ┌─────────────────────────────────────────────────────────────────────────┐
-  │  STAGE 1: SCAN                                                          │
-  │                                                                         │
-  │  Recursively finds source files, respecting .gitignore patterns.        │
-  │  Computes SHA-256 content hashes for incremental re-indexing.           │
-  │  Only changed files are reprocessed on subsequent runs.                 │
-  └────────────────────────────────────────────────────────────────┬────────┘
-                                                                   │
-       ┌───────────────────────────────────────────────────────────┘
-       ▼
-  ┌─────────────────────────────────────────────────────────────────────────┐
-  │  STAGE 2: PARSE                                                         │
-  │                                                                         │
-  │  Uses tree-sitter to build Abstract Syntax Trees for each file.         │
-  │  Extracts classes, functions, methods, imports, and their metadata.     │
-  │  Resolves function calls to their targets using type inference.         │
-  │  Tracks inheritance hierarchies and module dependencies.                │
-  └────────────────────────────────────────────────────────────────┬────────┘
-                                                                   │
-       ┌───────────────────────────────────────────────────────────┘
-       ▼
-  ┌─────────────────────────────────────────────────────────────────────────┐
-  │  STAGE 3: BUILD GRAPH                                                   │
-  │                                                                         │
-  │  Creates nodes for each code entity (Project, File, Class, Function).   │
-  │  Creates edges for relationships (CALLS, EXTENDS, IMPORTS, DEFINES).    │
-  │  Stores in Memgraph for sub-millisecond traversal queries.              │
-  └────────────────────────────────────────────────────────────────┬────────┘
-                                                                   │
-       ┌───────────────────────────────────────────────────────────┘
-       ▼
-  ┌─────────────────────────────────────────────────────────────────────────┐
-  │  STAGE 4: SUMMARIZE                                                     │
-  │                                                                         │
-  │  LLM generates natural language descriptions for each entity.           │
-  │  Captures purpose, parameters, return values, and usage patterns.       │
-  │  Summaries enable semantic matching even for poorly-named code.         │
-  └────────────────────────────────────────────────────────────────┬────────┘
-                                                                   │
-       ┌───────────────────────────────────────────────────────────┘
-       ▼
-  ┌─────────────────────────────────────────────────────────────────────────┐
-  │  STAGE 5: CHUNK                                                         │
-  │                                                                         │
-  │  Splits code into token-bounded segments (default: 1000 tokens).        │
-  │  Maintains overlap between chunks (default: 200 tokens) for context.    │
-  │  Preserves entity boundaries—functions aren't split mid-body.           │
-  └────────────────────────────────────────────────────────────────┬────────┘
-                                                                   │
-       ┌───────────────────────────────────────────────────────────┘
-       ▼
-  ┌─────────────────────────────────────────────────────────────────────────┐
-  │  STAGE 6: EMBED                                                         │
-  │                                                                         │
-  │  Generates vector embeddings using your configured provider.            │
-  │  Stores vectors in Qdrant with metadata linking back to graph nodes.    │
-  │  Enables semantic similarity search across the entire codebase.         │
-  └─────────────────────────────────────────────────────────────────────────┘
-```
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/diagrams/indexing-pipeline-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/diagrams/indexing-pipeline-light.png">
+    <img alt="Indexing Pipeline" src="assets/diagrams/indexing-pipeline-light.png" width="700">
+  </picture>
+</p>
 
 **Why Tree-sitter?** [Tree-sitter](https://github.com/tree-sitter/tree-sitter) is an incremental parsing library used by editors like VS Code, Neovim, and GitHub. It produces concrete syntax trees that are:
 
@@ -346,65 +201,13 @@ When you run `lattice index`, the system processes your codebase through six sta
 
 When you ask a question, Lattice orchestrates multiple search strategies in parallel:
 
-```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                              QUERY PIPELINE                                  │
-└──────────────────────────────────────────────────────────────────────────────┘
-
-  "What functions call PaymentService.charge()?"
-       │
-       ▼
-  ┌─────────────────────────────────────────────────────────────────────────┐
-  │  QUERY PLANNER                                                          │
-  │                                                                         │
-  │  Analyzes query intent using an LLM. Determines:                        │
-  │  • Query type (find callers, explain implementation, search, etc.)      │
-  │  • Target entities mentioned in the query                               │
-  │  • Whether multi-hop graph traversal is needed                          │
-  │  • Optimal weighting between graph and vector search                    │
-  └────────────────────────────────────────────────────────────────┬────────┘
-                                                                   │
-                          ┌────────────────────────────────────────┴─────┐
-                          │              PARALLEL EXECUTION              │
-              ┌───────────┴───────────┐                    ┌─────────────┴───────────┐
-              ▼                       │                    │                         ▼
-  ┌───────────────────────┐           │                    │           ┌───────────────────────┐
-  │     GRAPH SEARCH      │           │                    │           │    VECTOR SEARCH      │
-  │                       │           │                    │           │                       │
-  │  1. Locate target     │           │                    │           │  1. Embed the query   │
-  │     entities by name  │           │                    │           │     using same model  │
-  │                       │           │                    │           │                       │
-  │  2. Traverse CALLS    │           │                    │           │  2. Search Qdrant for │
-  │     relationships     │           │                    │           │     similar chunks    │
-  │     (up to N hops)    │           │                    │           │                       │
-  │                       │           │                    │           │  3. Return top-K with │
-  │  3. Gather callers,   │           │                    │           │     similarity scores │
-  │     callees, context  │           │                    │           │                       │
-  └───────────┬───────────┘           │                    │           └───────────┬───────────┘
-              │                       │                    │                       │
-              └───────────────────────┴────────┬───────────┴───────────────────────┘
-                                               │
-                                               ▼
-  ┌─────────────────────────────────────────────────────────────────────────┐
-  │  HYBRID RANKER                                                          │
-  │                                                                         │
-  │  Merges results from both searches. For each result, computes:          │
-  │  • Graph score: relationship proximity, entity match, centrality        │
-  │  • Vector score: semantic similarity, code quality signals              │
-  │  • Hybrid bonus: 10% boost for results appearing in both searches       │
-  │                                                                         │
-  │  Deduplicates by entity, applies per-file limits, returns top results.  │
-  └────────────────────────────────────────────────────────────────┬────────┘
-                                                                   │
-                                                                   ▼
-  ┌─────────────────────────────────────────────────────────────────────────┐
-  │  RESPONDER                                                              │
-  │                                                                         │
-  │  Builds context from ranked results: code snippets, summaries, paths.   │
-  │  LLM synthesizes a natural language answer with source citations.       │
-  │  Returns answer + sources with file paths and line numbers.             │
-  └─────────────────────────────────────────────────────────────────────────┘
-```
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/diagrams/query-pipeline-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/diagrams/query-pipeline-light.png">
+    <img alt="Query Pipeline" src="assets/diagrams/query-pipeline-light.png" width="700">
+  </picture>
+</p>
 
 **Query Types**: The planner recognizes 17 different query intents, each with optimized handling:
 
@@ -422,64 +225,42 @@ When you ask a question, Lattice orchestrates multiple search strategies in para
 
 Combining graph and vector search requires careful result fusion. Lattice uses an approach inspired by [Reciprocal Rank Fusion (RRF)](https://learn.microsoft.com/en-us/azure/search/hybrid-search-ranking), adapted for the code domain:
 
+```mermaid
+flowchart TB
+    subgraph inputs["Input Results"]
+        direction LR
+        graph["Graph Results<br/>1. PaymentService.charge (primary)<br/>2. OrderHandler.submit (depth 1)<br/>3. CheckoutFlow.process (depth 2)<br/>4. PaymentValidator.check (callee)"]
+        vector["Vector Results<br/>1. PaymentProcessor.run (0.92)<br/>2. PaymentService.charge (0.89)<br/>3. StripeGateway.execute (0.85)<br/>4. OrderHandler.submit (0.81)"]
+    end
+
+    subgraph scoring["Scoring Signals"]
+        direction LR
+        gs["Graph Signals<br/>• Relationship weight<br/>• Distance decay<br/>• Centrality"]
+        vs["Vector Signals<br/>• Cosine similarity<br/>• Code quality<br/>• Entity type boost"]
+    end
+
+    subgraph output["Merged Results"]
+        merged["1. PaymentService.charge (0.95) - Hybrid boost<br/>2. OrderHandler.submit (0.87) - Hybrid boost<br/>3. PaymentProcessor.run (0.82)<br/>4. CheckoutFlow.process (0.78)<br/>5. StripeGateway.execute (0.71)"]
+    end
+
+    inputs --> scoring --> output
+
+    style graph fill:#e7f5ff,stroke:#228be6
+    style vector fill:#ebfbee,stroke:#40c057
+    style gs fill:#e7f5ff,stroke:#228be6
+    style vs fill:#ebfbee,stroke:#40c057
+    style merged fill:#f3f0ff,stroke:#7950f2
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              HYBRID RANKING                                 │
-└─────────────────────────────────────────────────────────────────────────────┘
 
-  Graph Results                              Vector Results
-  ─────────────                              ──────────────
-  1. PaymentService.charge (primary)         1. PaymentProcessor.run (0.92)
-  2. OrderHandler.submit (caller, depth 1)   2. PaymentService.charge (0.89)
-  3. CheckoutFlow.process (caller, depth 2)  3. StripeGateway.execute (0.85)
-  4. PaymentValidator.check (callee)         4. OrderHandler.submit (0.81)
+**Adaptive Weighting** adjusts based on query intent:
 
-       │                                           │
-       └─────────────────┬─────────────────────────┘
-                         │
-                         ▼
-
-  ┌─────────────────────────────────────────────────────────────────────────┐
-  │  SCORING SIGNALS                                                        │
-  ├─────────────────────────────────────────────────────────────────────────┤
-  │                                                                         │
-  │  Graph Signals:                     Vector Signals:                     │
-  │  • Relationship type weight         • Cosine similarity score           │
-  │  • Distance from target (decay)     • Content length penalty            │
-  │  • Entity name match                • Entity type boost                 │
-  │  • Centrality (in/out degree)       • Centrality (same as graph)        │
-  │  • Context richness (has docs?)                                         │
-  │                                                                         │
-  └────────────────────────────────────────────────────────────────┬────────┘
-                                                                   │
-                                                                   ▼
-
-  ┌─────────────────────────────────────────────────────────────────────────┐
-  │  ADAPTIVE WEIGHTING                                                     │
-  ├─────────────────────────────────────────────────────────────────────────┤
-  │                                                                         │
-  │  Weights adjust based on query intent:                                  │
-  │                                                                         │
-  │  Intent              Graph Weight    Vector Weight                      │
-  │  ──────────────────  ────────────    ─────────────                      │
-  │  Find callers        0.80            0.20                               │
-  │  Find hierarchy      0.85            0.15                               │
-  │  Explain impl.       0.50            0.50                               │
-  │  Semantic search     0.25            0.75                               │
-  │  Find similar        0.20            0.80                               │
-  │                                                                         │
-  └────────────────────────────────────────────────────────────────┬────────┘
-                                                                   │
-                                                                   ▼
-
-  Merged Results (Deduplicated)
-  ─────────────────────────────
-  1. PaymentService.charge    (0.95) ← Hybrid boost: in both lists
-  2. OrderHandler.submit      (0.87) ← Hybrid boost: in both lists
-  3. PaymentProcessor.run     (0.82)
-  4. CheckoutFlow.process     (0.78)
-  5. StripeGateway.execute    (0.71)
-```
+| Intent           | Graph Weight | Vector Weight |
+| ---------------- | ------------ | ------------- |
+| Find callers     | 0.80         | 0.20          |
+| Find hierarchy   | 0.85         | 0.15          |
+| Explain impl.    | 0.50         | 0.50          |
+| Semantic search  | 0.25         | 0.75          |
+| Find similar     | 0.20         | 0.80          |
 
 This adaptive approach ensures structural queries ("What calls X?") leverage the graph's precision, while exploratory queries ("Find code related to payments") leverage vectors' semantic flexibility.
 
@@ -491,84 +272,13 @@ One of Lattice's most powerful capabilities is **multi-hop graph reasoning**—t
 
 Traditional code search finds direct matches. Multi-hop reasoning follows chains of relationships:
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        MULTI-HOP GRAPH REASONING                            │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-  Question: "What ultimately triggers the PaymentService?"
-
-  Single-hop (traditional):          Multi-hop (Lattice):
-  ─────────────────────────          ─────────────────────
-
-  Only finds direct callers:         Traverses full call chain:
-
-  OrderHandler.submit()              APIController.handleRequest()
-        │                                   │
-        ▼                                   │ hop 1
-  PaymentService.charge()                   ▼
-                                     RequestValidator.validate()
-                                            │
-                                            │ hop 2
-                                            ▼
-                                     OrderHandler.submit()
-                                            │
-                                            │ hop 3
-                                            ▼
-                                     PaymentService.charge()
-
-  Misses the full picture!           Complete call chain with depth tracking
-```
-
-#### How It Works
-
-When you ask a question that requires understanding code flow, the query planner automatically detects this and enables multi-hop traversal:
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  QUERY ANALYSIS                                                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  Query: "How does user input reach the database?"                           │
-│                                                                             │
-│  Planner detects:                                                           │
-│  • Intent: FIND_CALL_CHAIN (trace data flow)                                │
-│  • Entities: ["user input", "database"]                                     │
-│  • Requires multi-hop: YES                                                  │
-│  • Max hops: 5                                                              │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                       │
-                                       ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  GRAPH TRAVERSAL                                                            │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  Executes Cypher query:                                                     │
-│                                                                             │
-│    MATCH path = (source)-[:CALLS*1..5]->(target)                            │
-│    WHERE source.name CONTAINS 'input'                                       │
-│      AND target.name CONTAINS 'database'                                    │
-│    RETURN path, length(path) as depth                                       │
-│    ORDER BY depth                                                           │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                       │
-                                       ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  RESULTS WITH DEPTH TRACKING                                                │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  Path 1 (depth 4):                                                          │
-│  InputHandler → Validator → UserService → Repository → Database             │
-│                                                                             │
-│  Path 2 (depth 3):                                                          │
-│  FormParser → DirectWriter → Database                                       │
-│                                                                             │
-│  Scoring: Shorter paths ranked higher (more direct relationship)            │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/diagrams/multi-hop-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/diagrams/multi-hop-light.png">
+    <img alt="Multi-Hop Graph Reasoning" src="assets/diagrams/multi-hop-light.png" width="700">
+  </picture>
+</p>
 
 #### Supported Multi-Hop Queries
 
@@ -638,36 +348,31 @@ Multi-hop reasoning transforms Lattice from a simple code search tool into a **c
 
 Lattice builds a property graph that captures the architecture of your codebase:
 
-```
-                         ┌───────────────────┐
-                         │     Project       │
-                         │   "my-project"    │
-                         └─────────┬─────────┘
-                                   │
-                              CONTAINS
-                                   │
-              ┌────────────────────┼────────────────────┐
-              ▼                    ▼                    ▼
-     ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
-     │      File       │  │      File       │  │      File       │
-     │  "auth.py"      │  │  "users.py"     │  │  "handlers.py"  │
-     └────────┬────────┘  └────────┬────────┘  └────────┬────────┘
-              │                    │                    │
-           DEFINES              DEFINES              DEFINES
-              │                    │                    │
-              ▼                    ▼                    ▼
-     ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
-     │     Class       │  │     Class       │  │    Function     │
-     │  "AuthService"  │  │  "UserModel"    │  │  "handle_req"   │
-     └────────┬────────┘  └────────┬────────┘  └────────┬────────┘
-              │                    │                    │
-       DEFINES_METHOD         EXTENDS                CALLS
-              │                    │                    │
-              ▼                    ▼                    ▼
-     ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
-     │     Method      │  │     Class       │  │     Method      │
-     │   "validate"    │  │   "BaseModel"   │  │   "validate"    │
-     └─────────────────┘  └─────────────────┘  └─────────────────┘
+```mermaid
+graph TB
+    Project["Project<br/>'my-project'"]
+
+    Project -->|CONTAINS| File1["File<br/>'auth.py'"]
+    Project -->|CONTAINS| File2["File<br/>'users.py'"]
+    Project -->|CONTAINS| File3["File<br/>'handlers.py'"]
+
+    File1 -->|DEFINES| Class1["Class<br/>'AuthService'"]
+    File2 -->|DEFINES| Class2["Class<br/>'UserModel'"]
+    File3 -->|DEFINES| Func1["Function<br/>'handle_req'"]
+
+    Class1 -->|DEFINES_METHOD| Method1["Method<br/>'validate'"]
+    Class2 -->|EXTENDS| BaseModel["Class<br/>'BaseModel'"]
+    Func1 -->|CALLS| Method1
+
+    style Project fill:#e7f5ff,stroke:#228be6
+    style File1 fill:#fff9db,stroke:#fab005
+    style File2 fill:#fff9db,stroke:#fab005
+    style File3 fill:#fff9db,stroke:#fab005
+    style Class1 fill:#f3f0ff,stroke:#7950f2
+    style Class2 fill:#f3f0ff,stroke:#7950f2
+    style Func1 fill:#ebfbee,stroke:#40c057
+    style Method1 fill:#fff0f6,stroke:#e64980
+    style BaseModel fill:#f3f0ff,stroke:#7950f2
 ```
 
 **What relationships are captured:**
@@ -707,102 +412,45 @@ Most code search tools ignore documentation entirely. This creates problems:
 
 Lattice solves these by treating documentation as queryable, linked data:
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                     DOCUMENTATION INTELLIGENCE SYSTEM                       │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph docs["Your Docs"]
+        direction TB
+        d1["docs/"]
+        d2["├── api.md"]
+        d3["├── arch.md"]
+        d4["└── guides/"]
+    end
 
-                              ┌─────────────────┐
-                              │   Your Docs     │
-                              │                 │
-                              │  docs/          │
-                              │  ├── api.md     │
-                              │  ├── arch.md    │
-                              │  └── guides/    │
-                              └────────┬────────┘
-                                       │
-                                       ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  STEP 1: INTELLIGENT CHUNKING                                               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  Documents are split by heading hierarchy, preserving semantic context:     │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │  # Authentication Guide                                             │   │
-│  │                                                                     │   │
-│  │  ## OAuth 2.0 Flow                ─────▶  Chunk: "OAuth 2.0 Flow"   │   │
-│  │  Our OAuth implementation uses... │       path: [Authentication,   │   │
-│  │  The refresh token is stored...   │              OAuth 2.0 Flow]    │   │
-│  │                                   │       level: 2                  │   │
-│  │  ## JWT Tokens                    ─────▶  Chunk: "JWT Tokens"       │   │
-│  │  Tokens expire after 24 hours...         path: [Authentication,     │   │
-│  │                                                 JWT Tokens]          │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│  Unlike naive splitting, this preserves the hierarchical context that       │
-│  makes documentation meaningful.                                            │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────┬───────────┘
-                                                                  │
-                                                                  ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  STEP 2: ENTITY LINKING                                                     │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  Each doc chunk is automatically linked to relevant code entities:          │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                                                                     │   │
-│  │   Doc Chunk                          Code Entities                  │   │
-│  │   ──────────                         ─────────────                  │   │
-│  │                                                                     │   │
-│  │   "OAuth 2.0 Flow"  ──────────────▶  OAuthService.authenticate()   │   │
-│  │   mentions `OAuthService`     │      TokenRefreshHandler.refresh() │   │
-│  │   discusses token refresh     │      oauth_config.py               │   │
-│  │                               │                                     │   │
-│  │   Link types:                 │                                     │   │
-│  │   • Explicit: backtick refs   │      Confidence: 0.92              │   │
-│  │   • Implicit: semantic match  │      Reasoning: "Discusses OAuth   │   │
-│  │                               │       flow implemented by this      │   │
-│  │                               │       service class"                │   │
-│  │                                                                     │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────┬───────────┘
-                                                                  │
-                                                                  ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  STEP 3: DRIFT DETECTION                                                    │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  Lattice continuously monitors alignment between docs and code:             │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                                                                     │   │
-│  │   Document              Entity             Status        Drift     │   │
-│  │   ────────              ──────             ──────        Score     │   │
-│  │                                                                     │   │
-│  │   docs/api.md     ───▶  PaymentService     ✓ Aligned     0.12     │   │
-│  │   "Charges cards        (charge method                             │   │
-│  │    via Stripe API"       uses Stripe)                              │   │
-│  │                                                                     │   │
-│  │   docs/auth.md    ───▶  AuthService        ⚠ Minor       0.45     │   │
-│  │   "Uses bcrypt for      (now uses                        Drift     │   │
-│  │    password hashing"     argon2)                                   │   │
-│  │                                                                     │   │
-│  │   docs/cache.md   ───▶  CacheManager       ✗ Major       0.78     │   │
-│  │   "Redis-based          (migrated to                     Drift     │   │
-│  │    caching with TTL"     in-memory)                                │   │
-│  │                                                                     │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│  Drift is detected by comparing:                                            │
-│  • Semantic similarity between doc content and code behavior                │
-│  • Entity references that no longer exist                                   │
-│  • Described behavior vs. actual implementation                             │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+    subgraph step1["Step 1: Intelligent Chunking"]
+        direction TB
+        s1a["# Authentication Guide"]
+        s1b["## OAuth 2.0 Flow → Chunk 1<br/>path: [Auth, OAuth]"]
+        s1c["## JWT Tokens → Chunk 2<br/>path: [Auth, JWT]"]
+    end
+
+    subgraph step2["Step 2: Entity Linking"]
+        direction TB
+        s2a["Doc Chunk: 'OAuth 2.0 Flow'"]
+        s2b["Links to:<br/>• OAuthService.authenticate()<br/>• TokenRefreshHandler.refresh()<br/>Confidence: 0.92"]
+    end
+
+    subgraph step3["Step 3: Drift Detection"]
+        direction TB
+        s3a["docs/api.md → PaymentService ✓ Aligned (0.12)"]
+        s3b["docs/auth.md → AuthService ⚠ Minor (0.45)"]
+        s3c["docs/cache.md → CacheManager ✗ Major (0.78)"]
+    end
+
+    docs --> step1 --> step2 --> step3
+
+    style docs fill:#f8f9fa,stroke:#495057
+    style step1 fill:#e7f5ff,stroke:#228be6
+    style step2 fill:#ebfbee,stroke:#40c057
+    style step3 fill:#fff9db,stroke:#fab005
+    style s3a fill:#d3f9d8,stroke:#40c057
+    style s3b fill:#fff3bf,stroke:#fab005
+    style s3c fill:#ffe3e3,stroke:#fa5252
 ```
 
 #### What You Can Do With Documentation Intelligence
@@ -932,28 +580,31 @@ Once configured, Claude Code can automatically use Lattice to answer questions a
 
 When Claude Code (or any MCP-compatible assistant) needs to understand your codebase, it can call Lattice instead of reading files one by one:
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  WITHOUT LATTICE                          WITH LATTICE                      │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  User: "How does auth work?"              User: "How does auth work?"       │
-│                                                                             │
-│  Claude:                                  Claude:                           │
-│  1. ReadFile("src/")                      1. query_code_graph(              │
-│  2. SearchText("auth")                         "How does auth work?")       │
-│  3. ReadFile("src/auth/service.py")                                         │
-│  4. ReadFile("src/auth/middleware.py")    ─────▶ Returns:                   │
-│  5. SearchText("AuthService")                   • Grounded answer           │
-│  6. ReadFile("src/handlers/login.py")           • Relevant code snippets    │
-│  7. ... (more exploration)                      • Call chain visualization  │
-│                                                 • Related documentation     │
-│  Tokens consumed: 50,000+                                                   │
-│  Time: 30+ seconds                        Tokens consumed: 2,000            │
-│  May miss related code                    Time: <1 second                   │
-│                                           Complete structural context       │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    subgraph without["Without Lattice"]
+        direction TB
+        w1["ReadFile('src/')"]
+        w2["SearchText('auth')"]
+        w3["ReadFile('src/auth/service.py')"]
+        w4["ReadFile('src/auth/middleware.py')"]
+        w5["... more exploration"]
+        w6["50,000+ tokens<br/>30+ seconds"]
+        w1 --> w2 --> w3 --> w4 --> w5 --> w6
+    end
+
+    subgraph with["With Lattice"]
+        direction TB
+        l1["query_code_graph(<br/>'How does auth work?')"]
+        l2["Returns:<br/>• Grounded answer<br/>• Code snippets<br/>• Call chains<br/>• Documentation"]
+        l3["2,000 tokens<br/><1 second"]
+        l1 --> l2 --> l3
+    end
+
+    style without fill:#fff5f5,stroke:#fa5252
+    style with fill:#ebfbee,stroke:#40c057
+    style w6 fill:#ffe3e3,stroke:#fa5252
+    style l3 fill:#d3f9d8,stroke:#40c057
 ```
 
 ---
@@ -1160,55 +811,42 @@ lattice metadata regenerate <name> [--field <field>]
 
 ## Technology Stack
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            LATTICE ARCHITECTURE                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│    ┌───────────────────────────────────────────────────────────────────┐   │
-│    │                         DATA LAYER                                 │   │
-│    ├───────────────────────────────────────────────────────────────────┤   │
-│    │                                                                    │   │
-│    │   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐          │   │
-│    │   │   Memgraph   │   │    Qdrant    │   │  PostgreSQL  │          │   │
-│    │   │              │   │              │   │              │          │   │
-│    │   │  Knowledge   │   │   Vector     │   │  Documents   │          │   │
-│    │   │   Graph      │   │  Embeddings  │   │  & Metadata  │          │   │
-│    │   │              │   │              │   │              │          │   │
-│    │   │  Cypher      │   │  HNSW Index  │   │   asyncpg    │          │   │
-│    │   │  Queries     │   │  Cosine Sim  │   │   Driver     │          │   │
-│    │   └──────────────┘   └──────────────┘   └──────────────┘          │   │
-│    │                                                                    │   │
-│    └────────────────────────────────┬──────────────────────────────────┘   │
-│                                     │                                       │
-│    ┌────────────────────────────────┴──────────────────────────────────┐   │
-│    │                        CORE ENGINE                                 │   │
-│    ├───────────────────────────────────────────────────────────────────┤   │
-│    │                                                                    │   │
-│    │   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐          │   │
-│    │   │   Parsing    │   │   Indexing   │   │   Querying   │          │   │
-│    │   │              │   │              │   │              │          │   │
-│    │   │ Tree-sitter  │   │  Pipeline    │   │   Hybrid     │          │   │
-│    │   │ Type Infer   │   │  Orchestr.   │   │   Ranking    │          │   │
-│    │   │ Call Resol.  │   │  Stages      │   │   Planner    │          │   │
-│    │   └──────────────┘   └──────────────┘   └──────────────┘          │   │
-│    │                                                                    │   │
-│    └────────────────────────────────┬──────────────────────────────────┘   │
-│                                     │                                       │
-│    ┌────────────────────────────────┴──────────────────────────────────┐   │
-│    │                        AI PROVIDERS                                │   │
-│    ├───────────────────────────────────────────────────────────────────┤   │
-│    │                                                                    │   │
-│    │   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐         │   │
-│    │   │  OpenAI  │  │Anthropic │  │  Google  │  │  Ollama  │         │   │
-│    │   │          │  │          │  │          │  │          │         │   │
-│    │   │ GPT-4o   │  │ Claude   │  │ Gemini   │  │ Llama    │         │   │
-│    │   │ Ada-3    │  │ Sonnet   │  │ 1.5/2.0  │  │ Mistral  │         │   │
-│    │   └──────────┘  └──────────┘  └──────────┘  └──────────┘         │   │
-│    │                                                                    │   │
-│    └───────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph data["DATA LAYER"]
+        direction LR
+        mg["Memgraph<br/>Knowledge Graph<br/>Cypher Queries"]
+        qd["Qdrant<br/>Vector Embeddings<br/>HNSW Index"]
+        pg["PostgreSQL<br/>Documents & Metadata<br/>asyncpg Driver"]
+    end
+
+    subgraph core["CORE ENGINE"]
+        direction LR
+        parse["Parsing<br/>Tree-sitter<br/>Type Inference<br/>Call Resolution"]
+        index["Indexing<br/>Pipeline<br/>Orchestrator<br/>Stages"]
+        query["Querying<br/>Hybrid Ranking<br/>Graph Reasoning<br/>Planner"]
+    end
+
+    subgraph ai["AI PROVIDERS"]
+        direction LR
+        openai["OpenAI<br/>GPT-4o"]
+        anthropic["Anthropic<br/>Claude"]
+        google["Google<br/>Gemini"]
+        ollama["Ollama<br/>Local"]
+    end
+
+    data --> core --> ai
+
+    style mg fill:#e7f5ff,stroke:#228be6
+    style qd fill:#ebfbee,stroke:#40c057
+    style pg fill:#fff9db,stroke:#fab005
+    style parse fill:#f3f0ff,stroke:#7950f2
+    style index fill:#fff0f6,stroke:#e64980
+    style query fill:#e6fcf5,stroke:#20c997
+    style openai fill:#f8f9fa,stroke:#495057
+    style anthropic fill:#f8f9fa,stroke:#495057
+    style google fill:#f8f9fa,stroke:#495057
+    style ollama fill:#f8f9fa,stroke:#495057
 ```
 
 ### Database Details
@@ -1281,203 +919,75 @@ lattice metadata regenerate <name> [--field <field>]
 
 Our current drift detection works by sending documentation chunks and their linked code entities to an LLM, asking it to assess alignment. While this catches obvious discrepancies, it has fundamental limitations:
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                     CURRENT APPROACH: LLM-BASED SCORING                     │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   Documentation Chunk              Code Entity                              │
-│   ───────────────────              ───────────                              │
-│   "PaymentService uses            class PaymentService:                     │
-│    Stripe API to charge             def charge(self, amount):              │
-│    credit cards..."                   return self.gateway.process()        │
-│                                                                             │
-│         │                                   │                               │
-│         └──────────────┬────────────────────┘                               │
-│                        │                                                    │
-│                        ▼                                                    │
-│              ┌──────────────────┐                                           │
-│              │       LLM        │                                           │
-│              │                  │                                           │
-│              │  "Are these      │                                           │
-│              │   aligned?"      │                                           │
-│              └────────┬─────────┘                                           │
-│                       │                                                     │
-│                       ▼                                                     │
-│              Drift Score: 0.45                                              │
-│              (but WHY? and WHAT changed?)                                   │
-│                                                                             │
-│   LIMITATIONS:                                                              │
-│   • Only sees the code snippet, not actual behavior                         │
-│   • Can't trace what `self.gateway` actually is                             │
-│   • Doesn't know if Stripe was replaced with PayPal                         │
-│   • No access to tests that define expected behavior                        │
-│   • Can't determine if drift is critical or minor                           │
-│   • Provides scores, not actionable insights                                │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph current["Current Approach: LLM-Based Scoring"]
+        direction TB
+        doc["Documentation Chunk<br/>'PaymentService uses<br/>Stripe API to charge<br/>credit cards...'"]
+        code["Code Entity<br/>class PaymentService:<br/>  def charge(self):<br/>    return self.gateway.process()"]
+        llm["LLM<br/>'Are these aligned?'"]
+        score["Drift Score: 0.45<br/>(but WHY? WHAT changed?)"]
+
+        doc --> llm
+        code --> llm
+        llm --> score
+    end
+
+    subgraph limits["Limitations"]
+        l1["Only sees code snippet, not actual behavior"]
+        l2["Can't trace what self.gateway actually is"]
+        l3["Doesn't know if Stripe was replaced with PayPal"]
+        l4["No access to tests that define expected behavior"]
+        l5["Provides scores, not actionable insights"]
+    end
+
+    current --> limits
+
+    style current fill:#fff5f5,stroke:#fa5252
+    style limits fill:#ffe3e3,stroke:#fa5252
+    style score fill:#fff3bf,stroke:#fab005
 ```
 
 #### The Agentic Approach
 
 Instead of asking an LLM to score alignment from limited context, we deploy an **autonomous agent** that investigates drift like a developer would—using tools to explore, trace, and verify:
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                     PLANNED: AGENTIC DRIFT DETECTION                        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   Task: "Analyze drift for docs/payments.md ↔ PaymentService"               │
-│                                                                             │
-│         │                                                                   │
-│         ▼                                                                   │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │  DRIFT DETECTION AGENT                                              │   │
-│   │                                                                     │   │
-│   │  Tools Available:                                                   │   │
-│   │  • query_graph() - Traverse code relationships                      │   │
-│   │  • read_code() - Read full source files                             │   │
-│   │  • read_docs() - Read documentation sections                        │   │
-│   │  • find_tests() - Locate test files for entity                      │   │
-│   │  • trace_calls() - Multi-hop call chain analysis                    │   │
-│   │  • check_imports() - See what modules are used                      │   │
-│   │  • git_history() - When did this code change?                       │   │
-│   │  • search_codebase() - Find related implementations                 │   │
-│   │                                                                     │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│   Agent Execution:                                                          │
-│   ────────────────                                                          │
-│                                                                             │
-│   Step 1: Read documentation claims                                         │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │  "Documentation says: 'PaymentService uses Stripe API to charge     │   │
-│   │   credit cards with automatic retry on failure'"                    │   │
-│   │                                                                     │   │
-│   │  Claims to verify:                                                  │   │
-│   │  □ Uses Stripe API                                                  │   │
-│   │  □ Charges credit cards                                             │   │
-│   │  □ Has automatic retry on failure                                   │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│   Step 2: Investigate actual implementation                                 │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │  → read_code("PaymentService")                                      │   │
-│   │  → trace_calls("PaymentService.charge")                             │   │
-│   │  → check_imports("src/services/payment.py")                         │   │
-│   │                                                                     │   │
-│   │  Findings:                                                          │   │
-│   │  • PaymentService.charge() calls self.gateway.process()             │   │
-│   │  • self.gateway is injected, type: PaymentGateway                   │   │
-│   │  • PaymentGateway is imported from src/gateways/paypal.py (!!)      │   │
-│   │  • No retry logic found in charge() or gateway.process()            │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│   Step 3: Cross-reference with tests                                        │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │  → find_tests("PaymentService")                                     │   │
-│   │                                                                     │   │
-│   │  Found: tests/test_payment_service.py                               │   │
-│   │  • test_charge_with_paypal_gateway ✓                                │   │
-│   │  • test_charge_retry_on_failure - NOT FOUND                         │   │
-│   │                                                                     │   │
-│   │  Tests confirm PayPal is the actual gateway, no retry tests exist   │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│   Step 4: Check git history for when drift occurred                         │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │  → git_history("src/gateways/")                                     │   │
-│   │                                                                     │   │
-│   │  Found: Commit abc123 (3 months ago)                                │   │
-│   │  "Migrate from Stripe to PayPal for lower fees"                     │   │
-│   │  - Deleted: src/gateways/stripe.py                                  │   │
-│   │  + Added: src/gateways/paypal.py                                    │   │
-│   │                                                                     │   │
-│   │  Documentation was not updated in this commit!                      │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│   Step 5: Assess impact using graph centrality                              │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │  → query_graph("PaymentService centrality")                         │   │
-│   │                                                                     │   │
-│   │  PaymentService has:                                                │   │
-│   │  • 23 callers (high usage)                                          │   │
-│   │  • Referenced in 5 other documentation files                        │   │
-│   │  • Part of critical checkout flow                                   │   │
-│   │                                                                     │   │
-│   │  Impact: HIGH - incorrect docs affect many developers               │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    task["Task: Analyze drift for<br/>docs/payments.md ↔ PaymentService"]
+
+    subgraph agent["Drift Detection Agent"]
+        direction TB
+        tools["Tools Available:<br/>• query_graph() - Traverse relationships<br/>• read_code() - Read source files<br/>• find_tests() - Locate test files<br/>• trace_calls() - Multi-hop analysis<br/>• git_history() - When did code change?"]
+    end
+
+    subgraph steps["Agent Execution"]
+        direction TB
+        s1["Step 1: Read doc claims<br/>□ Uses Stripe API<br/>□ Has auto retry"]
+        s2["Step 2: Investigate code<br/>→ Gateway from paypal.py (!)<br/>→ No retry logic found"]
+        s3["Step 3: Check tests<br/>→ test_charge_with_paypal ✓<br/>→ test_retry - NOT FOUND"]
+        s4["Step 4: Git history<br/>→ Commit abc123 (3 months ago)<br/>'Migrate from Stripe to PayPal'"]
+
+        s1 --> s2 --> s3 --> s4
+    end
+
+    subgraph output["Actionable Drift Report"]
+        o1["DISCREPANCY: Payment Gateway [CRITICAL]<br/>Doc claims: 'Stripe API'<br/>Actual: PayPal gateway<br/>Changed: 3 months ago<br/>Suggested fix: Update docs"]
+    end
+
+    task --> agent --> steps --> output
+
+    style agent fill:#e7f5ff,stroke:#228be6
+    style steps fill:#fff9db,stroke:#fab005
+    style output fill:#ebfbee,stroke:#40c057
+    style s2 fill:#ffe3e3,stroke:#fa5252
 ```
 
-#### Agent Output: Actionable Drift Report
+Here's an example of what agentic drift detection output looks like:
 
-Instead of a simple score, the agent produces a comprehensive, actionable report:
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         DRIFT ANALYSIS REPORT                               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  Document: docs/payments.md                                                 │
-│  Entity: PaymentService (src/services/payment.py:45)                        │
-│  Severity: CRITICAL                                                         │
-│  Impact: HIGH (23 callers, 5 doc references)                                │
-│                                                                             │
-│  ┌────────────────────────────────────────────────────────────────────┐    │
-│  │  DISCREPANCY 1: Payment Gateway                        CRITICAL    │    │
-│  ├────────────────────────────────────────────────────────────────────┤    │
-│  │                                                                    │    │
-│  │  Documentation claims:                                             │    │
-│  │  > "PaymentService uses Stripe API to charge credit cards"         │    │
-│  │  > Location: docs/payments.md, line 23                             │    │
-│  │                                                                    │    │
-│  │  Actual implementation:                                            │    │
-│  │  > PaymentService uses PayPal gateway (src/gateways/paypal.py)     │    │
-│  │  > Changed in commit abc123, 3 months ago                          │    │
-│  │  > Commit message: "Migrate from Stripe to PayPal for lower fees"  │    │
-│  │                                                                    │    │
-│  │  Suggested fix:                                                    │    │
-│  │  ```diff                                                           │    │
-│  │  - PaymentService uses Stripe API to charge credit cards           │    │
-│  │  + PaymentService uses PayPal API to charge credit cards           │    │
-│  │  ```                                                               │    │
-│  │                                                                    │    │
-│  └────────────────────────────────────────────────────────────────────┘    │
-│                                                                             │
-│  ┌────────────────────────────────────────────────────────────────────┐    │
-│  │  DISCREPANCY 2: Retry Logic                            MAJOR       │    │
-│  ├────────────────────────────────────────────────────────────────────┤    │
-│  │                                                                    │    │
-│  │  Documentation claims:                                             │    │
-│  │  > "automatic retry on failure"                                    │    │
-│  │  > Location: docs/payments.md, line 24                             │    │
-│  │                                                                    │    │
-│  │  Actual implementation:                                            │    │
-│  │  > No retry logic found in PaymentService.charge()                 │    │
-│  │  > No retry logic found in PayPalGateway.process()                 │    │
-│  │  > No tests for retry behavior exist                               │    │
-│  │                                                                    │    │
-│  │  Suggested fix (option A - update docs):                           │    │
-│  │  ```diff                                                           │    │
-│  │  - with automatic retry on failure                                 │    │
-│  │  + (note: retry logic should be implemented by the caller)         │    │
-│  │  ```                                                               │    │
-│  │                                                                    │    │
-│  │  Suggested fix (option B - update code):                           │    │
-│  │  > Implement retry logic in PaymentService.charge()                │    │
-│  │  > See: src/utils/retry.py for existing retry decorator            │    │
-│  │                                                                    │    │
-│  └────────────────────────────────────────────────────────────────────┘    │
-│                                                                             │
-│  Related Documentation Also Affected:                                       │
-│  • docs/checkout.md (references "Stripe integration")                       │
-│  • docs/api/payments.md (mentions "Stripe webhook handling")                │
-│  • README.md (lists "Stripe" in integrations section)                       │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+<p align="center">
+  <img src="assets/example-drift-detection.png" alt="Example Drift Detection Report" width="800">
+</p>
 
 #### Why Agentic is Better
 
