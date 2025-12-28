@@ -1,0 +1,3871 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {
+      "type": "rectangle",
+      "id": "d01_outer-frame",
+      "x": 0,
+      "y": 0,
+      "width": 700,
+      "height": 400,
+      "strokeColor": "#495057",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d01_query-text",
+      "x": 200,
+      "y": 30,
+      "width": 300,
+      "height": 30,
+      "text": "\"How does authentication work?\"",
+      "fontSize": 18,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent"
+    },
+    {
+      "type": "arrow",
+      "id": "d01_arrow-down-1",
+      "x": 350,
+      "y": 65,
+      "width": 0,
+      "height": 40,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d01_graph-search-box",
+      "x": 50,
+      "y": 120,
+      "width": 160,
+      "height": 100,
+      "strokeColor": "#228be6",
+      "backgroundColor": "#e7f5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d01_graph-search-title",
+      "x": 70,
+      "y": 130,
+      "width": 120,
+      "height": 24,
+      "text": "Graph Search",
+      "fontSize": 16,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6",
+      "fontWeight": "bold"
+    },
+    {
+      "type": "text",
+      "id": "d01_graph-search-desc",
+      "x": 60,
+      "y": 160,
+      "width": 140,
+      "height": 50,
+      "text": "\"What calls\nAuthSvc?\"",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d01_plus-sign",
+      "x": 230,
+      "y": 155,
+      "width": 30,
+      "height": 30,
+      "text": "+",
+      "fontSize": 28,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d01_vector-search-box",
+      "x": 270,
+      "y": 120,
+      "width": 160,
+      "height": 100,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d01_vector-search-title",
+      "x": 285,
+      "y": 130,
+      "width": 130,
+      "height": 24,
+      "text": "Vector Search",
+      "fontSize": 16,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "text",
+      "id": "d01_vector-search-desc",
+      "x": 280,
+      "y": 160,
+      "width": 140,
+      "height": 50,
+      "text": "\"Similar to\n'login'\"",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d01_equals-sign",
+      "x": 450,
+      "y": 155,
+      "width": 30,
+      "height": 30,
+      "text": "=",
+      "fontSize": 28,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d01_merged-results-box",
+      "x": 490,
+      "y": 120,
+      "width": 160,
+      "height": 100,
+      "strokeColor": "#fab005",
+      "backgroundColor": "#fff9db",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d01_merged-results-title",
+      "x": 505,
+      "y": 130,
+      "width": 130,
+      "height": 24,
+      "text": "Merged Results",
+      "fontSize": 16,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#fab005"
+    },
+    {
+      "type": "text",
+      "id": "d01_merged-results-desc",
+      "x": 500,
+      "y": 160,
+      "width": 140,
+      "height": 50,
+      "text": "Complete\nauth flow",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "arrow",
+      "id": "d01_arrow-down-2",
+      "x": 350,
+      "y": 235,
+      "width": 0,
+      "height": 40,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d01_answer-box",
+      "x": 50,
+      "y": 290,
+      "width": 600,
+      "height": 80,
+      "strokeColor": "#228be6",
+      "backgroundColor": "#f8f9fa",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d01_answer-text",
+      "x": 70,
+      "y": 305,
+      "width": 560,
+      "height": 50,
+      "text": "Answer: \"Authentication flows through AuthMiddleware \u2192\nAuthService \u2192 TokenValidator. The middleware intercepts...\"",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "strokeColor": "#1e1e1e"
+    },
+    {
+      "type": "rectangle",
+      "id": "d02_outer-frame",
+      "x": 0,
+      "y": 500,
+      "width": 700,
+      "height": 350,
+      "strokeColor": "#495057",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d02_title",
+      "x": 200,
+      "y": 520,
+      "width": 300,
+      "height": 30,
+      "text": "THE CONTEXT WINDOW PROBLEM",
+      "fontSize": 18,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#fa5252"
+    },
+    {
+      "type": "text",
+      "id": "d02_subtitle",
+      "x": 50,
+      "y": 560,
+      "width": 400,
+      "height": 24,
+      "text": "AI Assistant Context Window (200K-400K tokens)",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d02_context-window",
+      "x": 50,
+      "y": 590,
+      "width": 600,
+      "height": 80,
+      "strokeColor": "#495057",
+      "backgroundColor": "#f8f9fa",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "rectangle",
+      "id": "d02_exploration-area",
+      "x": 55,
+      "y": 595,
+      "width": 480,
+      "height": 70,
+      "strokeColor": "transparent",
+      "backgroundColor": "#ffc9c9",
+      "fillStyle": "solid",
+      "strokeWidth": 0,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d02_exploration-label",
+      "x": 200,
+      "y": 615,
+      "width": 150,
+      "height": 30,
+      "text": "EXPLORATION",
+      "fontSize": 16,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#c92a2a"
+    },
+    {
+      "type": "rectangle",
+      "id": "d02_reasoning-area",
+      "x": 540,
+      "y": 595,
+      "width": 105,
+      "height": 70,
+      "strokeColor": "transparent",
+      "backgroundColor": "#b2f2bb",
+      "fillStyle": "solid",
+      "strokeWidth": 0,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d02_reasoning-label",
+      "x": 548,
+      "y": 615,
+      "width": 90,
+      "height": 30,
+      "text": "REASONING",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#2f9e44"
+    },
+    {
+      "type": "text",
+      "id": "d02_problem-title",
+      "x": 50,
+      "y": 690,
+      "width": 200,
+      "height": 24,
+      "text": "Problem:",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "strokeColor": "#fa5252"
+    },
+    {
+      "type": "text",
+      "id": "d02_problem-desc",
+      "x": 50,
+      "y": 715,
+      "width": 600,
+      "height": 24,
+      "text": "Most of the context window is consumed by exploration,\nleaving limited space for actual reasoning and code generation.",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d02_bullet-1",
+      "x": 50,
+      "y": 765,
+      "width": 400,
+      "height": 20,
+      "text": "\u2022 File reads consume tokens (500 lines \u2248 2,000 tokens)",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d02_bullet-2",
+      "x": 50,
+      "y": 785,
+      "width": 300,
+      "height": 20,
+      "text": "\u2022 Search results consume tokens",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d02_bullet-3",
+      "x": 50,
+      "y": 805,
+      "width": 300,
+      "height": 20,
+      "text": "\u2022 Each exploration step compounds",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d02_bullet-4",
+      "x": 50,
+      "y": 825,
+      "width": 350,
+      "height": 20,
+      "text": "\u2022 Context compaction loses important details",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d03_outer-frame",
+      "x": 0,
+      "y": 950,
+      "width": 700,
+      "height": 500,
+      "strokeColor": "#495057",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d03_title",
+      "x": 180,
+      "y": 970,
+      "width": 340,
+      "height": 30,
+      "text": "WITH LATTICE: INSTANT KNOWLEDGE",
+      "fontSize": 18,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d03_query",
+      "x": 150,
+      "y": 1010,
+      "width": 400,
+      "height": 24,
+      "text": "AI Assistant asks: \"How does authentication work?\"",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#1e1e1e"
+    },
+    {
+      "type": "arrow",
+      "id": "d03_arrow-1",
+      "x": 350,
+      "y": 1040,
+      "width": 0,
+      "height": 30,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d03_lattice-mcp",
+      "x": 260,
+      "y": 1075,
+      "width": 180,
+      "height": 60,
+      "strokeColor": "#228be6",
+      "backgroundColor": "#e7f5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d03_lattice-mcp-text",
+      "x": 290,
+      "y": 1090,
+      "width": 120,
+      "height": 30,
+      "text": "Lattice MCP\nServer",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d03_single-call",
+      "x": 450,
+      "y": 1095,
+      "width": 120,
+      "height": 20,
+      "text": "\u2190 Single tool call",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "line",
+      "id": "d03_branch-line",
+      "x": 350,
+      "y": 1135,
+      "width": 0,
+      "height": 30,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "type": "line",
+      "id": "d03_branch-left",
+      "x": 150,
+      "y": 1165,
+      "width": 200,
+      "height": 0,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          200,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "line",
+      "id": "d03_branch-right",
+      "x": 350,
+      "y": 1165,
+      "width": 200,
+      "height": 0,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          200,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d03_graph-db",
+      "x": 80,
+      "y": 1185,
+      "width": 140,
+      "height": 80,
+      "strokeColor": "#228be6",
+      "backgroundColor": "#e7f5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d03_graph-db-text",
+      "x": 100,
+      "y": 1200,
+      "width": 100,
+      "height": 50,
+      "text": "Graph\nDatabase\n\nStructural\nrelationships",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "rectangle",
+      "id": "d03_vector-db",
+      "x": 280,
+      "y": 1185,
+      "width": 140,
+      "height": 80,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d03_vector-db-text",
+      "x": 300,
+      "y": 1200,
+      "width": 100,
+      "height": 50,
+      "text": "Vector\nDatabase\n\nSemantic\nsimilarity",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d03_doc-db",
+      "x": 480,
+      "y": 1185,
+      "width": 140,
+      "height": 80,
+      "strokeColor": "#fab005",
+      "backgroundColor": "#fff9db",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d03_doc-db-text",
+      "x": 500,
+      "y": 1200,
+      "width": 100,
+      "height": 50,
+      "text": "Doc\nDatabase\n\nDoc links\n& context",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#fab005"
+    },
+    {
+      "type": "arrow",
+      "id": "d03_arrow-merge",
+      "x": 350,
+      "y": 1275,
+      "width": 0,
+      "height": 30,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d03_grounded-answer",
+      "x": 230,
+      "y": 1310,
+      "width": 240,
+      "height": 70,
+      "strokeColor": "#228be6",
+      "backgroundColor": "#e7f5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d03_grounded-answer-text",
+      "x": 260,
+      "y": 1320,
+      "width": 180,
+      "height": 50,
+      "text": "Grounded Answer\n+ Source Codes\n+ Call Chains\n+ Documentation",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d03_context-label",
+      "x": 50,
+      "y": 1400,
+      "width": 200,
+      "height": 20,
+      "text": "AI Assistant Context Window:",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d03_minimal-context",
+      "x": 50,
+      "y": 1420,
+      "width": 600,
+      "height": 25,
+      "strokeColor": "#495057",
+      "backgroundColor": "#f8f9fa",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "rectangle",
+      "id": "d03_reasoning-full",
+      "x": 70,
+      "y": 1423,
+      "width": 560,
+      "height": 19,
+      "strokeColor": "transparent",
+      "backgroundColor": "#b2f2bb",
+      "fillStyle": "solid",
+      "strokeWidth": 0,
+      "roughness": 0
+    },
+    {
+      "type": "text",
+      "id": "d03_reasoning-text",
+      "x": 280,
+      "y": 1425,
+      "width": 120,
+      "height": 15,
+      "text": "REASONING",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#2f9e44"
+    },
+    {
+      "type": "text",
+      "id": "d04_title",
+      "x": 250,
+      "y": 1560,
+      "width": 300,
+      "height": 30,
+      "text": "INDEXING PIPELINE",
+      "fontSize": 20,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d04_input",
+      "x": 300,
+      "y": 1600,
+      "width": 200,
+      "height": 24,
+      "text": "Your Codebase",
+      "fontSize": 16,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#1e1e1e"
+    },
+    {
+      "type": "arrow",
+      "id": "d04_arrow-1",
+      "x": 400,
+      "y": 1630,
+      "width": 0,
+      "height": 25,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d04_stage-1",
+      "x": 50,
+      "y": 1660,
+      "width": 700,
+      "height": 70,
+      "strokeColor": "#228be6",
+      "backgroundColor": "#e7f5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d04_stage-1-title",
+      "x": 70,
+      "y": 1670,
+      "width": 150,
+      "height": 24,
+      "text": "STAGE 1: SCAN",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d04_stage-1-desc",
+      "x": 70,
+      "y": 1695,
+      "width": 660,
+      "height": 30,
+      "text": "Find source files \u2022 Compute SHA-256 hashes \u2022 Only changed files reprocessed",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "arrow",
+      "id": "d04_arrow-2",
+      "x": 400,
+      "y": 1735,
+      "width": 0,
+      "height": 20,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d04_stage-2",
+      "x": 50,
+      "y": 1760,
+      "width": 700,
+      "height": 70,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d04_stage-2-title",
+      "x": 70,
+      "y": 1770,
+      "width": 150,
+      "height": 24,
+      "text": "STAGE 2: PARSE",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "text",
+      "id": "d04_stage-2-desc",
+      "x": 70,
+      "y": 1795,
+      "width": 660,
+      "height": 30,
+      "text": "Tree-sitter AST \u2022 Extract classes, functions, imports \u2022 Type inference \u2022 Call resolution",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "arrow",
+      "id": "d04_arrow-3",
+      "x": 400,
+      "y": 1835,
+      "width": 0,
+      "height": 20,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d04_stage-3",
+      "x": 50,
+      "y": 1860,
+      "width": 700,
+      "height": 70,
+      "strokeColor": "#fab005",
+      "backgroundColor": "#fff9db",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d04_stage-3-title",
+      "x": 70,
+      "y": 1870,
+      "width": 200,
+      "height": 24,
+      "text": "STAGE 3: BUILD GRAPH",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "strokeColor": "#fab005"
+    },
+    {
+      "type": "text",
+      "id": "d04_stage-3-desc",
+      "x": 70,
+      "y": 1895,
+      "width": 660,
+      "height": 30,
+      "text": "Create nodes (Project, File, Class, Function) \u2022 Create edges (CALLS, EXTENDS, IMPORTS)",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "arrow",
+      "id": "d04_arrow-4",
+      "x": 400,
+      "y": 1935,
+      "width": 0,
+      "height": 20,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d04_stage-4",
+      "x": 50,
+      "y": 1960,
+      "width": 700,
+      "height": 70,
+      "strokeColor": "#7950f2",
+      "backgroundColor": "#f3f0ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d04_stage-4-title",
+      "x": 70,
+      "y": 1970,
+      "width": 200,
+      "height": 24,
+      "text": "STAGE 4: SUMMARIZE",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "strokeColor": "#7950f2"
+    },
+    {
+      "type": "text",
+      "id": "d04_stage-4-desc",
+      "x": 70,
+      "y": 1995,
+      "width": 660,
+      "height": 30,
+      "text": "LLM generates descriptions \u2022 Purpose, parameters, usage patterns",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "arrow",
+      "id": "d04_arrow-5",
+      "x": 400,
+      "y": 2035,
+      "width": 0,
+      "height": 20,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d04_stage-5",
+      "x": 50,
+      "y": 2060,
+      "width": 340,
+      "height": 70,
+      "strokeColor": "#e64980",
+      "backgroundColor": "#fff0f6",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d04_stage-5-title",
+      "x": 70,
+      "y": 2070,
+      "width": 150,
+      "height": 24,
+      "text": "STAGE 5: CHUNK",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "strokeColor": "#e64980"
+    },
+    {
+      "type": "text",
+      "id": "d04_stage-5-desc",
+      "x": 70,
+      "y": 2095,
+      "width": 300,
+      "height": 30,
+      "text": "Token-bounded segments\n200 token overlap",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d04_stage-6",
+      "x": 410,
+      "y": 2060,
+      "width": 340,
+      "height": 70,
+      "strokeColor": "#20c997",
+      "backgroundColor": "#e6fcf5",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d04_stage-6-title",
+      "x": 430,
+      "y": 2070,
+      "width": 150,
+      "height": 24,
+      "text": "STAGE 6: EMBED",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "strokeColor": "#20c997"
+    },
+    {
+      "type": "text",
+      "id": "d04_stage-6-desc",
+      "x": 430,
+      "y": 2095,
+      "width": 300,
+      "height": 30,
+      "text": "Vector embeddings\nStored in Qdrant",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d05_title",
+      "x": 280,
+      "y": 2240,
+      "width": 240,
+      "height": 30,
+      "text": "QUERY PIPELINE",
+      "fontSize": 20,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d05_query",
+      "x": 180,
+      "y": 2280,
+      "width": 440,
+      "height": 24,
+      "text": "\"What functions call PaymentService.charge()?\"",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#1e1e1e"
+    },
+    {
+      "type": "arrow",
+      "id": "d05_arrow-1",
+      "x": 400,
+      "y": 2310,
+      "width": 0,
+      "height": 25,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d05_planner",
+      "x": 200,
+      "y": 2340,
+      "width": 400,
+      "height": 90,
+      "strokeColor": "#228be6",
+      "backgroundColor": "#e7f5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d05_planner-title",
+      "x": 330,
+      "y": 2350,
+      "width": 140,
+      "height": 24,
+      "text": "QUERY PLANNER",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d05_planner-desc",
+      "x": 220,
+      "y": 2378,
+      "width": 360,
+      "height": 45,
+      "text": "\u2022 Analyze query intent\n\u2022 Extract target entities\n\u2022 Determine graph/vector weighting",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d05_parallel-label",
+      "x": 300,
+      "y": 2445,
+      "width": 200,
+      "height": 20,
+      "text": "PARALLEL EXECUTION",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "line",
+      "id": "d05_split-line",
+      "x": 400,
+      "y": 2465,
+      "width": 0,
+      "height": 20,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "type": "line",
+      "id": "d05_split-left",
+      "x": 200,
+      "y": 2485,
+      "width": 200,
+      "height": 0,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          200,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "line",
+      "id": "d05_split-right",
+      "x": 400,
+      "y": 2485,
+      "width": 200,
+      "height": 0,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          200,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d05_graph-search",
+      "x": 80,
+      "y": 2505,
+      "width": 240,
+      "height": 120,
+      "strokeColor": "#228be6",
+      "backgroundColor": "#e7f5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d05_graph-search-title",
+      "x": 140,
+      "y": 2515,
+      "width": 120,
+      "height": 24,
+      "text": "GRAPH SEARCH",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d05_graph-search-desc",
+      "x": 95,
+      "y": 2545,
+      "width": 210,
+      "height": 70,
+      "text": "1. Locate target entities\n2. Traverse CALLS relationships\n3. Gather callers, callees",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d05_vector-search",
+      "x": 480,
+      "y": 2505,
+      "width": 240,
+      "height": 120,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d05_vector-search-title",
+      "x": 535,
+      "y": 2515,
+      "width": 130,
+      "height": 24,
+      "text": "VECTOR SEARCH",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "text",
+      "id": "d05_vector-search-desc",
+      "x": 495,
+      "y": 2545,
+      "width": 210,
+      "height": 70,
+      "text": "1. Embed the query\n2. Search Qdrant for similar\n3. Return top-K with scores",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "line",
+      "id": "d05_merge-left",
+      "x": 200,
+      "y": 2625,
+      "width": 200,
+      "height": 30,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          200,
+          30
+        ]
+      ]
+    },
+    {
+      "type": "line",
+      "id": "d05_merge-right",
+      "x": 600,
+      "y": 2625,
+      "width": -200,
+      "height": 30,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -200,
+          30
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d05_ranker",
+      "x": 250,
+      "y": 2660,
+      "width": 300,
+      "height": 80,
+      "strokeColor": "#fab005",
+      "backgroundColor": "#fff9db",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d05_ranker-title",
+      "x": 340,
+      "y": 2670,
+      "width": 120,
+      "height": 24,
+      "text": "HYBRID RANKER",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#fab005"
+    },
+    {
+      "type": "text",
+      "id": "d05_ranker-desc",
+      "x": 265,
+      "y": 2695,
+      "width": 270,
+      "height": 40,
+      "text": "Merge results \u2022 Score \u2022 Deduplicate\n10% boost for results in both searches",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "arrow",
+      "id": "d05_arrow-final",
+      "x": 400,
+      "y": 2745,
+      "width": 0,
+      "height": 25,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d05_responder",
+      "x": 250,
+      "y": 2775,
+      "width": 300,
+      "height": 60,
+      "strokeColor": "#7950f2",
+      "backgroundColor": "#f3f0ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d05_responder-title",
+      "x": 350,
+      "y": 2785,
+      "width": 100,
+      "height": 24,
+      "text": "RESPONDER",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#7950f2"
+    },
+    {
+      "type": "text",
+      "id": "d05_responder-desc",
+      "x": 265,
+      "y": 2808,
+      "width": 270,
+      "height": 20,
+      "text": "LLM synthesizes answer with source citations",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d06_title",
+      "x": 220,
+      "y": 2945,
+      "width": 360,
+      "height": 30,
+      "text": "MULTI-HOP GRAPH REASONING",
+      "fontSize": 20,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d06_question",
+      "x": 180,
+      "y": 2985,
+      "width": 440,
+      "height": 24,
+      "text": "\"What ultimately triggers the PaymentService?\"",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#1e1e1e"
+    },
+    {
+      "type": "text",
+      "id": "d06_single-hop-label",
+      "x": 80,
+      "y": 3035,
+      "width": 200,
+      "height": 24,
+      "text": "Single-hop (traditional)",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "strokeColor": "#fa5252"
+    },
+    {
+      "type": "text",
+      "id": "d06_multi-hop-label",
+      "x": 480,
+      "y": 3035,
+      "width": 200,
+      "height": 24,
+      "text": "Multi-hop (Lattice)",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d06_single-hop-box",
+      "x": 50,
+      "y": 3065,
+      "width": 280,
+      "height": 200,
+      "strokeColor": "#fa5252",
+      "backgroundColor": "#fff5f5",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "rectangle",
+      "id": "d06_sh-node-1",
+      "x": 110,
+      "y": 3095,
+      "width": 160,
+      "height": 40,
+      "strokeColor": "#495057",
+      "backgroundColor": "#f8f9fa",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d06_sh-node-1-text",
+      "x": 120,
+      "y": 3105,
+      "width": 140,
+      "height": 20,
+      "text": "OrderHandler.submit()",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "arrow",
+      "id": "d06_sh-arrow",
+      "x": 190,
+      "y": 3140,
+      "width": 0,
+      "height": 35,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          35
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d06_sh-node-2",
+      "x": 110,
+      "y": 3180,
+      "width": 160,
+      "height": 40,
+      "strokeColor": "#fa5252",
+      "backgroundColor": "#ffc9c9",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d06_sh-node-2-text",
+      "x": 115,
+      "y": 3190,
+      "width": 150,
+      "height": 20,
+      "text": "PaymentService.charge()",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#c92a2a"
+    },
+    {
+      "type": "text",
+      "id": "d06_sh-miss",
+      "x": 90,
+      "y": 3235,
+      "width": 200,
+      "height": 20,
+      "text": "\u274c Misses the full picture!",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#fa5252"
+    },
+    {
+      "type": "rectangle",
+      "id": "d06_multi-hop-box",
+      "x": 470,
+      "y": 3065,
+      "width": 280,
+      "height": 320,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "rectangle",
+      "id": "d06_mh-node-1",
+      "x": 520,
+      "y": 3085,
+      "width": 180,
+      "height": 35,
+      "strokeColor": "#495057",
+      "backgroundColor": "#f8f9fa",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d06_mh-node-1-text",
+      "x": 530,
+      "y": 3093,
+      "width": 160,
+      "height": 18,
+      "text": "APIController.handleRequest()",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "arrow",
+      "id": "d06_mh-arrow-1",
+      "x": 610,
+      "y": 3123,
+      "width": 0,
+      "height": 25,
+      "strokeColor": "#40c057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "type": "text",
+      "id": "d06_hop-1",
+      "x": 700,
+      "y": 3130,
+      "width": 40,
+      "height": 15,
+      "text": "hop 1",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d06_mh-node-2",
+      "x": 520,
+      "y": 3153,
+      "width": 180,
+      "height": 35,
+      "strokeColor": "#495057",
+      "backgroundColor": "#f8f9fa",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d06_mh-node-2-text",
+      "x": 530,
+      "y": 3161,
+      "width": 160,
+      "height": 18,
+      "text": "RequestValidator.validate()",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "arrow",
+      "id": "d06_mh-arrow-2",
+      "x": 610,
+      "y": 3191,
+      "width": 0,
+      "height": 25,
+      "strokeColor": "#40c057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "type": "text",
+      "id": "d06_hop-2",
+      "x": 700,
+      "y": 3198,
+      "width": 40,
+      "height": 15,
+      "text": "hop 2",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d06_mh-node-3",
+      "x": 520,
+      "y": 3221,
+      "width": 180,
+      "height": 35,
+      "strokeColor": "#495057",
+      "backgroundColor": "#f8f9fa",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d06_mh-node-3-text",
+      "x": 530,
+      "y": 3229,
+      "width": 160,
+      "height": 18,
+      "text": "OrderHandler.submit()",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "arrow",
+      "id": "d06_mh-arrow-3",
+      "x": 610,
+      "y": 3259,
+      "width": 0,
+      "height": 25,
+      "strokeColor": "#40c057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "type": "text",
+      "id": "d06_hop-3",
+      "x": 700,
+      "y": 3266,
+      "width": 40,
+      "height": 15,
+      "text": "hop 3",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d06_mh-node-4",
+      "x": 520,
+      "y": 3289,
+      "width": 180,
+      "height": 35,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#b2f2bb",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d06_mh-node-4-text",
+      "x": 530,
+      "y": 3297,
+      "width": 160,
+      "height": 18,
+      "text": "PaymentService.charge()",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#2f9e44"
+    },
+    {
+      "type": "text",
+      "id": "d06_mh-complete",
+      "x": 490,
+      "y": 3340,
+      "width": 240,
+      "height": 35,
+      "text": "\u2713 Complete call chain\nwith depth tracking",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "text",
+      "id": "d07_title",
+      "x": 280,
+      "y": 3495,
+      "width": 240,
+      "height": 30,
+      "text": "GRAPH SCHEMA",
+      "fontSize": 20,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "ellipse",
+      "id": "d07_project-node",
+      "x": 340,
+      "y": 3545,
+      "width": 120,
+      "height": 50,
+      "strokeColor": "#228be6",
+      "backgroundColor": "#e7f5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "type": "text",
+      "id": "d07_project-text",
+      "x": 365,
+      "y": 3560,
+      "width": 70,
+      "height": 20,
+      "text": "Project",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "line",
+      "id": "d07_project-to-files",
+      "x": 400,
+      "y": 3600,
+      "width": 0,
+      "height": 40,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "type": "text",
+      "id": "d07_contains-label",
+      "x": 410,
+      "y": 3610,
+      "width": 80,
+      "height": 16,
+      "text": "CONTAINS",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "line",
+      "id": "d07_files-branch",
+      "x": 200,
+      "y": 3640,
+      "width": 400,
+      "height": 0,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          400,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "ellipse",
+      "id": "d07_file-1",
+      "x": 140,
+      "y": 3655,
+      "width": 120,
+      "height": 50,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "type": "text",
+      "id": "d07_file-1-text",
+      "x": 175,
+      "y": 3670,
+      "width": 50,
+      "height": 20,
+      "text": "File",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "ellipse",
+      "id": "d07_file-2",
+      "x": 340,
+      "y": 3655,
+      "width": 120,
+      "height": 50,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "type": "text",
+      "id": "d07_file-2-text",
+      "x": 375,
+      "y": 3670,
+      "width": 50,
+      "height": 20,
+      "text": "File",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "ellipse",
+      "id": "d07_file-3",
+      "x": 540,
+      "y": 3655,
+      "width": 120,
+      "height": 50,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "type": "text",
+      "id": "d07_file-3-text",
+      "x": 575,
+      "y": 3670,
+      "width": 50,
+      "height": 20,
+      "text": "File",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "line",
+      "id": "d07_file-to-class",
+      "x": 200,
+      "y": 3710,
+      "width": 0,
+      "height": 40,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "type": "text",
+      "id": "d07_defines-label-1",
+      "x": 210,
+      "y": 3720,
+      "width": 60,
+      "height": 16,
+      "text": "DEFINES",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "ellipse",
+      "id": "d07_class-node",
+      "x": 140,
+      "y": 3755,
+      "width": 120,
+      "height": 50,
+      "strokeColor": "#fab005",
+      "backgroundColor": "#fff9db",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "type": "text",
+      "id": "d07_class-text",
+      "x": 175,
+      "y": 3770,
+      "width": 50,
+      "height": 20,
+      "text": "Class",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#fab005"
+    },
+    {
+      "type": "line",
+      "id": "d07_file-to-function",
+      "x": 600,
+      "y": 3710,
+      "width": 0,
+      "height": 40,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "type": "text",
+      "id": "d07_defines-label-2",
+      "x": 610,
+      "y": 3720,
+      "width": 60,
+      "height": 16,
+      "text": "DEFINES",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "ellipse",
+      "id": "d07_function-node",
+      "x": 540,
+      "y": 3755,
+      "width": 120,
+      "height": 50,
+      "strokeColor": "#7950f2",
+      "backgroundColor": "#f3f0ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "type": "text",
+      "id": "d07_function-text",
+      "x": 565,
+      "y": 3770,
+      "width": 70,
+      "height": 20,
+      "text": "Function",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#7950f2"
+    },
+    {
+      "type": "line",
+      "id": "d07_class-to-method",
+      "x": 200,
+      "y": 3810,
+      "width": 0,
+      "height": 40,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "type": "text",
+      "id": "d07_defines-method-label",
+      "x": 210,
+      "y": 3818,
+      "width": 100,
+      "height": 16,
+      "text": "DEFINES_METHOD",
+      "fontSize": 9,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "ellipse",
+      "id": "d07_method-node",
+      "x": 140,
+      "y": 3855,
+      "width": 120,
+      "height": 50,
+      "strokeColor": "#e64980",
+      "backgroundColor": "#fff0f6",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "type": "text",
+      "id": "d07_method-text",
+      "x": 170,
+      "y": 3870,
+      "width": 60,
+      "height": 20,
+      "text": "Method",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#e64980"
+    },
+    {
+      "type": "line",
+      "id": "d07_method-calls-function",
+      "x": 265,
+      "y": 3880,
+      "width": 270,
+      "height": -100,
+      "strokeColor": "#fa5252",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          270,
+          -100
+        ]
+      ],
+      "endArrowhead": "arrow"
+    },
+    {
+      "type": "text",
+      "id": "d07_calls-label",
+      "x": 380,
+      "y": 3825,
+      "width": 50,
+      "height": 16,
+      "text": "CALLS",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#fa5252"
+    },
+    {
+      "type": "ellipse",
+      "id": "d07_class-2-node",
+      "x": 340,
+      "y": 3855,
+      "width": 120,
+      "height": 50,
+      "strokeColor": "#fab005",
+      "backgroundColor": "#fff9db",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "type": "text",
+      "id": "d07_class-2-text",
+      "x": 375,
+      "y": 3870,
+      "width": 50,
+      "height": 20,
+      "text": "Class",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#fab005"
+    },
+    {
+      "type": "line",
+      "id": "d07_class-extends",
+      "x": 265,
+      "y": 3780,
+      "width": 70,
+      "height": 85,
+      "strokeColor": "#20c997",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          70,
+          85
+        ]
+      ],
+      "endArrowhead": "arrow"
+    },
+    {
+      "type": "text",
+      "id": "d07_extends-label",
+      "x": 275,
+      "y": 3815,
+      "width": 60,
+      "height": 16,
+      "text": "EXTENDS",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#20c997"
+    },
+    {
+      "type": "text",
+      "id": "d08_title",
+      "x": 260,
+      "y": 4015,
+      "width": 280,
+      "height": 30,
+      "text": "LATTICE ARCHITECTURE",
+      "fontSize": 20,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "rectangle",
+      "id": "d08_outer-frame",
+      "x": 50,
+      "y": 4055,
+      "width": 700,
+      "height": 450,
+      "strokeColor": "#495057",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d08_data-layer-title",
+      "x": 340,
+      "y": 4070,
+      "width": 120,
+      "height": 24,
+      "text": "DATA LAYER",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d08_memgraph-box",
+      "x": 80,
+      "y": 4100,
+      "width": 180,
+      "height": 100,
+      "strokeColor": "#228be6",
+      "backgroundColor": "#e7f5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d08_memgraph-title",
+      "x": 130,
+      "y": 4110,
+      "width": 80,
+      "height": 20,
+      "text": "Memgraph",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d08_memgraph-desc",
+      "x": 100,
+      "y": 4135,
+      "width": 140,
+      "height": 55,
+      "text": "Knowledge\nGraph\n\nCypher Queries",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d08_qdrant-box",
+      "x": 310,
+      "y": 4100,
+      "width": 180,
+      "height": 100,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d08_qdrant-title",
+      "x": 370,
+      "y": 4110,
+      "width": 60,
+      "height": 20,
+      "text": "Qdrant",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "text",
+      "id": "d08_qdrant-desc",
+      "x": 330,
+      "y": 4135,
+      "width": 140,
+      "height": 55,
+      "text": "Vector\nEmbeddings\n\nHNSW Index",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d08_postgres-box",
+      "x": 540,
+      "y": 4100,
+      "width": 180,
+      "height": 100,
+      "strokeColor": "#fab005",
+      "backgroundColor": "#fff9db",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d08_postgres-title",
+      "x": 585,
+      "y": 4110,
+      "width": 90,
+      "height": 20,
+      "text": "PostgreSQL",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#fab005"
+    },
+    {
+      "type": "text",
+      "id": "d08_postgres-desc",
+      "x": 560,
+      "y": 4135,
+      "width": 140,
+      "height": 55,
+      "text": "Documents\n& Metadata\n\nasyncpg Driver",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d08_core-engine-title",
+      "x": 335,
+      "y": 4220,
+      "width": 130,
+      "height": 24,
+      "text": "CORE ENGINE",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d08_parsing-box",
+      "x": 80,
+      "y": 4250,
+      "width": 180,
+      "height": 90,
+      "strokeColor": "#7950f2",
+      "backgroundColor": "#f3f0ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d08_parsing-title",
+      "x": 140,
+      "y": 4260,
+      "width": 60,
+      "height": 20,
+      "text": "Parsing",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#7950f2"
+    },
+    {
+      "type": "text",
+      "id": "d08_parsing-desc",
+      "x": 100,
+      "y": 4285,
+      "width": 140,
+      "height": 45,
+      "text": "Tree-sitter\nType Inference\nCall Resolution",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d08_indexing-box",
+      "x": 310,
+      "y": 4250,
+      "width": 180,
+      "height": 90,
+      "strokeColor": "#e64980",
+      "backgroundColor": "#fff0f6",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d08_indexing-title",
+      "x": 365,
+      "y": 4260,
+      "width": 70,
+      "height": 20,
+      "text": "Indexing",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#e64980"
+    },
+    {
+      "type": "text",
+      "id": "d08_indexing-desc",
+      "x": 330,
+      "y": 4285,
+      "width": 140,
+      "height": 45,
+      "text": "Pipeline\nOrchestrator\nStages",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d08_querying-box",
+      "x": 540,
+      "y": 4250,
+      "width": 180,
+      "height": 90,
+      "strokeColor": "#20c997",
+      "backgroundColor": "#e6fcf5",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d08_querying-title",
+      "x": 595,
+      "y": 4260,
+      "width": 70,
+      "height": 20,
+      "text": "Querying",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#20c997"
+    },
+    {
+      "type": "text",
+      "id": "d08_querying-desc",
+      "x": 560,
+      "y": 4285,
+      "width": 140,
+      "height": 45,
+      "text": "Hybrid Ranking\nGraph Reasoning\nPlanner",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d08_ai-providers-title",
+      "x": 335,
+      "y": 4360,
+      "width": 130,
+      "height": 24,
+      "text": "AI PROVIDERS",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d08_openai-box",
+      "x": 80,
+      "y": 4390,
+      "width": 140,
+      "height": 70,
+      "strokeColor": "#495057",
+      "backgroundColor": "#f8f9fa",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d08_openai-text",
+      "x": 115,
+      "y": 4410,
+      "width": 70,
+      "height": 30,
+      "text": "OpenAI\nGPT-4o",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d08_anthropic-box",
+      "x": 240,
+      "y": 4390,
+      "width": 140,
+      "height": 70,
+      "strokeColor": "#495057",
+      "backgroundColor": "#f8f9fa",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d08_anthropic-text",
+      "x": 265,
+      "y": 4410,
+      "width": 90,
+      "height": 30,
+      "text": "Anthropic\nClaude",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d08_google-box",
+      "x": 400,
+      "y": 4390,
+      "width": 140,
+      "height": 70,
+      "strokeColor": "#495057",
+      "backgroundColor": "#f8f9fa",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d08_google-text",
+      "x": 435,
+      "y": 4410,
+      "width": 70,
+      "height": 30,
+      "text": "Google\nGemini",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d08_ollama-box",
+      "x": 560,
+      "y": 4390,
+      "width": 140,
+      "height": 70,
+      "strokeColor": "#495057",
+      "backgroundColor": "#f8f9fa",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d08_ollama-text",
+      "x": 595,
+      "y": 4410,
+      "width": 70,
+      "height": 30,
+      "text": "Ollama\n(Local)",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d09_title",
+      "x": 200,
+      "y": 4615,
+      "width": 400,
+      "height": 30,
+      "text": "DOCUMENTATION INTELLIGENCE",
+      "fontSize": 20,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "rectangle",
+      "id": "d09_docs-folder",
+      "x": 50,
+      "y": 4665,
+      "width": 150,
+      "height": 100,
+      "strokeColor": "#495057",
+      "backgroundColor": "#f8f9fa",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d09_docs-folder-text",
+      "x": 70,
+      "y": 4680,
+      "width": 110,
+      "height": 70,
+      "text": "docs/\n\u251c\u2500\u2500 api.md\n\u251c\u2500\u2500 arch.md\n\u2514\u2500\u2500 guides/",
+      "fontSize": 12,
+      "fontFamily": 3,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "arrow",
+      "id": "d09_arrow-1",
+      "x": 210,
+      "y": 4715,
+      "width": 60,
+      "height": 0,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          60,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d09_step-1",
+      "x": 280,
+      "y": 4655,
+      "width": 220,
+      "height": 120,
+      "strokeColor": "#228be6",
+      "backgroundColor": "#e7f5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d09_step-1-title",
+      "x": 310,
+      "y": 4665,
+      "width": 160,
+      "height": 20,
+      "text": "STEP 1: CHUNKING",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d09_step-1-desc",
+      "x": 295,
+      "y": 4690,
+      "width": 190,
+      "height": 75,
+      "text": "Split by heading hierarchy\n\n# Auth Guide \u2192 Chunk 1\n## OAuth Flow \u2192 Chunk 2\n## JWT Tokens \u2192 Chunk 3",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "arrow",
+      "id": "d09_arrow-2",
+      "x": 510,
+      "y": 4715,
+      "width": 50,
+      "height": 0,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          50,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d09_step-2",
+      "x": 570,
+      "y": 4655,
+      "width": 200,
+      "height": 120,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d09_step-2-title",
+      "x": 590,
+      "y": 4665,
+      "width": 160,
+      "height": 20,
+      "text": "STEP 2: ENTITY LINKING",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "text",
+      "id": "d09_step-2-desc",
+      "x": 585,
+      "y": 4690,
+      "width": 170,
+      "height": 75,
+      "text": "Link docs to code:\n\n\u2022 Explicit: `AuthService`\n\u2022 Implicit: semantic match\n\u2022 Confidence scores",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "arrow",
+      "id": "d09_arrow-down",
+      "x": 400,
+      "y": 4785,
+      "width": 0,
+      "height": 40,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d09_step-3",
+      "x": 200,
+      "y": 4835,
+      "width": 400,
+      "height": 180,
+      "strokeColor": "#fab005",
+      "backgroundColor": "#fff9db",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d09_step-3-title",
+      "x": 310,
+      "y": 4845,
+      "width": 180,
+      "height": 20,
+      "text": "STEP 3: DRIFT DETECTION",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#fab005"
+    },
+    {
+      "type": "text",
+      "id": "d09_drift-header",
+      "x": 220,
+      "y": 4875,
+      "width": 360,
+      "height": 20,
+      "text": "Document         Entity           Status      Score",
+      "fontSize": 11,
+      "fontFamily": 3,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "line",
+      "id": "d09_drift-line",
+      "x": 220,
+      "y": 4895,
+      "width": 360,
+      "height": 0,
+      "strokeColor": "#495057",
+      "strokeWidth": 1,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          360,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "text",
+      "id": "d09_drift-row-1",
+      "x": 220,
+      "y": 4905,
+      "width": 360,
+      "height": 20,
+      "text": "docs/api.md      PaymentService   \u2713 Aligned   0.12",
+      "fontSize": 11,
+      "fontFamily": 3,
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "text",
+      "id": "d09_drift-row-2",
+      "x": 220,
+      "y": 4930,
+      "width": 360,
+      "height": 20,
+      "text": "docs/auth.md     AuthService      \u26a0 Minor     0.45",
+      "fontSize": 11,
+      "fontFamily": 3,
+      "strokeColor": "#fab005"
+    },
+    {
+      "type": "text",
+      "id": "d09_drift-row-3",
+      "x": 220,
+      "y": 4955,
+      "width": 360,
+      "height": 20,
+      "text": "docs/cache.md    CacheManager     \u2717 Major     0.78",
+      "fontSize": 11,
+      "fontFamily": 3,
+      "strokeColor": "#fa5252"
+    },
+    {
+      "type": "text",
+      "id": "d09_drift-note",
+      "x": 220,
+      "y": 4985,
+      "width": 360,
+      "height": 20,
+      "text": "Major drift = docs don't match implementation",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d10_title",
+      "x": 240,
+      "y": 5125,
+      "width": 320,
+      "height": 30,
+      "text": "AGENT GUIDANCE PROBLEM",
+      "fontSize": 20,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d10_user-query",
+      "x": 250,
+      "y": 5165,
+      "width": 300,
+      "height": 24,
+      "text": "User: \"Add a new payment method\"",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#1e1e1e"
+    },
+    {
+      "type": "rectangle",
+      "id": "d10_without-lattice",
+      "x": 50,
+      "y": 5205,
+      "width": 330,
+      "height": 220,
+      "strokeColor": "#fa5252",
+      "backgroundColor": "#fff5f5",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d10_without-title",
+      "x": 130,
+      "y": 5215,
+      "width": 170,
+      "height": 24,
+      "text": "Without Lattice",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "strokeColor": "#fa5252"
+    },
+    {
+      "type": "text",
+      "id": "d10_without-step-1",
+      "x": 70,
+      "y": 5250,
+      "width": 290,
+      "height": 20,
+      "text": "Agent searches for \"payment\"...",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d10_without-step-2",
+      "x": 70,
+      "y": 5280,
+      "width": 290,
+      "height": 40,
+      "text": "Finds: /legacy/payments.py\n(deprecated, 2 years old)",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#c92a2a"
+    },
+    {
+      "type": "text",
+      "id": "d10_without-step-3",
+      "x": 70,
+      "y": 5330,
+      "width": 290,
+      "height": 40,
+      "text": "Agent implements new payment\nfollowing legacy patterns",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d10_without-result",
+      "x": 70,
+      "y": 5380,
+      "width": 290,
+      "height": 35,
+      "text": "\u274c Result: Code doesn't follow\ncurrent architecture",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#fa5252"
+    },
+    {
+      "type": "rectangle",
+      "id": "d10_with-lattice",
+      "x": 420,
+      "y": 5205,
+      "width": 330,
+      "height": 220,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d10_with-title",
+      "x": 515,
+      "y": 5215,
+      "width": 140,
+      "height": 24,
+      "text": "With Lattice",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "text",
+      "id": "d10_with-step-1",
+      "x": 440,
+      "y": 5250,
+      "width": 290,
+      "height": 20,
+      "text": "Agent queries: \"How do payments work?\"",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d10_with-returns",
+      "x": 440,
+      "y": 5280,
+      "width": 290,
+      "height": 20,
+      "text": "Lattice returns:",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "text",
+      "id": "d10_with-bullet-1",
+      "x": 450,
+      "y": 5300,
+      "width": 280,
+      "height": 18,
+      "text": "\u2022 Current PaymentService (active usage)",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d10_with-bullet-2",
+      "x": 450,
+      "y": 5318,
+      "width": 280,
+      "height": 18,
+      "text": "\u2022 PaymentMethodBase class + impls",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d10_with-bullet-3",
+      "x": 450,
+      "y": 5336,
+      "width": 280,
+      "height": 18,
+      "text": "\u2022 Related docs (flags legacy as deprecated)",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d10_with-bullet-4",
+      "x": 450,
+      "y": 5354,
+      "width": 280,
+      "height": 18,
+      "text": "\u2022 Test patterns for payment methods",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d10_with-result",
+      "x": 440,
+      "y": 5385,
+      "width": 290,
+      "height": 35,
+      "text": "\u2713 Result: Agent follows current\npatterns, integrates correctly",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "text",
+      "id": "d11_title",
+      "x": 280,
+      "y": 5535,
+      "width": 240,
+      "height": 30,
+      "text": "HYBRID RANKING",
+      "fontSize": 20,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "rectangle",
+      "id": "d11_graph-results",
+      "x": 50,
+      "y": 5585,
+      "width": 280,
+      "height": 140,
+      "strokeColor": "#228be6",
+      "backgroundColor": "#e7f5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d11_graph-title",
+      "x": 130,
+      "y": 5595,
+      "width": 120,
+      "height": 20,
+      "text": "Graph Results",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d11_graph-list",
+      "x": 65,
+      "y": 5625,
+      "width": 250,
+      "height": 90,
+      "text": "1. PaymentService.charge (primary)\n2. OrderHandler.submit (depth 1)\n3. CheckoutFlow.process (depth 2)\n4. PaymentValidator.check (callee)",
+      "fontSize": 11,
+      "fontFamily": 3,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d11_vector-results",
+      "x": 470,
+      "y": 5585,
+      "width": 280,
+      "height": 140,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d11_vector-title",
+      "x": 545,
+      "y": 5595,
+      "width": 130,
+      "height": 20,
+      "text": "Vector Results",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "text",
+      "id": "d11_vector-list",
+      "x": 485,
+      "y": 5625,
+      "width": 250,
+      "height": 90,
+      "text": "1. PaymentProcessor.run    (0.92)\n2. PaymentService.charge   (0.89)\n3. StripeGateway.execute   (0.85)\n4. OrderHandler.submit     (0.81)",
+      "fontSize": 11,
+      "fontFamily": 3,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "line",
+      "id": "d11_merge-left",
+      "x": 190,
+      "y": 5730,
+      "width": 150,
+      "height": 50,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          150,
+          50
+        ]
+      ]
+    },
+    {
+      "type": "line",
+      "id": "d11_merge-right",
+      "x": 610,
+      "y": 5730,
+      "width": -150,
+      "height": 50,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -150,
+          50
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d11_scoring-box",
+      "x": 200,
+      "y": 5785,
+      "width": 400,
+      "height": 100,
+      "strokeColor": "#fab005",
+      "backgroundColor": "#fff9db",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d11_scoring-title",
+      "x": 330,
+      "y": 5795,
+      "width": 140,
+      "height": 20,
+      "text": "SCORING SIGNALS",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#fab005"
+    },
+    {
+      "type": "text",
+      "id": "d11_graph-signals",
+      "x": 220,
+      "y": 5820,
+      "width": 170,
+      "height": 55,
+      "text": "Graph Signals:\n\u2022 Relationship weight\n\u2022 Distance decay\n\u2022 Centrality",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d11_vector-signals",
+      "x": 410,
+      "y": 5820,
+      "width": 170,
+      "height": 55,
+      "text": "Vector Signals:\n\u2022 Cosine similarity\n\u2022 Code quality\n\u2022 Entity type boost",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "arrow",
+      "id": "d11_arrow-down",
+      "x": 400,
+      "y": 5890,
+      "width": 0,
+      "height": 35,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          35
+        ]
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "d11_merged-box",
+      "x": 200,
+      "y": 5930,
+      "width": 400,
+      "height": 130,
+      "strokeColor": "#7950f2",
+      "backgroundColor": "#f3f0ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d11_merged-title",
+      "x": 300,
+      "y": 5940,
+      "width": 200,
+      "height": 20,
+      "text": "MERGED RESULTS",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#7950f2"
+    },
+    {
+      "type": "text",
+      "id": "d11_merged-list",
+      "x": 220,
+      "y": 5970,
+      "width": 360,
+      "height": 80,
+      "text": "1. PaymentService.charge   (0.95) \u2190 Hybrid boost!\n2. OrderHandler.submit     (0.87) \u2190 Hybrid boost!\n3. PaymentProcessor.run    (0.82)\n4. CheckoutFlow.process    (0.78)\n5. StripeGateway.execute   (0.71)",
+      "fontSize": 11,
+      "fontFamily": 3,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d12_title",
+      "x": 220,
+      "y": 6170,
+      "width": 360,
+      "height": 30,
+      "text": "AGENTIC DRIFT DETECTION",
+      "fontSize": 20,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d12_task",
+      "x": 180,
+      "y": 6210,
+      "width": 440,
+      "height": 24,
+      "text": "Task: \"Analyze drift for docs/payments.md \u2194 PaymentService\"",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#1e1e1e"
+    },
+    {
+      "type": "rectangle",
+      "id": "d12_agent-box",
+      "x": 50,
+      "y": 6250,
+      "width": 700,
+      "height": 120,
+      "strokeColor": "#228be6",
+      "backgroundColor": "#e7f5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d12_agent-title",
+      "x": 300,
+      "y": 6260,
+      "width": 200,
+      "height": 24,
+      "text": "DRIFT DETECTION AGENT",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#228be6"
+    },
+    {
+      "type": "text",
+      "id": "d12_tools-title",
+      "x": 70,
+      "y": 6290,
+      "width": 100,
+      "height": 20,
+      "text": "Tools Available:",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d12_tools-list",
+      "x": 70,
+      "y": 6310,
+      "width": 660,
+      "height": 50,
+      "text": "query_graph()  \u2022  read_code()  \u2022  find_tests()  \u2022  trace_calls()  \u2022  git_history()  \u2022  search_codebase()",
+      "fontSize": 11,
+      "fontFamily": 3,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "text",
+      "id": "d12_steps-title",
+      "x": 50,
+      "y": 6385,
+      "width": 150,
+      "height": 24,
+      "text": "Agent Execution:",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "strokeColor": "#1e1e1e"
+    },
+    {
+      "type": "rectangle",
+      "id": "d12_step-1",
+      "x": 50,
+      "y": 6415,
+      "width": 340,
+      "height": 80,
+      "strokeColor": "#40c057",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d12_step-1-title",
+      "x": 65,
+      "y": 6425,
+      "width": 200,
+      "height": 18,
+      "text": "Step 1: Read doc claims",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "strokeColor": "#40c057"
+    },
+    {
+      "type": "text",
+      "id": "d12_step-1-desc",
+      "x": 65,
+      "y": 6448,
+      "width": 310,
+      "height": 40,
+      "text": "Claims to verify:\n\u25a1 Uses Stripe API  \u25a1 Has auto retry",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d12_step-2",
+      "x": 410,
+      "y": 6415,
+      "width": 340,
+      "height": 80,
+      "strokeColor": "#fab005",
+      "backgroundColor": "#fff9db",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d12_step-2-title",
+      "x": 425,
+      "y": 6425,
+      "width": 200,
+      "height": 18,
+      "text": "Step 2: Investigate code",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "strokeColor": "#fab005"
+    },
+    {
+      "type": "text",
+      "id": "d12_step-2-desc",
+      "x": 425,
+      "y": 6448,
+      "width": 310,
+      "height": 40,
+      "text": "\u2192 trace_calls(\"PaymentService\")\n\u2192 Gateway imported from paypal.py (!)",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d12_step-3",
+      "x": 50,
+      "y": 6510,
+      "width": 340,
+      "height": 80,
+      "strokeColor": "#7950f2",
+      "backgroundColor": "#f3f0ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d12_step-3-title",
+      "x": 65,
+      "y": 6520,
+      "width": 200,
+      "height": 18,
+      "text": "Step 3: Check tests",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "strokeColor": "#7950f2"
+    },
+    {
+      "type": "text",
+      "id": "d12_step-3-desc",
+      "x": 65,
+      "y": 6543,
+      "width": 310,
+      "height": 40,
+      "text": "\u2192 find_tests(\"PaymentService\")\n\u2713 test_charge_with_paypal_gateway",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d12_step-4",
+      "x": 410,
+      "y": 6510,
+      "width": 340,
+      "height": 80,
+      "strokeColor": "#e64980",
+      "backgroundColor": "#fff0f6",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d12_step-4-title",
+      "x": 425,
+      "y": 6520,
+      "width": 200,
+      "height": 18,
+      "text": "Step 4: Git history",
+      "fontSize": 11,
+      "fontFamily": 1,
+      "strokeColor": "#e64980"
+    },
+    {
+      "type": "text",
+      "id": "d12_step-4-desc",
+      "x": 425,
+      "y": 6543,
+      "width": 310,
+      "height": 40,
+      "text": "\u2192 Commit abc123 (3 months ago)\n\"Migrate from Stripe to PayPal\"",
+      "fontSize": 10,
+      "fontFamily": 1,
+      "strokeColor": "#495057"
+    },
+    {
+      "type": "rectangle",
+      "id": "d12_output-box",
+      "x": 50,
+      "y": 6610,
+      "width": 700,
+      "height": 120,
+      "strokeColor": "#fa5252",
+      "backgroundColor": "#fff5f5",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "type": "text",
+      "id": "d12_output-title",
+      "x": 300,
+      "y": 6620,
+      "width": 200,
+      "height": 24,
+      "text": "ACTIONABLE DRIFT REPORT",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "strokeColor": "#fa5252"
+    },
+    {
+      "type": "text",
+      "id": "d12_output-content",
+      "x": 70,
+      "y": 6650,
+      "width": 660,
+      "height": 70,
+      "text": "DISCREPANCY: Payment Gateway [CRITICAL]\nDoc claims: \"Uses Stripe API\"  \u2192  Actual: PayPal gateway\nChanged: Commit abc123, 3 months ago\nSuggested fix: - \"Stripe API\" + \"PayPal API\"",
+      "fontSize": 11,
+      "fontFamily": 3,
+      "strokeColor": "#495057"
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  },
+  "files": {}
+}
