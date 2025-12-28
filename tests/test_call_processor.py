@@ -15,8 +15,9 @@ import pytest
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from lattice.core.cache import FunctionRegistry
+from lattice.shared.cache import FunctionRegistry
 from lattice.parsing.call_resolution import CallProcessor
+from lattice.parsing.call_resolution.resolvers.simple import calculate_distance
 from lattice.parsing.import_processor import ImportProcessor
 
 
@@ -290,17 +291,17 @@ class TestDistanceCalculation:
     def test_distance_same_module(self, call_processor):
         """Test that same-module functions have lowest distance."""
         # Same module
-        dist1 = call_processor._calculate_distance(
+        dist1 = calculate_distance(
             "myproject.views.helper",
             "myproject.views"
         )
         # Different module
-        dist2 = call_processor._calculate_distance(
+        dist2 = calculate_distance(
             "myproject.utils.helper",
             "myproject.views"
         )
         # Completely different
-        dist3 = call_processor._calculate_distance(
+        dist3 = calculate_distance(
             "other_project.utils.helper",
             "myproject.views"
         )

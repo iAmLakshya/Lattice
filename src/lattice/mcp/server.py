@@ -81,20 +81,20 @@ class MCPServer:
 
         logger.info(f"Registered {len(self.tools)} tools: {list(self.tools.keys())}")
 
-    def _create_orchestrator(self, repo_path: Path, project_name: str):
-        from lattice.pipeline.orchestrator import PipelineOrchestrator
-        return PipelineOrchestrator(repo_path=repo_path, project_name=project_name)
+    async def _create_orchestrator(self, repo_path: Path, project_name: str):
+        from lattice.cli.bootstrap import create_pipeline_orchestrator
+        return await create_pipeline_orchestrator(repo_path=repo_path, project_name=project_name)
 
-    def _create_query_engine(self):
-        from lattice.query.engine import QueryEngine
-        return QueryEngine()
+    async def _create_query_engine(self):
+        from lattice.cli.bootstrap import create_query_engine
+        return await create_query_engine()
 
     def _create_graph_client(self):
-        from lattice.graph.client import MemgraphClient
+        from lattice.infrastructure.memgraph.client import MemgraphClient
         return MemgraphClient()
 
     def _create_vector_searcher(self):
-        from lattice.embeddings.indexer import VectorSearcher
+        from lattice.infrastructure.qdrant.indexer import VectorSearcher
         return VectorSearcher()
 
     async def handle_request(self, request: dict[str, Any]) -> dict[str, Any]:

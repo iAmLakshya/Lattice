@@ -2,51 +2,19 @@ import json
 import logging
 
 from lattice.documents.models import DocumentChunk, ImplicitLink
-from lattice.embeddings.client import CollectionName, QdrantManager
-from lattice.embeddings.embedder import Embedder
-from lattice.providers import get_llm_provider
+from lattice.infrastructure.qdrant import CollectionName, QdrantManager
+from lattice.prompts import get_prompt
+from lattice.infrastructure.llm import BaseEmbeddingProvider, get_llm_provider
+from lattice.shared.config.loader import LinkFinderConfig
 
 logger = logging.getLogger(__name__)
-
-
-LINK_FINDER_PROMPT = """You are analyzing documentation to identify which code entities it describes or relates to.
-
-## Documentation Section
-Heading Path: {heading_path}
-Content:
-{doc_content}
-
-## Candidate Code Entities (found via semantic similarity)
-{entity_list}
-
-## Task
-Identify which code entities this documentation section describes, explains, or is relevant to.
-
-For each relevant entity, provide:
-1. The entity's qualified name (exactly as shown)
-2. Relevance level: "high" (directly documents this entity), "medium" (discusses related behavior), "low" (tangentially related)
-3. Brief reasoning (1 sentence)
-
-Respond in JSON format:
-{{
-    "links": [
-        {{
-            "entity_qualified_name": "exact.qualified.name",
-            "entity_type": "Function|Class|Method",
-            "relevance": "high|medium|low",
-            "reasoning": "Why this doc relates to this code"
-        }}
-    ]
-}}
-
-Only include entities that are genuinely relevant. Return empty links array if none are relevant."""
 
 
 class AILinkFinder:
     def __init__(
         self,
         qdrant: QdrantManager,
-        embedder: Embedder,
+        embedder: BaseEmbeddingProvider,
     ):
         self.qdrant = qdrant
         self.embedder = embedder
@@ -55,7 +23,7 @@ class AILinkFinder:
     async def find_links(
         self,
         chunk: DocumentChunk,
-        candidate_limit: int = 20,
+        candidate_limit: int = LinkFinderConfig.candidate_limit,
     ) -> list[ImplicitLink]:
         try:
             embedding = await self.embedder.embed(chunk.content)
@@ -83,7 +51,7 @@ class AILinkFinder:
                             "qualified_name": entity_name,
                             "entity_type": r["payload"].get("entity_type", "unknown"),
                             "file_path": r["payload"].get("file_path", ""),
-                            "content_preview": r["payload"].get("content", "")[:300],
+                            "content_preview": r["payload"].get("content", "")[:LinkFinderConfig.content_preview_length],
                             "score": r["score"],
                         }
                     )
@@ -94,18 +62,19 @@ class AILinkFinder:
             entity_list = "\n".join(
                 f"- {c['qualified_name']} ({c['entity_type']}) in {c['file_path']}\n"
                 f"  Preview: {c['content_preview'][:200]}..."
-                for c in candidates[:15]
+                for c in candidates[:LinkFinderConfig.entity_list_limit]
             )
 
-            prompt = LINK_FINDER_PROMPT.format(
+            prompt = get_prompt(
+                "documents", "link_finder",
                 heading_path=" > ".join(chunk.heading_path),
-                doc_content=chunk.content[:2500],
+                doc_content=chunk.content[:LinkFinderConfig.doc_content_max],
                 entity_list=entity_list,
             )
 
             response = await self._llm.complete(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1000,
+                max_tokens=LinkFinderConfig.max_tokens,
             )
 
             try:
@@ -136,4 +105,8 @@ class AILinkFinder:
             return []
 
     def _relevance_to_confidence(self, relevance: str) -> float:
-        return {"high": 0.90, "medium": 0.70, "low": 0.50}.get(relevance.lower(), 0.50)
+        return {
+            "high": LinkFinderConfig.relevance_high,
+            "medium": LinkFinderConfig.relevance_medium,
+            "low": LinkFinderConfig.relevance_low,
+        }.get(relevance.lower(), LinkFinderConfig.relevance_low)

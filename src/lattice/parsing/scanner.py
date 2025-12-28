@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from fnmatch import fnmatch
 from pathlib import Path
 
-from lattice.config import get_settings
-from lattice.core.types import Language
+from lattice.shared.config import get_settings
+from lattice.shared.types import Language
 from lattice.parsing.models import FileInfo
 
 

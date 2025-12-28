@@ -2,7 +2,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
-from lattice.core.types import EntityType, Language
+from lattice.shared.types import EntityType, Language
 
 
 class ImportInfo(BaseModel):

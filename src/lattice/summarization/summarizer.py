@@ -1,46 +1,21 @@
-"""AI-powered code summarization.
-
-Supports multiple LLM providers:
-- OpenAI (default)
-- Ollama (local)
-- Anthropic (Claude)
-- Google (Gemini)
-"""
-
 import asyncio
 import logging
 from collections.abc import Callable
 
-from lattice.config import get_settings
-from lattice.core.errors import SummarizationError
-from lattice.core.protocols import LLMProvider
-from lattice.core.types import EntityType
-from lattice.parsing.models import CodeEntity, ParsedFile
-from lattice.providers import get_llm_provider
-from lattice.providers.base import BaseLLMProvider
-from lattice.summarization.prompts import SummaryPrompts
+from lattice.shared.config import get_settings
+from lattice.shared.config.loader import SummarizationConfig
+from lattice.shared.exceptions import SummarizationError
+from lattice.shared.protocols import LLMProvider
+from lattice.shared.types import EntityType
+from lattice.parsing.api import CodeEntity, ParsedFile
+from lattice.prompts import get_prompt
+from lattice.infrastructure.llm import get_llm_provider
+from lattice.infrastructure.llm.base import BaseLLMProvider
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MAX_TOKENS = 500
-DEFAULT_TEMPERATURE = 0.7
-
-SYSTEM_MESSAGE = """You are an expert code analyst creating summaries for semantic search.
-
-Your summaries must:
-1. Capture the essential PURPOSE and BEHAVIOR with precise technical terminology
-2. Include KEYWORDS developers would search for (action verbs, domain terms, patterns)
-3. Mention KEY RELATIONSHIPS (what it calls, what calls it, what it extends)
-4. Be CONCISE but COMPLETE - every word should add searchable value
-5. Use NATURAL LANGUAGE matching how developers ask questions about code
-
-Answer: "What does this code do?" and "When would someone need this code?"
-"""
-
 
 class CodeSummarizer:
-    """Generates AI summaries for code entities using configurable LLM providers."""
-
     def __init__(
         self,
         llm_provider: LLMProvider | BaseLLMProvider | None = None,
@@ -49,24 +24,15 @@ class CodeSummarizer:
         api_key: str | None = None,
         base_url: str | None = None,
         max_concurrent: int | None = None,
-        max_tokens: int = DEFAULT_MAX_TOKENS,
+        max_tokens: int | None = None,
         temperature: float | None = None,
     ):
-        """Initialize the summarizer.
-
-        Args:
-            llm_provider: LLM provider instance. If None, creates from settings.
-            provider: Provider name (openai, ollama, anthropic, google).
-            model: LLM model name. Defaults to settings.
-            api_key: API key. Defaults to settings.
-            base_url: Custom base URL (for Ollama).
-            max_concurrent: Max concurrent API calls. Defaults to settings.
-            max_tokens: Maximum tokens for summaries.
-            temperature: LLM temperature. Defaults to settings.
-        """
         settings = get_settings()
-        self.max_tokens = max_tokens
-        self.temperature = temperature if temperature is not None else DEFAULT_TEMPERATURE
+        self.max_tokens = max_tokens or SummarizationConfig.default_max_tokens
+        if temperature is not None:
+            self.temperature = temperature
+        else:
+            self.temperature = SummarizationConfig.default_temperature
         self.max_concurrent = max_concurrent or settings.max_concurrent_requests
 
         if llm_provider is not None:
@@ -97,18 +63,6 @@ class CodeSummarizer:
         )
 
     async def _complete(self, system_message: str, user_message: str) -> str:
-        """Generate completion using LLM provider.
-
-        Args:
-            system_message: System prompt.
-            user_message: User prompt.
-
-        Returns:
-            Generated completion text.
-
-        Raises:
-            SummarizationError: If completion fails after retries.
-        """
         try:
             async with self._semaphore:
                 return await self._llm_provider.complete(
@@ -124,24 +78,16 @@ class CodeSummarizer:
             raise SummarizationError("Failed to generate summary", cause=e)
 
     async def summarize_file(self, parsed_file: ParsedFile) -> str:
-        """Generate a summary for a file.
-
-        Args:
-            parsed_file: Parsed file to summarize.
-
-        Returns:
-            Generated summary.
-
-        Raises:
-            SummarizationError: If summarization fails.
-        """
         logger.debug(f"Summarizing file: {parsed_file.file_info.relative_path}")
-        prompt = SummaryPrompts.get_file_prompt(
+        content = parsed_file.content[:SummarizationConfig.file_code_max_chars]
+        prompt = get_prompt(
+            "summarization", "file",
             file_path=parsed_file.file_info.relative_path,
             language=parsed_file.file_info.language.value,
-            content=parsed_file.content,
+            content=content,
         )
-        return await self._complete(SYSTEM_MESSAGE, prompt)
+        system_message = get_prompt("summarization", "system")
+        return await self._complete(system_message, prompt)
 
     async def _summarize_function(
         self,
@@ -149,29 +95,20 @@ class CodeSummarizer:
         file_path: str,
         language: str,
     ) -> str:
-        """Generate a summary for a function or method.
-
-        Args:
-            entity: Function/method entity to summarize.
-            file_path: Source file path.
-            language: Programming language.
-
-        Returns:
-            Generated summary.
-
-        Raises:
-            SummarizationError: If summarization fails.
-        """
         logger.debug(f"Summarizing function: {entity.qualified_name}")
-        prompt = SummaryPrompts.get_function_prompt(
-            name=entity.name,
+        code = entity.code[:SummarizationConfig.function_code_max_chars]
+        docstring_section = f"Existing docstring:\n{entity.docstring}" if entity.docstring else ""
+        prompt = get_prompt(
+            "summarization", "function",
+            entity_name=entity.name,
             file_path=file_path,
             signature=entity.signature or "",
-            code=entity.code,
+            code=code,
             language=language,
-            docstring=entity.docstring,
+            docstring_section=docstring_section,
         )
-        return await self._complete(SYSTEM_MESSAGE, prompt)
+        system_message = get_prompt("summarization", "system")
+        return await self._complete(system_message, prompt)
 
     async def _summarize_class(
         self,
@@ -179,28 +116,19 @@ class CodeSummarizer:
         file_path: str,
         language: str,
     ) -> str:
-        """Generate a summary for a class.
-
-        Args:
-            entity: Class entity to summarize.
-            file_path: Source file path.
-            language: Programming language.
-
-        Returns:
-            Generated summary.
-
-        Raises:
-            SummarizationError: If summarization fails.
-        """
         logger.debug(f"Summarizing class: {entity.qualified_name}")
-        prompt = SummaryPrompts.get_class_prompt(
-            name=entity.name,
+        code = entity.code[:SummarizationConfig.class_code_max_chars]
+        docstring_section = f"Existing docstring:\n{entity.docstring}" if entity.docstring else ""
+        prompt = get_prompt(
+            "summarization", "class",
+            entity_name=entity.name,
             file_path=file_path,
-            code=entity.code,
+            code=code,
             language=language,
-            docstring=entity.docstring,
+            docstring_section=docstring_section,
         )
-        return await self._complete(SYSTEM_MESSAGE, prompt)
+        system_message = get_prompt("summarization", "system")
+        return await self._complete(system_message, prompt)
 
     async def summarize_entity(
         self,

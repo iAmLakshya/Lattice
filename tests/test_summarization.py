@@ -4,8 +4,8 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from pathlib import Path
 
-from lattice.core.types import EntityType, Language
-from lattice.core.errors import SummarizationError
+from lattice.shared.types import EntityType, Language
+from lattice.shared.exceptions import SummarizationError
 from lattice.summarization.summarizer import CodeSummarizer
 from lattice.parsing.models import CodeEntity, FileInfo, ParsedFile
 

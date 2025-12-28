@@ -1,0 +1,178 @@
+[chunking]
+min_chunk_size = 1
+chunk_name_separator = "_part"
+
+[query]
+max_context_results = 10
+max_content_length = 2000
+default_search_limit = 10
+default_max_depth = 2
+related_entities_limit = 20
+exclude_file_buffer = 5
+
+[query.reasoning]
+max_traversal_depth = 5
+max_results_per_query = 50
+max_path_length = 10
+max_related_entities = 30
+comprehensive_max_hops = 2
+comprehensive_limit = 10
+
+[query.context]
+max_code_snippet_length = 3000
+max_context_entities = 20
+max_related_code_snippets = 5
+
+[ranking]
+default_graph_weight = 0.5
+default_vector_weight = 0.5
+default_centrality_weight = 0.2
+default_context_weight = 0.1
+entity_match_bonus = 0.3
+relationship_bonus = 0.15
+max_results_per_file = 5
+max_total_results = 50
+
+[ranking.reranker]
+graph_weight = 0.4
+vector_weight = 0.6
+max_results_per_file = 3
+
+[summarization]
+file_code_max_chars = 8000
+function_code_max_chars = 4000
+class_code_max_chars = 6000
+default_max_tokens = 500
+default_temperature = 0.7
+
+[pipeline]
+stage_weight_scanning = 5
+stage_weight_parsing = 15
+stage_weight_building_graph = 20
+stage_weight_summarizing = 25
+stage_weight_metadata = 10
+stage_weight_embedding = 25
+
+[providers]
+retry_max_attempts = 5
+retry_multiplier = 1
+retry_min_wait = 1
+retry_max_wait = 60
+default_concurrency = 5
+default_batch_size = 100
+
+[providers.ollama]
+base_url = "http://localhost:11434/v1"
+default_llm_model = "llama3.2"
+default_embedding_model = "nomic-embed-text"
+
+[metadata]
+default_budget_usd = 0.50
+default_retry_delay = 1.0
+max_retries = 2
+
+[metadata.ignore_patterns]
+patterns = [
+    "node_modules",
+    "__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    ".env",
+    "dist",
+    "build",
+    ".eggs",
+    "*.egg-info",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".tox",
+    "coverage",
+    ".coverage",
+    "htmlcov",
+    ".DS_Store",
+    "*.pyc",
+    "*.pyo",
+]
+
+[metadata.fields.folder_structure]
+model = "claude-haiku-4-5-20251001"
+max_budget_usd = 0.50
+description = "Exploring folder structure"
+
+[metadata.fields.tech_stack]
+model = "claude-haiku-4-5-20251001"
+max_budget_usd = 0.30
+description = "Identifying technology stack"
+
+[metadata.fields.dependencies]
+model = "claude-haiku-4-5-20251001"
+max_budget_usd = 0.20
+description = "Analyzing dependencies"
+
+[metadata.fields.entry_points]
+model = "claude-sonnet-4-5-20250929"
+max_budget_usd = 0.50
+description = "Finding entry points"
+
+[metadata.fields.core_features]
+model = "claude-sonnet-4-5-20250929"
+max_budget_usd = 1.00
+description = "Identifying core features"
+
+[metadata.fields.project_overview]
+model = "claude-sonnet-4-5-20250929"
+max_budget_usd = 0.50
+description = "Writing project overview"
+
+[metadata.fields.architecture_diagram]
+model = "claude-sonnet-4-5-20250929"
+max_budget_usd = 0.50
+description = "Creating architecture diagram"
+
+[documents]
+scanner_extensions = [".md", ".mdx", ".rst", ".txt"]
+scanner_ignore = ["node_modules", "__pycache__", ".git", ".venv", "venv"]
+
+[documents.reference_extraction]
+backtick_qualified_confidence = 0.90
+backtick_simple_confidence = 0.80
+class_name_confidence = 0.60
+function_call_confidence = 0.50
+python_def_confidence = 0.95
+python_class_confidence = 0.95
+js_function_confidence = 0.95
+import_from_confidence = 0.85
+
+[documents.link_finder]
+relevance_high = 0.90
+relevance_medium = 0.70
+relevance_low = 0.50
+candidate_limit = 20
+content_preview_length = 300
+entity_list_limit = 15
+doc_content_max = 2500
+max_tokens = 1000
+
+[documents.drift_detector]
+doc_content_max = 3000
+code_content_max = 4000
+excerpt_length = 500
+max_tokens = 1500
+default_drift_score = 0.5
+
+[graph]
+default_batch_size = 1000
+
+[indexing]
+embed_max_retries = 3
+embed_batch_divisor = 3
+summarize_max_retries = 3
+
+[watcher]
+debounce_delay = 0.5
+observer_join_timeout = 5.0
+queue_get_timeout = 1.0
+
+[drift]
+request_delay = 0.5
+max_retries = 5

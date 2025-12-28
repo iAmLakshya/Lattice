@@ -32,7 +32,7 @@ dev = [
 ]
 
 [project.scripts]
-lattice = "lattice.main:main"
+lattice = "lattice.cli:main"
 
 [build-system]
 requires = ["hatchling"]

@@ -3,8 +3,8 @@
 import logging
 from typing import Any
 
-from lattice.embeddings.client import QdrantManager
-from lattice.graph.client import MemgraphClient
+from lattice.infrastructure.qdrant import QdrantManager
+from lattice.infrastructure.memgraph.client import MemgraphClient
 from lattice.projects.cleanup import ProjectCleanupService
 from lattice.projects.models import Project
 from lattice.projects.repository import ProjectRepository

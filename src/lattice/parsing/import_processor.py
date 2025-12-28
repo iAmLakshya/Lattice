@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from tree_sitter import Node
 
-    from lattice.core.cache import FunctionRegistry
+    from lattice.shared.cache import FunctionRegistry
 
 logger = logging.getLogger(__name__)
 

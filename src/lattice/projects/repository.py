@@ -3,8 +3,8 @@
 import logging
 from datetime import datetime
 
-from lattice.core.errors import GraphError
-from lattice.graph.client import MemgraphClient
+from lattice.shared.exceptions import GraphError
+from lattice.infrastructure.memgraph.client import MemgraphClient
 from lattice.projects.models import Project, ProjectIndex
 
 logger = logging.getLogger(__name__)

@@ -4,17 +4,27 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from pathlib import Path
 
-from lattice.core.types import EntityType, Language
-from lattice.core.errors import GraphError, QueryError
-from lattice.graph.builder import GraphBuilder
-from lattice.graph.queries import (
+from lattice.shared.types import EntityType, Language
+from lattice.shared.exceptions import GraphError, QueryError
+from lattice.infrastructure.memgraph.builder import GraphBuilder
+from lattice.infrastructure.memgraph.queries import (
     ProjectQueries,
     FileQueries,
     EntityQueries,
     RelationshipQueries,
     SearchQueries,
 )
-from lattice.query.graph_search import GraphSearcher
+from lattice.querying.graph_search import (
+    find_callers,
+    find_callees,
+    find_class_hierarchy,
+    find_entity_by_name,
+    find_file_dependencies,
+    find_related_entities,
+    get_file_entities,
+    get_statistics,
+    search_by_name,
+)
 from lattice.parsing.models import CodeEntity, FileInfo, ImportInfo, ParsedFile
 
 
@@ -293,8 +303,8 @@ class TestGraphBuilderEntityCreation:
 # Graph Searcher Unit Tests
 # ============================================================================
 
-class TestGraphSearcher:
-    """Tests for GraphSearcher class."""
+class TestGraphSearchFunctions:
+    """Tests for graph search functions."""
 
     @pytest.fixture
     def mock_client(self):
@@ -302,12 +312,8 @@ class TestGraphSearcher:
         client.execute = AsyncMock(return_value=[])
         return client
 
-    @pytest.fixture
-    def searcher(self, mock_client):
-        return GraphSearcher(mock_client)
-
     @pytest.mark.asyncio
-    async def test_find_entity_by_name(self, searcher, mock_client):
+    async def test_find_entity_by_name(self, mock_client):
         """Test finding entity by name."""
         mock_client.execute.return_value = [
             {
@@ -319,40 +325,40 @@ class TestGraphSearcher:
             }
         ]
 
-        results = await searcher.find_entity_by_name("User")
+        results = await find_entity_by_name(mock_client, "User")
 
         assert len(results) == 1
         assert results[0]["name"] == "User"
 
     @pytest.mark.asyncio
-    async def test_find_entity_by_name_with_type_filter(self, searcher, mock_client):
+    async def test_find_entity_by_name_with_type_filter(self, mock_client):
         """Test finding entity with type filter."""
         mock_client.execute.return_value = []
 
-        await searcher.find_entity_by_name("User", entity_type="Class")
+        await find_entity_by_name(mock_client, "User", entity_type="Class")
 
         # Check that query includes type
         query = mock_client.execute.call_args[0][0]
         assert "Class" in query
 
     @pytest.mark.asyncio
-    async def test_find_entity_empty_name_raises(self, searcher):
+    async def test_find_entity_empty_name_raises(self, mock_client):
         """Test that empty name raises QueryError."""
         with pytest.raises(QueryError) as exc_info:
-            await searcher.find_entity_by_name("")
+            await find_entity_by_name(mock_client, "")
 
         assert "cannot be empty" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_find_entity_invalid_type_raises(self, searcher):
+    async def test_find_entity_invalid_type_raises(self, mock_client):
         """Test that invalid entity type raises QueryError."""
         with pytest.raises(QueryError) as exc_info:
-            await searcher.find_entity_by_name("User", entity_type="InvalidType")
+            await find_entity_by_name(mock_client, "User", entity_type="InvalidType")
 
         assert "Invalid entity type" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_find_callers(self, searcher, mock_client):
+    async def test_find_callers(self, mock_client):
         """Test finding callers of a function."""
         mock_client.execute.return_value = [
             {
@@ -363,21 +369,21 @@ class TestGraphSearcher:
             }
         ]
 
-        results = await searcher.find_callers("process_data")
+        results = await find_callers(mock_client, "process_data")
 
         assert len(results) == 1
         assert results[0]["caller_name"] == "main"
 
     @pytest.mark.asyncio
-    async def test_find_callers_empty_name_raises(self, searcher):
+    async def test_find_callers_empty_name_raises(self, mock_client):
         """Test that empty function name raises QueryError."""
         with pytest.raises(QueryError) as exc_info:
-            await searcher.find_callers("")
+            await find_callers(mock_client, "")
 
         assert "cannot be empty" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_find_callees(self, searcher, mock_client):
+    async def test_find_callees(self, mock_client):
         """Test finding callees of a function."""
         mock_client.execute.return_value = [
             {
@@ -394,7 +400,7 @@ class TestGraphSearcher:
             },
         ]
 
-        results = await searcher.find_callees("process_data")
+        results = await find_callees(mock_client, "process_data")
 
         assert len(results) == 2
         callee_names = [r["callee_name"] for r in results]
@@ -402,37 +408,35 @@ class TestGraphSearcher:
         assert "transform" in callee_names
 
     @pytest.mark.asyncio
-    async def test_find_class_hierarchy(self, searcher, mock_client):
+    async def test_find_class_hierarchy(self, mock_client):
         """Test finding class hierarchy."""
         mock_client.execute.return_value = [
             {"hierarchy": ["Admin", "User", "BaseModel"]}
         ]
 
-        results = await searcher.find_class_hierarchy("Admin")
+        results = await find_class_hierarchy(mock_client, "Admin")
 
         assert len(results) == 1
         assert results[0]["hierarchy"] == ["Admin", "User", "BaseModel"]
 
     @pytest.mark.asyncio
-    async def test_find_class_hierarchy_empty_name_raises(self, searcher):
+    async def test_find_class_hierarchy_empty_name_raises(self, mock_client):
         """Test that empty class name raises QueryError."""
         with pytest.raises(QueryError) as exc_info:
-            await searcher.find_class_hierarchy("")
+            await find_class_hierarchy(mock_client, "")
 
         assert "cannot be empty" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_find_file_dependencies(self, searcher, mock_client):
+    async def test_find_file_dependencies(self, mock_client):
         """Test finding file dependencies."""
-        # Note: This test uses SearchQueries.FIND_FILE_DEPENDENCIES which may not exist
-        # in some versions. Skip if the method uses undefined query.
         mock_client.execute.return_value = [
             {"import_name": "os", "source": None, "is_external": True},
             {"import_name": "User", "source": ".models", "is_external": False},
         ]
 
         try:
-            results = await searcher.find_file_dependencies("/project/main.py")
+            results = await find_file_dependencies(mock_client, "/project/main.py")
             assert len(results) == 2
         except AttributeError as e:
             if "FIND_FILE_DEPENDENCIES" in str(e):
@@ -440,7 +444,7 @@ class TestGraphSearcher:
             raise
 
     @pytest.mark.asyncio
-    async def test_get_file_entities(self, searcher, mock_client):
+    async def test_get_file_entities(self, mock_client):
         """Test getting all entities in a file."""
         mock_client.execute.return_value = [
             {"name": "User", "type": "Class"},
@@ -449,7 +453,7 @@ class TestGraphSearcher:
         ]
 
         try:
-            results = await searcher.get_file_entities("/project/user.py")
+            results = await get_file_entities(mock_client, "/project/user.py")
             assert len(results) == 3
         except AttributeError as e:
             if "GET_FILE_ENTITIES" in str(e):
@@ -457,71 +461,70 @@ class TestGraphSearcher:
             raise
 
     @pytest.mark.asyncio
-    async def test_search_by_name(self, searcher, mock_client):
+    async def test_search_by_name(self, mock_client):
         """Test searching by name substring."""
         mock_client.execute.return_value = [
             {"name": "UserService", "type": "Class"},
             {"name": "UserRepository", "type": "Class"},
         ]
 
-        results = await searcher.search_by_name("User", limit=10)
+        results = await search_by_name(mock_client, "User", limit=10)
 
         assert len(results) == 2
         for r in results:
             assert "User" in r["name"]
 
     @pytest.mark.asyncio
-    async def test_search_by_name_empty_query_raises(self, searcher):
+    async def test_search_by_name_empty_query_raises(self, mock_client):
         """Test that empty query raises QueryError."""
         with pytest.raises(QueryError) as exc_info:
-            await searcher.search_by_name("")
+            await search_by_name(mock_client, "")
 
         assert "cannot be empty" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_find_related_entities(self, searcher, mock_client):
+    async def test_find_related_entities(self, mock_client):
         """Test finding related entities."""
         mock_client.execute.return_value = [
             {"name": "UserRepository", "qualified_name": "UserRepository", "distance": 1},
             {"name": "AuthService", "qualified_name": "AuthService", "distance": 2},
         ]
 
-        results = await searcher.find_related_entities("User", max_depth=2)
+        results = await find_related_entities(mock_client, "User", max_depth=2)
 
         assert len(results) == 2
 
     @pytest.mark.asyncio
-    async def test_find_related_entities_invalid_depth_raises(self, searcher):
+    async def test_find_related_entities_invalid_depth_raises(self, mock_client):
         """Test that invalid max_depth raises QueryError."""
         with pytest.raises(QueryError) as exc_info:
-            await searcher.find_related_entities("User", max_depth=0)
+            await find_related_entities(mock_client, "User", max_depth=0)
 
         assert "at least 1" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_get_statistics(self, searcher, mock_client):
+    async def test_get_statistics(self, mock_client):
         """Test getting graph statistics."""
-        with patch.object(searcher, 'client') as mock_client:
-            mock_stats = AsyncMock()
-            mock_stats.get_entity_counts = AsyncMock(return_value={
-                "file_count": 10,
-                "class_count": 20,
-                "function_count": 50,
-                "method_count": 100,
-            })
+        mock_stats = AsyncMock()
+        mock_stats.get_entity_counts = AsyncMock(return_value={
+            "file_count": 10,
+            "class_count": 20,
+            "function_count": 50,
+            "method_count": 100,
+        })
 
-            with patch('lattice.query.graph_search.GraphStatistics', return_value=mock_stats):
-                results = await searcher.get_statistics()
+        with patch('lattice.querying.graph_search.GraphStatistics', return_value=mock_stats):
+            results = await get_statistics(mock_client)
 
-                assert "file_count" in results or results is not None
+            assert "file_count" in results or results is not None
 
     @pytest.mark.asyncio
-    async def test_graph_error_wrapped_in_query_error(self, searcher, mock_client):
+    async def test_graph_error_wrapped_in_query_error(self, mock_client):
         """Test that GraphError is wrapped in QueryError."""
         mock_client.execute.side_effect = GraphError("Connection failed")
 
         with pytest.raises(QueryError) as exc_info:
-            await searcher.find_entity_by_name("User")
+            await find_entity_by_name(mock_client, "User")
 
         assert "Failed to find entity" in str(exc_info.value)
 
@@ -667,8 +670,6 @@ class TestGraphIntegration:
     @pytest.mark.asyncio
     async def test_graph_search_after_indexing(self, mock_client):
         """Test graph search operations after indexing."""
-        searcher = GraphSearcher(mock_client)
-
         # Mock search results
         mock_client.execute.return_value = [
             {
@@ -680,7 +681,7 @@ class TestGraphIntegration:
             }
         ]
 
-        results = await searcher.search_by_name("Auth")
+        results = await search_by_name(mock_client, "Auth")
 
         assert len(results) == 1
         assert results[0]["name"] == "AuthService"
@@ -688,15 +689,13 @@ class TestGraphIntegration:
     @pytest.mark.asyncio
     async def test_find_call_graph(self, mock_client):
         """Test finding call graph relationships."""
-        searcher = GraphSearcher(mock_client)
-
         # Mock callers
         mock_client.execute.return_value = [
             {"caller_name": "login_handler", "type": "Function"},
             {"caller_name": "register_handler", "type": "Function"},
         ]
 
-        callers = await searcher.find_callers("AuthService.authenticate")
+        callers = await find_callers(mock_client, "AuthService.authenticate")
 
         assert len(callers) == 2
 
@@ -706,7 +705,7 @@ class TestGraphIntegration:
             {"callee_name": "create_token", "type": "Function"},
         ]
 
-        callees = await searcher.find_callees("AuthService.login")
+        callees = await find_callees(mock_client, "AuthService.login")
 
         assert len(callees) == 2
 
@@ -753,11 +752,10 @@ class TestGraphEdgeCases:
 
     @pytest.mark.asyncio
     async def test_searcher_handles_no_results(self, mock_client):
-        """Test searcher handles empty results gracefully."""
-        searcher = GraphSearcher(mock_client)
+        """Test search handles empty results gracefully."""
         mock_client.execute.return_value = []
 
-        results = await searcher.find_entity_by_name("NonExistent")
+        results = await find_entity_by_name(mock_client, "NonExistent")
 
         assert results == []
 
@@ -798,14 +796,12 @@ class TestGraphEdgeCases:
 
     @pytest.mark.asyncio
     async def test_searcher_whitespace_name_raises(self, mock_client):
-        """Test searcher rejects whitespace-only names."""
-        searcher = GraphSearcher(mock_client)
+        """Test search rejects whitespace-only names."""
+        with pytest.raises(QueryError):
+            await find_entity_by_name(mock_client, "   ")
 
         with pytest.raises(QueryError):
-            await searcher.find_entity_by_name("   ")
-
-        with pytest.raises(QueryError):
-            await searcher.find_callers("   ")
+            await find_callers(mock_client, "   ")
 
     @pytest.mark.asyncio
     async def test_builder_handles_method_without_class(self, mock_client):

@@ -6,7 +6,7 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
 )
 
-from lattice.config import get_settings
+from lattice.shared.config import get_settings
 from lattice.documents.models import DocumentChunk
 
 

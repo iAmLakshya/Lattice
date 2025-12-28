@@ -1,44 +1,45 @@
 import re
 
 from lattice.documents.models import ExplicitReference
+from lattice.shared.config.loader import ReferenceExtractionConfig
 
 
 class ReferenceExtractor:
     INLINE_PATTERNS = {
         "backtick_qualified": (
             re.compile(r"`([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+)`"),
-            0.90,
+            ReferenceExtractionConfig.backtick_qualified_confidence,
         ),
         "backtick_simple": (
             re.compile(r"`([A-Za-z_][A-Za-z0-9_]*)`"),
-            0.80,
+            ReferenceExtractionConfig.backtick_simple_confidence,
         ),
         "class_name": (
             re.compile(r"\b([A-Z][a-z]+(?:[A-Z][a-z]+)+)\b"),
-            0.60,
+            ReferenceExtractionConfig.class_name_confidence,
         ),
         "function_call": (
             re.compile(r"\b([a-z_][a-z0-9_]*)\s*\("),
-            0.50,
+            ReferenceExtractionConfig.function_call_confidence,
         ),
     }
 
     CODE_BLOCK_PATTERNS = {
         "python_def": (
             re.compile(r"(?:def|async def)\s+([A-Za-z_][A-Za-z0-9_]*)"),
-            0.95,
+            ReferenceExtractionConfig.python_def_confidence,
         ),
         "python_class": (
             re.compile(r"class\s+([A-Za-z_][A-Za-z0-9_]*)"),
-            0.95,
+            ReferenceExtractionConfig.python_class_confidence,
         ),
         "js_function": (
             re.compile(r"function\s+([A-Za-z_][A-Za-z0-9_]*)"),
-            0.95,
+            ReferenceExtractionConfig.js_function_confidence,
         ),
         "import_from": (
             re.compile(r"from\s+[\w.]+\s+import\s+([A-Za-z_][A-Za-z0-9_,\s]*)"),
-            0.85,
+            ReferenceExtractionConfig.import_from_confidence,
         ),
     }
 

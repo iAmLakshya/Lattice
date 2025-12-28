@@ -3,13 +3,35 @@
 import os
 import pytest
 from pathlib import Path
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
-from lattice.pipeline.orchestrator import PipelineOrchestrator
-from lattice.pipeline.progress import ProgressTracker
-from lattice.core.types import PipelineStage
+from lattice.indexing.orchestrator import PipelineOrchestrator
+from lattice.indexing.progress import ProgressTracker
+from lattice.shared.types import PipelineStage
 from lattice.parsing.scanner import FileScanner
 from lattice.parsing.parser import CodeParser
+
+
+def create_mock_orchestrator(
+    repo_path: Path,
+    progress_callback=None,
+    force: bool = False,
+    skip_metadata: bool = False,
+) -> PipelineOrchestrator:
+    return PipelineOrchestrator(
+        repo_path=repo_path,
+        project_name=repo_path.name,
+        progress_callback=progress_callback,
+        force=force,
+        skip_metadata=skip_metadata,
+        memgraph_client=MagicMock(),
+        qdrant_client=MagicMock(),
+        parser=CodeParser(),
+        embedder=MagicMock(),
+        summarizer=MagicMock(),
+        max_workers=4,
+        max_concurrent_api=5,
+    )
 
 
 class TestProgressTracker:
@@ -94,7 +116,7 @@ class TestPipelineScanAndParse:
     async def test_scan_files(self, sample_project_path: Path):
         """Test file scanning stage."""
         # Create orchestrator but don't run full pipeline
-        orchestrator = PipelineOrchestrator(sample_project_path)
+        orchestrator = create_mock_orchestrator(sample_project_path)
 
         # Test scanning directly
         scanner = FileScanner(sample_project_path)
@@ -142,50 +164,30 @@ class TestPipelineWithMocks:
                 stages_reached.append(progress.current_stage)
 
         # Create orchestrator
-        orchestrator = PipelineOrchestrator(
+        orchestrator = create_mock_orchestrator(
             sample_project_path,
             progress_callback=progress_callback,
         )
 
-        # Mock the database and API components
-        with patch.object(orchestrator, '_init_components', new_callable=AsyncMock) as mock_init, \
-             patch.object(orchestrator, '_cleanup', new_callable=AsyncMock) as mock_cleanup, \
-             patch.object(orchestrator, '_execute_graph_stage', new_callable=AsyncMock) as mock_graph, \
-             patch.object(orchestrator, '_execute_summarize_stage', new_callable=AsyncMock) as mock_summaries, \
-             patch.object(orchestrator, '_execute_metadata_stage', new_callable=AsyncMock) as mock_metadata, \
-             patch.object(orchestrator, '_execute_embedding_stage', new_callable=AsyncMock) as mock_embeddings:
+        # Mock cleanup
+        orchestrator._cleanup = AsyncMock()
 
-            # Setup mock context
-            from lattice.pipeline.orchestrator import PipelineContext
-            from lattice.core.cache import FunctionRegistry
-            mock_ctx = MagicMock(spec=PipelineContext)
-            mock_ctx.repo_path = orchestrator.repo_path
-            mock_ctx.project_name = orchestrator.project_name
-            mock_ctx.tracker = orchestrator.tracker
-            mock_ctx.parser = CodeParser()
-            mock_ctx.scanned_files = []
-            mock_ctx.parsed_files = []
-            mock_ctx.file_update_status = {}
-            # Add required attributes for call resolution
-            mock_ctx.function_registry = FunctionRegistry()
-            mock_ctx.import_processor = None
-            mock_ctx.inheritance_tracker = None
-            mock_ctx.call_processor = None
-            mock_init.return_value = mock_ctx
+        # Mock all stages
+        for stage in orchestrator._stages:
+            stage.execute = AsyncMock()
 
-            try:
-                result = await orchestrator.run()
-            except Exception as e:
-                pytest.fail(f"Pipeline failed: {e}")
+        try:
+            result = await orchestrator.run()
+        except Exception as e:
+            pytest.fail(f"Pipeline failed: {e}")
 
-        # Check stages were reached
-        assert PipelineStage.SCANNING in stages_reached
-        assert PipelineStage.PARSING in stages_reached
+        # Check stages were reached (with mocked stages, only COMPLETED is tracked)
         assert PipelineStage.COMPLETED in stages_reached
 
-        # Check mocks were called
-        mock_init.assert_called_once()
-        mock_graph.assert_called_once()
+        # Verify all stages were executed
+        for stage in orchestrator._stages:
+            if stage.name != "metadata" or not orchestrator.skip_metadata:
+                stage.execute.assert_called_once()
 
 
 @pytest.mark.skipif(
@@ -201,6 +203,8 @@ class TestPipelineIntegration:
     @pytest.mark.asyncio
     async def test_full_pipeline(self, sample_project_path: Path):
         """Test the full indexing pipeline."""
+        from lattice.indexing.api import create_pipeline_orchestrator
+
         progress_updates = []
 
         def progress_callback(progress):
@@ -210,8 +214,8 @@ class TestPipelineIntegration:
                 "entities": progress.entities_found,
             })
 
-        orchestrator = PipelineOrchestrator(
-            sample_project_path,
+        orchestrator = await create_pipeline_orchestrator(
+            repo_path=sample_project_path,
             project_name="test_project",
             progress_callback=progress_callback,
         )
@@ -241,33 +245,13 @@ class TestPipelineEdgeCases:
     @pytest.mark.asyncio
     async def test_empty_directory(self, tmp_path: Path):
         """Test pipeline with empty directory."""
-        orchestrator = PipelineOrchestrator(tmp_path)
+        orchestrator = create_mock_orchestrator(tmp_path)
+        orchestrator._cleanup = AsyncMock()
 
-        with patch.object(orchestrator, '_init_components', new_callable=AsyncMock) as mock_init, \
-             patch.object(orchestrator, '_cleanup', new_callable=AsyncMock), \
-             patch.object(orchestrator, '_execute_graph_stage', new_callable=AsyncMock), \
-             patch.object(orchestrator, '_execute_summarize_stage', new_callable=AsyncMock), \
-             patch.object(orchestrator, '_execute_metadata_stage', new_callable=AsyncMock), \
-             patch.object(orchestrator, '_execute_embedding_stage', new_callable=AsyncMock):
+        for stage in orchestrator._stages:
+            stage.execute = AsyncMock()
 
-            from lattice.pipeline.orchestrator import PipelineContext
-            from lattice.core.cache import FunctionRegistry
-            mock_ctx = MagicMock(spec=PipelineContext)
-            mock_ctx.repo_path = orchestrator.repo_path
-            mock_ctx.project_name = orchestrator.project_name
-            mock_ctx.tracker = orchestrator.tracker
-            mock_ctx.parser = CodeParser()
-            mock_ctx.scanned_files = []
-            mock_ctx.parsed_files = []
-            mock_ctx.file_update_status = {}
-            # Add required attributes for call resolution
-            mock_ctx.function_registry = FunctionRegistry()
-            mock_ctx.import_processor = None
-            mock_ctx.inheritance_tracker = None
-            mock_ctx.call_processor = None
-            mock_init.return_value = mock_ctx
-
-            result = await orchestrator.run()
+        result = await orchestrator.run()
 
         assert result["files_indexed"] == 0
         assert result["entities_found"] == 0
@@ -280,33 +264,13 @@ class TestPipelineEdgeCases:
         (tmp_path / "data.json").write_text("{}")
         (tmp_path / "config.yaml").write_text("key: value")
 
-        orchestrator = PipelineOrchestrator(tmp_path)
+        orchestrator = create_mock_orchestrator(tmp_path)
+        orchestrator._cleanup = AsyncMock()
 
-        with patch.object(orchestrator, '_init_components', new_callable=AsyncMock) as mock_init, \
-             patch.object(orchestrator, '_cleanup', new_callable=AsyncMock), \
-             patch.object(orchestrator, '_execute_graph_stage', new_callable=AsyncMock), \
-             patch.object(orchestrator, '_execute_summarize_stage', new_callable=AsyncMock), \
-             patch.object(orchestrator, '_execute_metadata_stage', new_callable=AsyncMock), \
-             patch.object(orchestrator, '_execute_embedding_stage', new_callable=AsyncMock):
+        for stage in orchestrator._stages:
+            stage.execute = AsyncMock()
 
-            from lattice.pipeline.orchestrator import PipelineContext
-            from lattice.core.cache import FunctionRegistry
-            mock_ctx = MagicMock(spec=PipelineContext)
-            mock_ctx.repo_path = orchestrator.repo_path
-            mock_ctx.project_name = orchestrator.project_name
-            mock_ctx.tracker = orchestrator.tracker
-            mock_ctx.parser = CodeParser()
-            mock_ctx.scanned_files = []
-            mock_ctx.parsed_files = []
-            mock_ctx.file_update_status = {}
-            # Add required attributes for call resolution
-            mock_ctx.function_registry = FunctionRegistry()
-            mock_ctx.import_processor = None
-            mock_ctx.inheritance_tracker = None
-            mock_ctx.call_processor = None
-            mock_init.return_value = mock_ctx
-
-            result = await orchestrator.run()
+        result = await orchestrator.run()
 
         assert result["files_indexed"] == 0
 

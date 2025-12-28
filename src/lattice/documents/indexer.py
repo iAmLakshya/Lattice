@@ -4,8 +4,9 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from lattice.documents.models import DocumentChunk
-from lattice.embeddings.client import CollectionName, QdrantManager
-from lattice.embeddings.embedder import Embedder
+from lattice.infrastructure.qdrant import CollectionName, QdrantManager
+from lattice.infrastructure.qdrant.embedder import embed_with_progress
+from lattice.infrastructure.llm import BaseEmbeddingProvider
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ class DocumentIndexer:
     def __init__(
         self,
         qdrant: QdrantManager,
-        embedder: Embedder,
+        embedder: BaseEmbeddingProvider,
     ):
         self.qdrant = qdrant
         self.embedder = embedder
@@ -43,7 +44,8 @@ class DocumentIndexer:
             return 0
 
         texts = [chunk.content for chunk in chunks]
-        embeddings = await self.embedder.embed_with_progress(
+        embeddings = await embed_with_progress(
+            self.embedder,
             texts,
             progress_callback=progress_callback,
         )
@@ -81,7 +83,7 @@ class DocumentIndexer:
 
 
 class DocumentSearcher:
-    def __init__(self, qdrant: QdrantManager, embedder: Embedder):
+    def __init__(self, qdrant: QdrantManager, embedder: BaseEmbeddingProvider):
         self.qdrant = qdrant
         self.embedder = embedder
 

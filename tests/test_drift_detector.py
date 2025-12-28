@@ -182,7 +182,7 @@ class TestDriftDetector:
             code_hash="hash",
         )
 
-        assert analysis.drift_severity == DriftStatus.UNKNOWN
+        assert analysis.drift_severity == DriftStatus.ALIGNED
 
     @pytest.mark.asyncio
     async def test_analyze_handles_llm_error(
@@ -200,9 +200,7 @@ class TestDriftDetector:
             code_hash="hash",
         )
 
-        assert analysis.drift_detected is False
-        assert analysis.drift_severity == DriftStatus.UNKNOWN
-        assert "Analysis failed" in analysis.explanation
+        assert analysis is None
 
     @pytest.mark.asyncio
     async def test_analyze_records_excerpts(

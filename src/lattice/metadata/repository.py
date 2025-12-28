@@ -2,7 +2,7 @@ import json
 import logging
 from uuid import UUID
 
-from lattice.database.postgres import PostgresClient
+from lattice.infrastructure.postgres.postgres import PostgresClient
 from lattice.metadata.models import (
     CoreFeature,
     DependencyInfo,

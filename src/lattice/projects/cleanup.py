@@ -4,8 +4,8 @@ import logging
 
 from qdrant_client import models
 
-from lattice.core.errors import VectorStoreError
-from lattice.embeddings.client import CollectionName, QdrantManager
+from lattice.shared.exceptions import VectorStoreError
+from lattice.infrastructure.qdrant import CollectionName, QdrantManager
 
 logger = logging.getLogger(__name__)
 

@@ -13,7 +13,7 @@ import pytest
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from lattice.core.cache import FunctionRegistry
+from lattice.shared.cache import FunctionRegistry
 from lattice.parsing.import_processor import ImportProcessor
 from lattice.parsing.inheritance_tracker import InheritanceTracker
 

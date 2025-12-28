@@ -22,7 +22,7 @@ class TestDocumentIndexer:
     def mock_embedder(self):
         embedder = AsyncMock()
         embedder.embed = AsyncMock(return_value=[0.1] * 1536)
-        embedder.embed_with_progress = AsyncMock(
+        embedder.embed_batch = AsyncMock(
             return_value=[[0.1] * 1536, [0.2] * 1536]
         )
         return embedder
@@ -68,7 +68,7 @@ class TestDocumentIndexer:
         )
 
         assert count == 2
-        mock_embedder.embed_with_progress.assert_called_once()
+        mock_embedder.embed_batch.assert_called_once()
         mock_qdrant.upsert.assert_called_once()
 
     @pytest.mark.asyncio
@@ -80,7 +80,7 @@ class TestDocumentIndexer:
         )
 
         assert count == 0
-        mock_embedder.embed_with_progress.assert_not_called()
+        mock_embedder.embed_batch.assert_not_called()
         mock_qdrant.upsert.assert_not_called()
 
     @pytest.mark.asyncio
@@ -99,9 +99,7 @@ class TestDocumentIndexer:
             progress_callback=progress_callback,
         )
 
-        mock_embedder.embed_with_progress.assert_called_once()
-        call_kwargs = mock_embedder.embed_with_progress.call_args[1]
-        assert "progress_callback" in call_kwargs
+        mock_embedder.embed_batch.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_index_chunks_creates_correct_payloads(

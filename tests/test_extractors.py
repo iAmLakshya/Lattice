@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 
-from lattice.core.types import EntityType, Language
+from lattice.shared.types import EntityType, Language
 from lattice.parsing.extractors.python import PythonExtractor
 from lattice.parsing.extractors.javascript import JavaScriptExtractor
 from lattice.parsing.extractors.typescript import TypeScriptExtractor

@@ -138,3 +138,19 @@ class ImplicitLink:
     entity_type: str
     confidence: float
     reasoning: str
+
+
+@dataclass
+class IndexingProgress:
+    stage: str
+    current: int
+    total: int
+    message: str
+
+
+@dataclass
+class IndexingResult:
+    documents_indexed: int
+    chunks_created: int
+    links_established: int
+    elapsed_seconds: float

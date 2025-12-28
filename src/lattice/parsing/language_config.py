@@ -20,7 +20,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from lattice.core.types import Language
+from lattice.shared.types import Language
 
 
 @dataclass

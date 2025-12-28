@@ -4,7 +4,7 @@ import logging
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from lattice.core.cache import FunctionRegistry
+    from lattice.shared.cache import FunctionRegistry
     from lattice.parsing.import_processor import ImportProcessor
 
 logger = logging.getLogger(__name__)

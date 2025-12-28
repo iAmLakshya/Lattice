@@ -3,7 +3,7 @@
 import pytest
 from pydantic import SecretStr, ValidationError
 
-from lattice.config import (
+from lattice.shared.config import (
     AISettings,
     DatabaseSettings,
     FileSettings,

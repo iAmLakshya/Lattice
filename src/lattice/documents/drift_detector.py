@@ -8,87 +8,11 @@ from lattice.documents.models import (
     DriftAnalysis,
     DriftStatus,
 )
-from lattice.providers import get_llm_provider
+from lattice.prompts import get_prompt
+from lattice.infrastructure.llm import get_llm_provider
+from lattice.shared.config.loader import DriftDetectorConfig
 
 logger = logging.getLogger(__name__)
-
-
-DRIFT_ANALYSIS_PROMPT = """You are checking if documentation accurately describes code behavior. Be CONSERVATIVE - only flag real drift.
-
-## Documentation Section
-{heading_path}
----
-{doc_content}
-
-## Code Being Checked
-`{entity_name}` ({entity_type}) in {file_path}
-```{language}
-{code_content}
-```
-
-## CRITICAL: First Check Relevance
-
-Before analyzing drift, determine: Does this documentation section SPECIFICALLY describe this code entity?
-
-- If the doc section is about a DIFFERENT entity/topic → Return "not_relevant"
-- If the doc only MENTIONS this entity in passing → Return "not_relevant"
-- If the doc SPECIFICALLY documents this entity's behavior → Proceed with drift analysis
-
-## What IS Drift (flag these - MUST have exact quotes):
-
-1. **Behavioral mismatch**: Doc explicitly states a VALUE that differs from code
-   - Doc: "tokens expire after 24 hours" → Code: `TOKEN_EXPIRY = 48` ← DIFFERENT VALUE
-   - Doc: "retries 5 times" → Code: `max_retries = 3` ← DIFFERENT VALUE
-   - You MUST find the specific number/value in both doc AND code that differs
-
-2. **Wrong parameters**: Doc shows different function signature than code has
-   - Doc: `login(email, password, remember_me)` → Code: `def login(email, password):`
-   - Only flag if the ACTUAL parameter names/count differ
-
-3. **Documented feature completely missing**: Doc claims feature exists but code has NO implementation
-   - Doc: "Supports Square payments" → Code: Only StripeProvider and PayPalProvider classes exist
-   - The class/function/method must be completely absent, not just undocumented details
-
-## What is NOT Drift (ignore these):
-
-1. **Undocumented code features** - Code has extra methods/params not in docs = OK
-2. **Implementation details** - Doc doesn't explain internal algorithm = OK
-3. **Private/internal methods** - Methods starting with _ not documented = OK
-4. **Order differences** - Steps happen in different order but same result = OK
-5. **Additional validation** - Code does more checks than documented = OK
-6. **Generic descriptions** - Doc gives high-level overview, code has details = OK
-
-## Response (JSON)
-
-{{
-    "relevant": true/false,
-    "drift_detected": true/false,
-    "drift_severity": "none|minor|major",
-    "drift_score": 0.0-1.0,
-    "issues": [
-        {{
-            "type": "behavioral|parameter|missing_feature|wrong_value",
-            "doc_quote": "EXACT quote from documentation showing the claim",
-            "code_quote": "EXACT code snippet showing different value/behavior",
-            "explanation": "Why these differ",
-            "severity": "minor|major"
-        }}
-    ],
-    "summary": "One sentence"
-}}
-
-CRITICAL: For each issue you MUST provide:
-- doc_quote: The EXACT text from the documentation (copy-paste)
-- code_quote: The EXACT code that contradicts it (copy-paste)
-If you cannot provide exact quotes from BOTH, the issue is not valid drift.
-
-Scoring guide:
-- 0.0 = Aligned (no drift or not relevant)
-- 0.1-0.3 = Minor (typos, slightly outdated names)
-- 0.4-0.6 = Moderate (param differences, minor behavior gaps)
-- 0.7-1.0 = Major (documented behavior doesn't match code)
-
-DEFAULT TO ALIGNED unless you find clear evidence of drift with specific quotes."""
 
 
 class DriftDetector:
@@ -107,21 +31,23 @@ class DriftDetector:
         language: str = "python",
     ) -> DriftAnalysis | None:
         try:
-            heading_display = " > ".join(doc_chunk.heading_path) if doc_chunk.heading_path else "Document"
+            heading_path = doc_chunk.heading_path
+            heading_display = " > ".join(heading_path) if heading_path else "Document"
 
-            prompt = DRIFT_ANALYSIS_PROMPT.format(
+            prompt = get_prompt(
+                "documents", "drift_analysis",
                 heading_path=heading_display,
-                doc_content=doc_chunk.content[:3000],
+                doc_content=doc_chunk.content[:DriftDetectorConfig.doc_content_max],
                 entity_name=entity_qualified_name,
                 entity_type=entity_type,
                 file_path=file_path,
                 language=language,
-                code_content=code_content[:4000],
+                code_content=code_content[:DriftDetectorConfig.code_content_max],
             )
 
             response = await self._llm.complete(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1500,
+                max_tokens=DriftDetectorConfig.max_tokens,
             )
 
             result = self._parse_response(response)
@@ -154,8 +80,8 @@ class DriftDetector:
                 drift_score=drift_score,
                 issues=result.get("issues", []),
                 explanation=result.get("summary", ""),
-                doc_excerpt=doc_chunk.content[:500],
-                code_excerpt=code_content[:500],
+                doc_excerpt=doc_chunk.content[:DriftDetectorConfig.excerpt_length],
+                code_excerpt=code_content[:DriftDetectorConfig.excerpt_length],
                 doc_version_hash=doc_chunk.content_hash,
                 code_version_hash=code_hash,
                 analyzed_at=datetime.now(),
@@ -182,7 +108,7 @@ class DriftDetector:
             return {
                 "drift_detected": drift_detected,
                 "drift_severity": "unknown",
-                "drift_score": 0.5 if drift_detected else 0.0,
+                "drift_score": DriftDetectorConfig.default_drift_score if drift_detected else 0.0,
                 "issues": [],
                 "summary": "Could not parse detailed analysis",
             }

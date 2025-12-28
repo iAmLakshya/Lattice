@@ -9,7 +9,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from lattice.core.errors import MetadataError
+from lattice.shared.config.loader import MetadataConfig
+from lattice.shared.exceptions import MetadataError
 from lattice.metadata.models import (
     CoreFeature,
     DependencyInfo,
@@ -20,48 +21,9 @@ from lattice.metadata.models import (
     ProjectMetadata,
     TechStack,
 )
-from lattice.metadata.prompts import MetadataPrompts
+from lattice.prompts.loader import get_prompt
 
 logger = logging.getLogger(__name__)
-
-
-FIELD_CONFIG = {
-    "folder_structure": {
-        "model": "claude-haiku-4-5-20251001",
-        "max_budget_usd": 0.50,
-        "description": "Exploring folder structure",
-    },
-    "tech_stack": {
-        "model": "claude-haiku-4-5-20251001",
-        "max_budget_usd": 0.30,
-        "description": "Identifying technology stack",
-    },
-    "dependencies": {
-        "model": "claude-haiku-4-5-20251001",
-        "max_budget_usd": 0.20,
-        "description": "Analyzing dependencies",
-    },
-    "entry_points": {
-        "model": "claude-sonnet-4-5-20250929",
-        "max_budget_usd": 0.50,
-        "description": "Finding entry points",
-    },
-    "core_features": {
-        "model": "claude-sonnet-4-5-20250929",
-        "max_budget_usd": 1.00,
-        "description": "Identifying core features",
-    },
-    "project_overview": {
-        "model": "claude-sonnet-4-5-20250929",
-        "max_budget_usd": 0.50,
-        "description": "Writing project overview",
-    },
-    "architecture_diagram": {
-        "model": "claude-sonnet-4-5-20250929",
-        "max_budget_usd": 0.50,
-        "description": "Creating architecture diagram",
-    },
-}
 
 
 @dataclass
@@ -103,7 +65,7 @@ class MetadataGenerator:
         self,
         repo_path: str | Path,
         project_name: str,
-        max_budget_usd: float = 0.50,
+        max_budget_usd: float = MetadataConfig.default_budget_usd,
         progress_callback: Callable[[GenerationProgress], None] | None = None,
         activity_callback: Callable[[AgentActivity], None] | None = None,
         verbose: bool = True,
@@ -114,8 +76,6 @@ class MetadataGenerator:
         self._progress_callback = progress_callback
         self._activity_callback = activity_callback
         self._verbose = verbose
-
-        self._prompts = MetadataPrompts(self.repo_path, project_name)
         self._progress = GenerationProgress()
 
     def _notify_progress(self) -> None:
@@ -157,7 +117,7 @@ class MetadataGenerator:
             print(f"  {prefix} {activity.tool_name}{tool_detail}", flush=True)
 
         elif activity.activity_type == "start":
-            config = FIELD_CONFIG.get(activity.field_name, {})
+            config = MetadataConfig.get_field_config(activity.field_name)
             model = config.get("model", "default").split("-")[1]
             print(f"\n{prefix} {activity.message} (using {model})", flush=True)
 
@@ -180,7 +140,7 @@ class MetadataGenerator:
             self._progress.current_field = field_name
             self._notify_progress()
 
-            config = FIELD_CONFIG.get(field_name, {})
+            config = MetadataConfig.get_field_config(field_name)
             description = config.get("description", field_name)
 
             self._notify_activity(
@@ -258,7 +218,7 @@ class MetadataGenerator:
         return await self._generate_field(field_name)
 
     async def _generate_field(
-        self, field_name: str, max_retries: int = 2
+        self, field_name: str, max_retries: int = MetadataConfig.max_retries
     ) -> MetadataGenerationResult:
         from claude_agent_sdk import (
             AssistantMessage,
@@ -270,14 +230,21 @@ class MetadataGenerator:
             ToolUseBlock,
         )
 
-        config = FIELD_CONFIG.get(field_name, {})
+        config = MetadataConfig.get_field_config(field_name)
         model = config.get("model", "claude-sonnet-4-5-20250929")
         max_budget = config.get("max_budget_usd", 0.10)
         last_error = None
 
         for attempt in range(max_retries):
             start_time = time.time()
-            prompt = self._prompts.get_prompt(field_name)
+            ignore_patterns_str = ", ".join(MetadataConfig.get_ignore_patterns())
+            prompt = get_prompt(
+                "metadata",
+                field_name,
+                repo_path=str(self.repo_path),
+                project_name=self.project_name,
+                ignore_patterns=ignore_patterns_str,
+            )
 
             if field_name not in ("project_overview", "architecture_diagram"):
                 prompt += (
@@ -341,7 +308,7 @@ class MetadataGenerator:
                 last_error = e
                 logger.warning(f"Agent query failed for {field_name}: {e}")
                 if attempt < max_retries - 1:
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(MetadataConfig.default_retry_delay)
                     continue
                 raise MetadataError(
                     f"Agent query failed for {field_name}: {e}",
@@ -356,7 +323,7 @@ class MetadataGenerator:
                 logger.warning(f"{field_name}: No content ({tool_calls} tools)")
                 last_error = ValueError("No content received from agent")
                 if attempt < max_retries - 1:
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(MetadataConfig.default_retry_delay)
                     continue
                 raise MetadataError(
                     f"No content received for {field_name}",
@@ -379,7 +346,7 @@ class MetadataGenerator:
                     print(f"\n  [Debug] Response ({len(all_content)} chars):")
                     print(f"  {all_content[:500]}...")
                 if attempt < max_retries - 1:
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(MetadataConfig.default_retry_delay)
                     continue
 
         raise MetadataError(

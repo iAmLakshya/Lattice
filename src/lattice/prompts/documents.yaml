@@ -1,0 +1,114 @@
+link_finder:
+  description: Prompt for finding links between documentation and code
+  template: |
+    You are analyzing documentation to identify which code entities it describes or relates to.
+
+    ## Documentation Section
+    Heading Path: {heading_path}
+    Content:
+    {doc_content}
+
+    ## Candidate Code Entities (found via semantic similarity)
+    {entity_list}
+
+    ## Task
+    Identify which code entities this documentation section describes, explains, or is relevant to.
+
+    For each relevant entity, provide:
+    1. The entity's qualified name (exactly as shown)
+    2. Relevance level: "high" (directly documents this entity), "medium" (discusses related behavior), "low" (tangentially related)
+    3. Brief reasoning (1 sentence)
+
+    Respond in JSON format:
+    {{
+        "links": [
+            {{
+                "entity_qualified_name": "exact.qualified.name",
+                "entity_type": "Function|Class|Method",
+                "relevance": "high|medium|low",
+                "reasoning": "Why this doc relates to this code"
+            }}
+        ]
+    }}
+
+    Only include entities that are genuinely relevant. Return empty links array if none are relevant.
+
+drift_analysis:
+  description: Prompt for detecting documentation drift from code
+  template: |
+    You are checking if documentation accurately describes code behavior. Be CONSERVATIVE - only flag real drift.
+
+    ## Documentation Section
+    {heading_path}
+    ---
+    {doc_content}
+
+    ## Code Being Checked
+    `{entity_name}` ({entity_type}) in {file_path}
+    ```{language}
+    {code_content}
+    ```
+
+    ## CRITICAL: First Check Relevance
+
+    Before analyzing drift, determine: Does this documentation section SPECIFICALLY describe this code entity?
+
+    - If the doc section is about a DIFFERENT entity/topic → Return "not_relevant"
+    - If the doc only MENTIONS this entity in passing → Return "not_relevant"
+    - If the doc SPECIFICALLY documents this entity's behavior → Proceed with drift analysis
+
+    ## What IS Drift (flag these - MUST have exact quotes):
+
+    1. **Behavioral mismatch**: Doc explicitly states a VALUE that differs from code
+       - Doc: "tokens expire after 24 hours" → Code: `TOKEN_EXPIRY = 48` ← DIFFERENT VALUE
+       - Doc: "retries 5 times" → Code: `max_retries = 3` ← DIFFERENT VALUE
+       - You MUST find the specific number/value in both doc AND code that differs
+
+    2. **Wrong parameters**: Doc shows different function signature than code has
+       - Doc: `login(email, password, remember_me)` → Code: `def login(email, password):`
+       - Only flag if the ACTUAL parameter names/count differ
+
+    3. **Documented feature completely missing**: Doc claims feature exists but code has NO implementation
+       - Doc: "Supports Square payments" → Code: Only StripeProvider and PayPalProvider classes exist
+       - The class/function/method must be completely absent, not just undocumented details
+
+    ## What is NOT Drift (ignore these):
+
+    1. **Undocumented code features** - Code has extra methods/params not in docs = OK
+    2. **Implementation details** - Doc doesn't explain internal algorithm = OK
+    3. **Private/internal methods** - Methods starting with _ not documented = OK
+    4. **Order differences** - Steps happen in different order but same result = OK
+    5. **Additional validation** - Code does more checks than documented = OK
+    6. **Generic descriptions** - Doc gives high-level overview, code has details = OK
+
+    ## Response (JSON)
+
+    {{
+        "relevant": true/false,
+        "drift_detected": true/false,
+        "drift_severity": "none|minor|major",
+        "drift_score": 0.0-1.0,
+        "issues": [
+            {{
+                "type": "behavioral|parameter|missing_feature|wrong_value",
+                "doc_quote": "EXACT quote from documentation showing the claim",
+                "code_quote": "EXACT code snippet showing different value/behavior",
+                "explanation": "Why these differ",
+                "severity": "minor|major"
+            }}
+        ],
+        "summary": "One sentence"
+    }}
+
+    CRITICAL: For each issue you MUST provide:
+    - doc_quote: The EXACT text from the documentation (copy-paste)
+    - code_quote: The EXACT code that contradicts it (copy-paste)
+    If you cannot provide exact quotes from BOTH, the issue is not valid drift.
+
+    Scoring guide:
+    - 0.0 = Aligned (no drift or not relevant)
+    - 0.1-0.3 = Minor (typos, slightly outdated names)
+    - 0.4-0.6 = Moderate (param differences, minor behavior gaps)
+    - 0.7-1.0 = Major (documented behavior doesn't match code)
+
+    DEFAULT TO ALIGNED unless you find clear evidence of drift with specific quotes.

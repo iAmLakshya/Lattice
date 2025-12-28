@@ -1,4 +1,4 @@
-from lattice.core.types import EntityType
+from lattice.shared.types import EntityType
 from lattice.parsing.extractors.base import BaseExtractor
 from lattice.parsing.models import CodeEntity, ImportInfo
 

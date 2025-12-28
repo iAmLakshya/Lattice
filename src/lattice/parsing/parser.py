@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, ClassVar
 
 from tree_sitter_language_pack import get_parser
 
-from lattice.core.types import Language
+from lattice.shared.types import Language
 from lattice.parsing.extractors.base import BaseExtractor
 from lattice.parsing.extractors.javascript import JavaScriptExtractor
 from lattice.parsing.extractors.python import PythonExtractor
@@ -26,15 +26,21 @@ class CodeParser:
         Language.TSX: "tsx",
     }
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        extractors: dict[Language, BaseExtractor] | None = None,
+    ) -> None:
         self._parsers: dict[str, Parser] = {}
-        self._extractors: dict[Language, BaseExtractor] = {
-            Language.PYTHON: PythonExtractor(),
-            Language.JAVASCRIPT: JavaScriptExtractor(),
-            Language.JSX: JavaScriptExtractor(),
-            Language.TYPESCRIPT: TypeScriptExtractor(),
-            Language.TSX: TypeScriptExtractor(),
-        }
+        if extractors is not None:
+            self._extractors = extractors
+        else:
+            self._extractors = {
+                Language.PYTHON: PythonExtractor(),
+                Language.JAVASCRIPT: JavaScriptExtractor(),
+                Language.JSX: JavaScriptExtractor(),
+                Language.TYPESCRIPT: TypeScriptExtractor(),
+                Language.TSX: TypeScriptExtractor(),
+            }
 
     def _get_parser(self, language: Language) -> Parser:
         lang_id = self.LANGUAGE_MAP.get(language)
