@@ -319,9 +319,9 @@ class ContextBuilder:
             notes.append(f"Identified {len(graph_context.call_chains)} call paths between entities")
 
         if graph_context.callers and graph_context.callees:
-            notes.append(
-                f"Entity has {len(graph_context.callers)} callers and calls {len(graph_context.callees)} other functions"
-            )
+            callers = len(graph_context.callers)
+            callees = len(graph_context.callees)
+            notes.append(f"Entity has {callers} callers and calls {callees} other functions")
 
         if "implementation_details" in plan.context_requirements:
             if enriched.code_snippets:

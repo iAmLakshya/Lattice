@@ -5,9 +5,9 @@ from collections.abc import Callable
 from lattice.infrastructure.llm import BaseLLMProvider, get_llm_provider
 from lattice.parsing.api import CodeEntity, ParsedFile
 from lattice.prompts import get_prompt
+from lattice.shared.api import LLMProviderProtocol as LLMProvider
 from lattice.shared.config import SummarizationConfig, get_settings
 from lattice.shared.exceptions import SummarizationError
-from lattice.shared.api import LLMProviderProtocol as LLMProvider
 from lattice.shared.types import EntityType
 
 logger = logging.getLogger(__name__)
@@ -24,7 +24,8 @@ def create_code_summarizer(
 ) -> "CodeSummarizer":
     settings = get_settings()
     final_max_tokens = max_tokens or SummarizationConfig.default_max_tokens
-    final_temperature = temperature if temperature is not None else SummarizationConfig.default_temperature
+    default_temp = SummarizationConfig.default_temperature
+    final_temperature = temperature if temperature is not None else default_temp
     final_max_concurrent = max_concurrent or settings.max_concurrent_requests
 
     llm_provider = get_llm_provider(

@@ -27,7 +27,7 @@ def create_default_extractors() -> dict[Language, BaseExtractor]:
     }
 
 
-def create_code_parser() -> "CodeParser":
+def create_code_parser() -> CodeParser:
     return CodeParser(extractors=create_default_extractors())
 
 

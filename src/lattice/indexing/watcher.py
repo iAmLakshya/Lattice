@@ -123,24 +123,24 @@ class FileWatcher:
             logger.warning("Watcher already running")
             return
 
-        FileSystemEventHandler, Observer = _import_watchdog()
+        event_handler_cls, observer_cls = _import_watchdog()
 
-        class WatchdogHandler(FileSystemEventHandler):
-            def __init__(handler_self, change_handler: FileChangeHandler):
+        class WatchdogHandler(event_handler_cls):
+            def __init__(self, change_handler: FileChangeHandler):
                 super().__init__()
-                handler_self.change_handler = change_handler
+                self.change_handler = change_handler
 
-            def on_created(handler_self, event):
+            def on_created(self, event):
                 if not event.is_directory:
-                    handler_self.change_handler.handle_event("created", event.src_path)
+                    self.change_handler.handle_event("created", event.src_path)
 
-            def on_modified(handler_self, event):
+            def on_modified(self, event):
                 if not event.is_directory:
-                    handler_self.change_handler.handle_event("modified", event.src_path)
+                    self.change_handler.handle_event("modified", event.src_path)
 
-            def on_deleted(handler_self, event):
+            def on_deleted(self, event):
                 if not event.is_directory:
-                    handler_self.change_handler.handle_event("deleted", event.src_path)
+                    self.change_handler.handle_event("deleted", event.src_path)
 
         change_handler = FileChangeHandler(
             repo_path=self.repo_path,
@@ -148,7 +148,7 @@ class FileWatcher:
             on_file_deleted=lambda p: self._queue_update("deleted", p),
         )
 
-        self._observer = Observer()
+        self._observer = observer_cls()
         handler = WatchdogHandler(change_handler)
         self._observer.schedule(handler, str(self.repo_path), recursive=True)
         self._observer.start()
@@ -179,7 +179,8 @@ class FileWatcher:
 
         logger.info(f"Stopped watching: {self.repo_path}")
         logger.info(
-            f"Stats: {self.files_updated} updated, {self.files_deleted} deleted, {self.errors} errors"
+            f"Stats: {self.files_updated} updated, {self.files_deleted} deleted, "
+            f"{self.errors} errors"
         )
 
     async def run_forever(self) -> None:

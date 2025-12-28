@@ -68,7 +68,7 @@ class RelationshipBuilder:
             )
         except Exception as e:
             logger.warning(
-                f"Failed to create DEFINES_METHOD relationship for {class_name} -> {method_name}: {e}"
+                f"Failed to create DEFINES_METHOD: {class_name} -> {method_name}: {e}"
             )
 
     async def create_calls_relationships(
@@ -99,7 +99,7 @@ class RelationshipBuilder:
                         )
                     except Exception as e:
                         logger.debug(
-                            f"Method name CALLS match failed from {caller_name} to {method_name}: {e}"
+                            f"Method CALLS match failed: {caller_name} -> {method_name}: {e}"
                         )
 
     def _resolve_call(self, call: str, class_context: str | None) -> str | None:

@@ -24,7 +24,6 @@ from lattice.querying.graph_reasoning.models import (
     GraphNode,
     GraphPath,
 )
-from lattice.shared.config import QueryConfig
 from lattice.querying.graph_reasoning.node_utils import dict_to_node, result_to_node
 from lattice.querying.graph_reasoning.traversal import (
     find_call_chain,
@@ -34,6 +33,7 @@ from lattice.querying.graph_reasoning.traversal import (
     find_transitive_callers,
 )
 from lattice.querying.query_planner import QueryIntent, QueryPlan
+from lattice.shared.config import QueryConfig
 from lattice.shared.exceptions import QueryError
 
 logger = logging.getLogger(__name__)

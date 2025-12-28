@@ -34,7 +34,6 @@ from lattice.shared.config.query_config import (
     QueryContextConfig,
     QueryReasoningConfig,
 )
-
 from lattice.shared.config.ranking_config import (
     RankingConfig,
     RerankerConfig,

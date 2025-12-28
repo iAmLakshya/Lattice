@@ -156,14 +156,14 @@ class AgentRunner:
         field_name: str,
         accumulated_content: str,
         tool_calls: int,
-        TextBlock: type,
-        ToolUseBlock: type,
-        ToolResultBlock: type,
+        text_block_cls: type,
+        tool_use_block_cls: type,
+        tool_result_block_cls: type,
     ) -> tuple[str, int]:
         for block in message.content:
-            if isinstance(block, TextBlock):
+            if isinstance(block, text_block_cls):
                 accumulated_content += block.text + "\n"
-            elif isinstance(block, ToolUseBlock):
+            elif isinstance(block, tool_use_block_cls):
                 tool_calls += 1
                 self._tracker.notify_activity(
                     AgentActivity(
@@ -174,7 +174,7 @@ class AgentRunner:
                         tool_input=block.input if hasattr(block, "input") else None,
                     )
                 )
-            elif isinstance(block, ToolResultBlock):
+            elif isinstance(block, tool_result_block_cls):
                 pass
         return accumulated_content, tool_calls
 

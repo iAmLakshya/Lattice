@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from tree_sitter import Node
 
+    from lattice.parsing.type_inference.type_resolver import TypeResolver
+
 logger = logging.getLogger(__name__)
 
 
@@ -18,7 +20,7 @@ def safe_decode_text(node: Node) -> str | None:
 class JsTsTypeInference:
     def __init__(
         self,
-        type_resolver: "TypeResolver",
+        type_resolver: TypeResolver,
     ):
         self._type_resolver = type_resolver
 

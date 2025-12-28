@@ -34,9 +34,9 @@ except ImportError:
     pass
 
 try:
-    import transformers
+    import importlib.util
 
-    _TRANSFORMERS_AVAILABLE = True
+    _TRANSFORMERS_AVAILABLE = importlib.util.find_spec("transformers") is not None
 except ImportError:
     pass
 

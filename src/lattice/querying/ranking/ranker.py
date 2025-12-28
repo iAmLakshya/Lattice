@@ -22,9 +22,9 @@ class HybridRanker:
         vector_results: list[dict[str, Any]],
         centrality_scores: dict[str, dict[str, int]] | None = None,
     ) -> list[RankedResult]:
-        logger.debug(
-            f"Ranking results: graph={len(self._count_graph_entities(graph_context))}, vector={len(vector_results)}"
-        )
+        graph_count = len(self._count_graph_entities(graph_context))
+        vector_count = len(vector_results)
+        logger.debug(f"Ranking results: graph={graph_count}, vector={vector_count}")
 
         weights = self._get_adjusted_weights(plan.primary_intent)
 
