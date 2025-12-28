@@ -134,28 +134,23 @@ Lattice **pre-indexes** your codebase into a persistent knowledge graph and vect
 Large codebases often have multiple implementations of similar concepts. An AI assistant exploring on-demand might find the wrong one:
 
 ```mermaid
-flowchart TB
+flowchart LR
     subgraph without["Without Lattice"]
         direction TB
         w1["Agent searches for 'payment'..."]
-        w2["Finds: /legacy/payments.py<br/>(deprecated, 2 years old)"]
-        w3["Agent implements new payment<br/>following legacy patterns"]
-        w4["Result: Code doesn't follow<br/>current architecture"]
+        w2["Finds: /legacy/payments.py\n(deprecated, 2 years old)"]
+        w3["Agent implements new payment\nfollowing legacy patterns"]
+        w4["Result: Code doesn't follow\ncurrent architecture"]
         w1 --> w2 --> w3 --> w4
     end
 
     subgraph with["With Lattice"]
         direction TB
-        l1["Agent queries: 'How do<br/>payment methods work?'"]
-        l2["Lattice returns:<br/>• Current PaymentService (active usage)<br/>• PaymentMethodBase + implementations<br/>• Related docs (flags legacy deprecated)<br/>• Test patterns for payments"]
-        l3["Result: Agent follows current<br/>patterns, integrates correctly"]
+        l1["Agent queries: 'How do\npayment methods work?'"]
+        l2["Lattice returns:\n• Current PaymentService\n• PaymentMethodBase + impls\n• Related docs\n• Test patterns"]
+        l3["Result: Agent follows current\npatterns, integrates correctly"]
         l1 --> l2 --> l3
     end
-
-    style without fill:#fff5f5,stroke:#fa5252
-    style with fill:#ebfbee,stroke:#40c057
-    style w4 fill:#ffe3e3,stroke:#fa5252
-    style l3 fill:#d3f9d8,stroke:#40c057
 ```
 
 Lattice's graph structure reveals what's **actively used** (high centrality, many callers) versus what's **abandoned** (low centrality, no recent callers). The documentation linking surfaces relevant guides and flags stale information through drift detection.
@@ -229,27 +224,21 @@ Combining graph and vector search requires careful result fusion. Lattice uses a
 flowchart TB
     subgraph inputs["Input Results"]
         direction LR
-        graph["Graph Results<br/>1. PaymentService.charge (primary)<br/>2. OrderHandler.submit (depth 1)<br/>3. CheckoutFlow.process (depth 2)<br/>4. PaymentValidator.check (callee)"]
-        vector["Vector Results<br/>1. PaymentProcessor.run (0.92)<br/>2. PaymentService.charge (0.89)<br/>3. StripeGateway.execute (0.85)<br/>4. OrderHandler.submit (0.81)"]
+        graph["Graph Results\n1. PaymentService.charge\n2. OrderHandler.submit\n3. CheckoutFlow.process\n4. PaymentValidator.check"]
+        vector["Vector Results\n1. PaymentProcessor.run (0.92)\n2. PaymentService.charge (0.89)\n3. StripeGateway.execute (0.85)\n4. OrderHandler.submit (0.81)"]
     end
 
     subgraph scoring["Scoring Signals"]
         direction LR
-        gs["Graph Signals<br/>• Relationship weight<br/>• Distance decay<br/>• Centrality"]
-        vs["Vector Signals<br/>• Cosine similarity<br/>• Code quality<br/>• Entity type boost"]
+        gs["Graph Signals\n• Relationship weight\n• Distance decay\n• Centrality"]
+        vs["Vector Signals\n• Cosine similarity\n• Code quality\n• Entity type boost"]
     end
 
     subgraph output["Merged Results"]
-        merged["1. PaymentService.charge (0.95) - Hybrid boost<br/>2. OrderHandler.submit (0.87) - Hybrid boost<br/>3. PaymentProcessor.run (0.82)<br/>4. CheckoutFlow.process (0.78)<br/>5. StripeGateway.execute (0.71)"]
+        merged["1. PaymentService.charge (0.95) ← both\n2. OrderHandler.submit (0.87) ← both\n3. PaymentProcessor.run (0.82)\n4. CheckoutFlow.process (0.78)\n5. StripeGateway.execute (0.71)"]
     end
 
     inputs --> scoring --> output
-
-    style graph fill:#e7f5ff,stroke:#228be6
-    style vector fill:#ebfbee,stroke:#40c057
-    style gs fill:#e7f5ff,stroke:#228be6
-    style vs fill:#ebfbee,stroke:#40c057
-    style merged fill:#f3f0ff,stroke:#7950f2
 ```
 
 **Adaptive Weighting** adjusts based on query intent:
@@ -350,29 +339,19 @@ Lattice builds a property graph that captures the architecture of your codebase:
 
 ```mermaid
 graph TB
-    Project["Project<br/>'my-project'"]
+    Project["Project\n'my-project'"]
 
-    Project -->|CONTAINS| File1["File<br/>'auth.py'"]
-    Project -->|CONTAINS| File2["File<br/>'users.py'"]
-    Project -->|CONTAINS| File3["File<br/>'handlers.py'"]
+    Project -->|CONTAINS| File1["File\n'auth.py'"]
+    Project -->|CONTAINS| File2["File\n'users.py'"]
+    Project -->|CONTAINS| File3["File\n'handlers.py'"]
 
-    File1 -->|DEFINES| Class1["Class<br/>'AuthService'"]
-    File2 -->|DEFINES| Class2["Class<br/>'UserModel'"]
-    File3 -->|DEFINES| Func1["Function<br/>'handle_req'"]
+    File1 -->|DEFINES| Class1["Class\n'AuthService'"]
+    File2 -->|DEFINES| Class2["Class\n'UserModel'"]
+    File3 -->|DEFINES| Func1["Function\n'handle_req'"]
 
-    Class1 -->|DEFINES_METHOD| Method1["Method<br/>'validate'"]
-    Class2 -->|EXTENDS| BaseModel["Class<br/>'BaseModel'"]
+    Class1 -->|DEFINES_METHOD| Method1["Method\n'validate'"]
+    Class2 -->|EXTENDS| BaseModel["Class\n'BaseModel'"]
     Func1 -->|CALLS| Method1
-
-    style Project fill:#e7f5ff,stroke:#228be6
-    style File1 fill:#fff9db,stroke:#fab005
-    style File2 fill:#fff9db,stroke:#fab005
-    style File3 fill:#fff9db,stroke:#fab005
-    style Class1 fill:#f3f0ff,stroke:#7950f2
-    style Class2 fill:#f3f0ff,stroke:#7950f2
-    style Func1 fill:#ebfbee,stroke:#40c057
-    style Method1 fill:#fff0f6,stroke:#e64980
-    style BaseModel fill:#f3f0ff,stroke:#7950f2
 ```
 
 **What relationships are captured:**
@@ -416,41 +395,27 @@ Lattice solves these by treating documentation as queryable, linked data:
 flowchart TB
     subgraph docs["Your Docs"]
         direction TB
-        d1["docs/"]
-        d2["├── api.md"]
-        d3["├── arch.md"]
-        d4["└── guides/"]
+        d1["docs/\n├── api.md\n├── arch.md\n└── guides/"]
     end
 
-    subgraph step1["Step 1: Intelligent Chunking"]
+    subgraph step1["Step 1: Chunking"]
         direction TB
-        s1a["# Authentication Guide"]
-        s1b["## OAuth 2.0 Flow → Chunk 1<br/>path: [Auth, OAuth]"]
-        s1c["## JWT Tokens → Chunk 2<br/>path: [Auth, JWT]"]
+        s1["# Auth Guide\n## OAuth Flow → Chunk 1\n## JWT Tokens → Chunk 2"]
     end
 
     subgraph step2["Step 2: Entity Linking"]
         direction TB
-        s2a["Doc Chunk: 'OAuth 2.0 Flow'"]
-        s2b["Links to:<br/>• OAuthService.authenticate()<br/>• TokenRefreshHandler.refresh()<br/>Confidence: 0.92"]
+        s2["OAuth Flow links to:\n• OAuthService.authenticate()\n• TokenRefreshHandler.refresh()"]
     end
 
     subgraph step3["Step 3: Drift Detection"]
         direction TB
-        s3a["docs/api.md → PaymentService ✓ Aligned (0.12)"]
-        s3b["docs/auth.md → AuthService ⚠ Minor (0.45)"]
-        s3c["docs/cache.md → CacheManager ✗ Major (0.78)"]
+        s3a["docs/api.md → PaymentService (aligned)"]
+        s3b["docs/auth.md → AuthService (minor drift)"]
+        s3c["docs/cache.md → CacheManager (major drift)"]
     end
 
     docs --> step1 --> step2 --> step3
-
-    style docs fill:#f8f9fa,stroke:#495057
-    style step1 fill:#e7f5ff,stroke:#228be6
-    style step2 fill:#ebfbee,stroke:#40c057
-    style step3 fill:#fff9db,stroke:#fab005
-    style s3a fill:#d3f9d8,stroke:#40c057
-    style s3b fill:#fff3bf,stroke:#fab005
-    style s3c fill:#ffe3e3,stroke:#fa5252
 ```
 
 #### What You Can Do With Documentation Intelligence
@@ -467,13 +432,11 @@ lattice query "How do I implement a new payment method?"
 lattice docs drift --project my-project
 
 # Output:
-# ┌─────────────────────────────────────────────────────────────────┐
-# │ Document           │ Entity           │ Status      │ Score   │
-# ├─────────────────────────────────────────────────────────────────┤
-# │ docs/api.md        │ PaymentService   │ ✓ Aligned   │ 0.12    │
-# │ docs/auth.md       │ AuthService      │ ⚠ Minor     │ 0.45    │
-# │ docs/cache.md      │ CacheManager     │ ✗ Major     │ 0.78    │
-# └─────────────────────────────────────────────────────────────────┘
+# Document             Entity             Status        Score
+# ─────────────────────────────────────────────────────────────
+# docs/api.md          PaymentService     Aligned       0.12
+# docs/auth.md         AuthService        Minor Drift   0.45
+# docs/cache.md        CacheManager       Major Drift   0.78
 ```
 
 **See what code a document describes:**
@@ -586,25 +549,20 @@ flowchart LR
         direction TB
         w1["ReadFile('src/')"]
         w2["SearchText('auth')"]
-        w3["ReadFile('src/auth/service.py')"]
-        w4["ReadFile('src/auth/middleware.py')"]
+        w3["ReadFile(...)"]
+        w4["ReadFile(...)"]
         w5["... more exploration"]
-        w6["50,000+ tokens<br/>30+ seconds"]
+        w6["50,000+ tokens\n30+ seconds"]
         w1 --> w2 --> w3 --> w4 --> w5 --> w6
     end
 
     subgraph with["With Lattice"]
         direction TB
-        l1["query_code_graph(<br/>'How does auth work?')"]
-        l2["Returns:<br/>• Grounded answer<br/>• Code snippets<br/>• Call chains<br/>• Documentation"]
-        l3["2,000 tokens<br/><1 second"]
+        l1["query_code_graph(\n'How does auth work?')"]
+        l2["Returns:\n• Grounded answer\n• Code snippets\n• Call chains\n• Documentation"]
+        l3["2,000 tokens\n<1 second"]
         l1 --> l2 --> l3
     end
-
-    style without fill:#fff5f5,stroke:#fa5252
-    style with fill:#ebfbee,stroke:#40c057
-    style w6 fill:#ffe3e3,stroke:#fa5252
-    style l3 fill:#d3f9d8,stroke:#40c057
 ```
 
 ---
@@ -700,7 +658,7 @@ Building graph...                    ██████████████�
 Generating summaries...              ████████████████████ 100%
 Creating embeddings...               ████████████████████ 100%
 
-✓ Indexed my-project
+Indexed my-project
   Files: 247
   Entities: 1,832
   Graph nodes: 2,156
@@ -815,38 +773,27 @@ lattice metadata regenerate <name> [--field <field>]
 flowchart TB
     subgraph data["DATA LAYER"]
         direction LR
-        mg["Memgraph<br/>Knowledge Graph<br/>Cypher Queries"]
-        qd["Qdrant<br/>Vector Embeddings<br/>HNSW Index"]
-        pg["PostgreSQL<br/>Documents & Metadata<br/>asyncpg Driver"]
+        mg["Memgraph\nKnowledge Graph"]
+        qd["Qdrant\nVector Store"]
+        pg["PostgreSQL\nMetadata"]
     end
 
     subgraph core["CORE ENGINE"]
         direction LR
-        parse["Parsing<br/>Tree-sitter<br/>Type Inference<br/>Call Resolution"]
-        index["Indexing<br/>Pipeline<br/>Orchestrator<br/>Stages"]
-        query["Querying<br/>Hybrid Ranking<br/>Graph Reasoning<br/>Planner"]
+        parse["Parsing\nTree-sitter"]
+        index["Indexing\nPipeline"]
+        query["Querying\nHybrid Ranking"]
     end
 
     subgraph ai["AI PROVIDERS"]
         direction LR
-        openai["OpenAI<br/>GPT-4o"]
-        anthropic["Anthropic<br/>Claude"]
-        google["Google<br/>Gemini"]
-        ollama["Ollama<br/>Local"]
+        openai["OpenAI"]
+        anthropic["Anthropic"]
+        google["Google"]
+        ollama["Ollama"]
     end
 
     data --> core --> ai
-
-    style mg fill:#e7f5ff,stroke:#228be6
-    style qd fill:#ebfbee,stroke:#40c057
-    style pg fill:#fff9db,stroke:#fab005
-    style parse fill:#f3f0ff,stroke:#7950f2
-    style index fill:#fff0f6,stroke:#e64980
-    style query fill:#e6fcf5,stroke:#20c997
-    style openai fill:#f8f9fa,stroke:#495057
-    style anthropic fill:#f8f9fa,stroke:#495057
-    style google fill:#f8f9fa,stroke:#495057
-    style ollama fill:#f8f9fa,stroke:#495057
 ```
 
 ### Database Details
@@ -921,12 +868,12 @@ Our current drift detection works by sending documentation chunks and their link
 
 ```mermaid
 flowchart TB
-    subgraph current["Current Approach: LLM-Based Scoring"]
+    subgraph current["Current: LLM-Based Scoring"]
         direction TB
-        doc["Documentation Chunk<br/>'PaymentService uses<br/>Stripe API to charge<br/>credit cards...'"]
-        code["Code Entity<br/>class PaymentService:<br/>  def charge(self):<br/>    return self.gateway.process()"]
-        llm["LLM<br/>'Are these aligned?'"]
-        score["Drift Score: 0.45<br/>(but WHY? WHAT changed?)"]
+        doc["Doc Chunk:\n'PaymentService uses\nStripe API...'"]
+        code["Code Entity:\nclass PaymentService:\n  def charge(): ..."]
+        llm["LLM: 'Are these aligned?'"]
+        score["Drift Score: 0.45\n(but WHY?)"]
 
         doc --> llm
         code --> llm
@@ -934,18 +881,13 @@ flowchart TB
     end
 
     subgraph limits["Limitations"]
-        l1["Only sees code snippet, not actual behavior"]
-        l2["Can't trace what self.gateway actually is"]
-        l3["Doesn't know if Stripe was replaced with PayPal"]
-        l4["No access to tests that define expected behavior"]
-        l5["Provides scores, not actionable insights"]
+        l1["• Only sees snippet, not behavior"]
+        l2["• Can't trace dependencies"]
+        l3["• No historical context"]
+        l4["• Scores, not actionable fixes"]
     end
 
     current --> limits
-
-    style current fill:#fff5f5,stroke:#fa5252
-    style limits fill:#ffe3e3,stroke:#fa5252
-    style score fill:#fff3bf,stroke:#fab005
 ```
 
 #### The Agentic Approach
@@ -954,33 +896,27 @@ Instead of asking an LLM to score alignment from limited context, we deploy an *
 
 ```mermaid
 flowchart TB
-    task["Task: Analyze drift for<br/>docs/payments.md ↔ PaymentService"]
+    task["Task: Analyze drift for\ndocs/payments.md ↔ PaymentService"]
 
     subgraph agent["Drift Detection Agent"]
-        direction TB
-        tools["Tools Available:<br/>• query_graph() - Traverse relationships<br/>• read_code() - Read source files<br/>• find_tests() - Locate test files<br/>• trace_calls() - Multi-hop analysis<br/>• git_history() - When did code change?"]
+        tools["Tools: query_graph, read_code,\nfind_tests, trace_calls, git_history"]
     end
 
     subgraph steps["Agent Execution"]
         direction TB
-        s1["Step 1: Read doc claims<br/>□ Uses Stripe API<br/>□ Has auto retry"]
-        s2["Step 2: Investigate code<br/>→ Gateway from paypal.py (!)<br/>→ No retry logic found"]
-        s3["Step 3: Check tests<br/>→ test_charge_with_paypal ✓<br/>→ test_retry - NOT FOUND"]
-        s4["Step 4: Git history<br/>→ Commit abc123 (3 months ago)<br/>'Migrate from Stripe to PayPal'"]
+        s1["1. Read doc claims"]
+        s2["2. Investigate code\n→ Found PayPal, not Stripe!"]
+        s3["3. Check tests\n→ test_paypal_gateway found"]
+        s4["4. Git history\n→ 'Migrate to PayPal' 3mo ago"]
 
         s1 --> s2 --> s3 --> s4
     end
 
-    subgraph output["Actionable Drift Report"]
-        o1["DISCREPANCY: Payment Gateway [CRITICAL]<br/>Doc claims: 'Stripe API'<br/>Actual: PayPal gateway<br/>Changed: 3 months ago<br/>Suggested fix: Update docs"]
+    subgraph output["Actionable Report"]
+        o1["DISCREPANCY: Payment Gateway\nDoc: 'Stripe' → Actual: 'PayPal'\nFix: Update documentation"]
     end
 
     task --> agent --> steps --> output
-
-    style agent fill:#e7f5ff,stroke:#228be6
-    style steps fill:#fff9db,stroke:#fab005
-    style output fill:#ebfbee,stroke:#40c057
-    style s2 fill:#ffe3e3,stroke:#fa5252
 ```
 
 Here's an example of what agentic drift detection output looks like:
@@ -1073,12 +1009,6 @@ We welcome contributions! Whether it's:
 -   Test coverage improvements
 
 Please open an issue first to discuss significant changes.
-
----
-
-## License
-
-MIT
 
 ---
 
