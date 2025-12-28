@@ -42,20 +42,20 @@ Lattice is a **hybrid retrieval system** that combines the precision of knowledg
 
 ## Table of Contents
 
-- [Why Lattice?](#why-lattice)
-- [How It Works](#how-it-works)
-  - [The Indexing Pipeline](#the-indexing-pipeline)
-  - [The Query Pipeline](#the-query-pipeline)
-  - [Hybrid Ranking](#hybrid-ranking)
-- [Features](#features)
-  - [Structural Code Understanding](#structural-code-understanding)
-  - [Documentation Intelligence](#documentation-intelligence)
-  - [Multi-Project Support](#multi-project-support)
-  - [MCP Integration](#mcp-integration)
-- [Quick Start](#quick-start)
-- [CLI Reference](#cli-reference)
-- [Technology Stack](#technology-stack)
-- [Status & Roadmap](#status--roadmap)
+-   [Why Lattice?](#why-lattice)
+-   [How It Works](#how-it-works)
+    -   [The Indexing Pipeline](#the-indexing-pipeline)
+    -   [The Query Pipeline](#the-query-pipeline)
+    -   [Hybrid Ranking](#hybrid-ranking)
+-   [Features](#features)
+    -   [Structural Code Understanding](#structural-code-understanding)
+    -   [Documentation Intelligence](#documentation-intelligence)
+    -   [Multi-Project Support](#multi-project-support)
+    -   [MCP Integration](#mcp-integration)
+-   [Quick Start](#quick-start)
+-   [CLI Reference](#cli-reference)
+-   [Technology Stack](#technology-stack)
+-   [Status & Roadmap](#status--roadmap)
 
 ---
 
@@ -65,11 +65,11 @@ Modern codebases are complex graphs of interconnected components. When you ask "
 
 Traditional search approaches each solve part of this problem:
 
-| Approach | Strengths | Limitations |
-|----------|-----------|-------------|
-| **Keyword Search** | Fast, exact matches | Misses synonyms, can't follow relationships |
-| **Semantic Search** | Understands meaning, finds similar code | No structural awareness, can't trace call chains |
-| **Graph Traversal** | Maps exact relationships, traces dependencies | Requires knowing what to look for |
+| Approach            | Strengths                                     | Limitations                                      |
+| ------------------- | --------------------------------------------- | ------------------------------------------------ |
+| **Keyword Search**  | Fast, exact matches                           | Misses synonyms, can't follow relationships      |
+| **Semantic Search** | Understands meaning, finds similar code       | No structural awareness, can't trace call chains |
+| **Graph Traversal** | Maps exact relationships, traces dependencies | Requires knowing what to look for                |
 
 Lattice combines all three. When you query "What functions validate user input?", Lattice:
 
@@ -158,10 +158,11 @@ When you run `lattice index`, the system processes your codebase through six sta
 ```
 
 **Why Tree-sitter?** [Tree-sitter](https://github.com/tree-sitter/tree-sitter) is an incremental parsing library used by editors like VS Code, Neovim, and GitHub. It produces concrete syntax trees that are:
-- **Fast**: Parses thousands of lines per millisecond
-- **Incremental**: Re-parses only changed portions on file updates
-- **Error-tolerant**: Produces useful ASTs even for syntactically incomplete code
-- **Multi-language**: Supports 40+ languages with community-maintained grammars
+
+-   **Fast**: Parses thousands of lines per millisecond
+-   **Incremental**: Re-parses only changed portions on file updates
+-   **Error-tolerant**: Produces useful ASTs even for syntactically incomplete code
+-   **Multi-language**: Supports 40+ languages with community-maintained grammars
 
 ### The Query Pipeline
 
@@ -229,15 +230,15 @@ When you ask a question, Lattice orchestrates multiple search strategies in para
 
 **Query Types**: The planner recognizes 17 different query intents, each with optimized handling:
 
-| Intent | Example Query | Primary Strategy |
-|--------|---------------|------------------|
-| Find callers | "What calls this function?" | Graph traversal (CALLS edges) |
-| Find callees | "What does this function call?" | Graph traversal (CALLS edges) |
-| Trace call chain | "How does data flow from A to B?" | Graph pathfinding |
-| Class hierarchy | "What inherits from BaseHandler?" | Graph traversal (EXTENDS edges) |
-| Explain implementation | "How does caching work?" | Balanced graph + vector |
-| Semantic search | "Find error handling code" | Vector-heavy ranking |
-| Locate entity | "Where is the User class defined?" | Graph lookup + vector fallback |
+| Intent                 | Example Query                      | Primary Strategy                |
+| ---------------------- | ---------------------------------- | ------------------------------- |
+| Find callers           | "What calls this function?"        | Graph traversal (CALLS edges)   |
+| Find callees           | "What does this function call?"    | Graph traversal (CALLS edges)   |
+| Trace call chain       | "How does data flow from A to B?"  | Graph pathfinding               |
+| Class hierarchy        | "What inherits from BaseHandler?"  | Graph traversal (EXTENDS edges) |
+| Explain implementation | "How does caching work?"           | Balanced graph + vector         |
+| Semantic search        | "Find error handling code"         | Vector-heavy ranking            |
+| Locate entity          | "Where is the User class defined?" | Graph lookup + vector fallback  |
 
 ### Hybrid Ranking
 
@@ -346,21 +347,22 @@ Lattice builds a property graph that captures the architecture of your codebase:
 
 **What relationships are captured:**
 
-| Relationship | Meaning | Use Case |
-|--------------|---------|----------|
-| `CONTAINS` | Project contains files | Scope queries to a project |
-| `DEFINES` | File defines class/function | Find where code is defined |
-| `DEFINES_METHOD` | Class defines method | Navigate class structure |
-| `EXTENDS` | Class inherits from parent | Trace inheritance hierarchies |
-| `CALLS` | Function/method invokes another | Find all callers/callees |
-| `IMPORTS` | File imports module | Trace dependencies |
+| Relationship     | Meaning                         | Use Case                      |
+| ---------------- | ------------------------------- | ----------------------------- |
+| `CONTAINS`       | Project contains files          | Scope queries to a project    |
+| `DEFINES`        | File defines class/function     | Find where code is defined    |
+| `DEFINES_METHOD` | Class defines method            | Navigate class structure      |
+| `EXTENDS`        | Class inherits from parent      | Trace inheritance hierarchies |
+| `CALLS`          | Function/method invokes another | Find all callers/callees      |
+| `IMPORTS`        | File imports module             | Trace dependencies            |
 
 **Advanced call resolution**: Lattice doesn't just track direct calls—it resolves:
-- Method chains (`user.profile.save()`)
-- Super calls with inheritance traversal
-- Import aliases and re-exports
-- IIFE patterns in JavaScript
-- Built-in detection (won't create spurious edges for `print()`, `console.log()`, etc.)
+
+-   Method chains (`user.profile.save()`)
+-   Super calls with inheritance traversal
+-   Import aliases and re-exports
+-   IIFE patterns in JavaScript
+-   Built-in detection (won't create spurious edges for `print()`, `console.log()`, etc.)
 
 This is powered by a type inference engine that tracks variable assignments and infers types from context, enabling accurate call graph construction even in dynamically-typed languages.
 
@@ -442,9 +444,9 @@ lattice docs links --document docs/api.md --project my-project
 
 Lattice isolates each indexed codebase as a separate project. This enables:
 
-- **Cross-project queries**: Search across all projects or scope to one
-- **Independent lifecycles**: Re-index one project without affecting others
-- **Team workflows**: Different teams index their own services
+-   **Cross-project queries**: Search across all projects or scope to one
+-   **Independent lifecycles**: Re-index one project without affecting others
+-   **Team workflows**: Different teams index their own services
 
 ```bash
 # Index multiple projects
@@ -472,12 +474,12 @@ lattice projects delete old-project --yes
 
 **Available Tools:**
 
-| Tool | Description | Example Use |
-|------|-------------|-------------|
-| `index_repository` | Index a codebase into the knowledge graph | "Index this repo so I can ask questions about it" |
-| `query_code_graph` | Natural language questions with hybrid search | "How does the authentication flow work?" |
-| `get_code_snippet` | Retrieve source code by fully qualified name | "Show me the code for PaymentService.charge" |
-| `semantic_search` | Find code by functionality or intent | "Find all error handling code" |
+| Tool               | Description                                   | Example Use                                       |
+| ------------------ | --------------------------------------------- | ------------------------------------------------- |
+| `index_repository` | Index a codebase into the knowledge graph     | "Index this repo so I can ask questions about it" |
+| `query_code_graph` | Natural language questions with hybrid search | "How does the authentication flow work?"          |
+| `get_code_snippet` | Retrieve source code by fully qualified name  | "Show me the code for PaymentService.charge"      |
+| `semantic_search`  | Find code by functionality or intent          | "Find all error handling code"                    |
 
 **Setup with Claude Code:**
 
@@ -499,13 +501,13 @@ Once configured, Claude Code can automatically use Lattice to answer questions a
 
 ### Prerequisites
 
-- **Python 3.11+**: Required runtime
-- **Docker**: For running Memgraph, Qdrant, and PostgreSQL
-- **LLM API Key**: One of:
-  - [OpenAI API key](https://platform.openai.com/api-keys) (default, recommended)
-  - [Anthropic API key](https://console.anthropic.com/settings/keys) (Claude)
-  - [Google AI API key](https://aistudio.google.com/app/apikey) (Gemini)
-  - [Ollama](https://ollama.ai) installed locally (free, no API key)
+-   **Python 3.11+**: Required runtime
+-   **Docker**: For running Memgraph, Qdrant, and PostgreSQL
+-   **LLM API Key**: One of:
+    -   [OpenAI API key](https://platform.openai.com/api-keys) (default, recommended)
+    -   [Anthropic API key](https://console.anthropic.com/settings/keys) (Claude)
+    -   [Google AI API key](https://aistudio.google.com/app/apikey) (Gemini)
+    -   [Ollama](https://ollama.ai) installed locally (free, no API key)
 
 ### Step 1: Install Lattice
 
@@ -557,12 +559,12 @@ docker-compose up -d
 
 This starts three services:
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| [Memgraph](https://github.com/memgraph/memgraph) | 7687 | Graph database for code structure |
-| [Memgraph Lab](https://memgraph.com/docs/data-visualization) | 3000 | Visual graph explorer (optional) |
-| [Qdrant](https://qdrant.tech) | 6333 | Vector database for semantic search |
-| PostgreSQL | 5432 | Document metadata and drift tracking |
+| Service                                                      | Port | Purpose                              |
+| ------------------------------------------------------------ | ---- | ------------------------------------ |
+| [Memgraph](https://github.com/memgraph/memgraph)             | 7687 | Graph database for code structure    |
+| [Memgraph Lab](https://memgraph.com/docs/data-visualization) | 3000 | Visual graph explorer (optional)     |
+| [Qdrant](https://qdrant.tech)                                | 6333 | Vector database for semantic search  |
+| PostgreSQL                                                   | 5432 | Document metadata and drift tracking |
 
 Verify everything is running:
 
@@ -616,13 +618,13 @@ lattice status
 
 ### Core Commands
 
-| Command | Description |
-|---------|-------------|
-| `lattice index <path>` | Index a codebase |
+| Command                      | Description                     |
+| ---------------------------- | ------------------------------- |
+| `lattice index <path>`       | Index a codebase                |
 | `lattice query "<question>"` | Ask a natural language question |
-| `lattice search "<query>"` | Semantic code search |
-| `lattice status` | Show database statistics |
-| `lattice settings` | Show current configuration |
+| `lattice search "<query>"`   | Semantic code search            |
+| `lattice status`             | Show database statistics        |
+| `lattice settings`           | Show current configuration      |
 
 **Index options:**
 
@@ -750,36 +752,36 @@ lattice metadata regenerate <name> [--field <field>]
 
 ### Database Details
 
-| Component | Technology | Why We Chose It |
-|-----------|------------|-----------------|
-| **Graph Database** | [Memgraph](https://github.com/memgraph/memgraph) | In-memory graph DB with Cypher support, sub-millisecond traversals, MAGE algorithm library |
-| **Vector Database** | [Qdrant](https://github.com/qdrant/qdrant) | Rust-based, high-performance HNSW indexing, rich filtering, excellent Python SDK |
-| **Metadata Store** | PostgreSQL | Reliable, async driver (asyncpg), good for structured document metadata |
+| Component           | Technology                                       | Why We Chose It                                                                            |
+| ------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| **Graph Database**  | [Memgraph](https://github.com/memgraph/memgraph) | In-memory graph DB with Cypher support, sub-millisecond traversals, MAGE algorithm library |
+| **Vector Database** | [Qdrant](https://github.com/qdrant/qdrant)       | Rust-based, high-performance HNSW indexing, rich filtering, excellent Python SDK           |
+| **Metadata Store**  | PostgreSQL                                       | Reliable, async driver (asyncpg), good for structured document metadata                    |
 
 ### Parsing
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **AST Parser** | [Tree-sitter](https://github.com/tree-sitter/tree-sitter) | Fast, incremental, error-tolerant parsing for 40+ languages |
-| **Python Grammar** | tree-sitter-python | Extract classes, functions, decorators, type hints |
-| **JS/TS Grammar** | tree-sitter-javascript, tree-sitter-typescript | Extract classes, functions, JSX, interfaces, type aliases |
+| Component          | Technology                                                | Purpose                                                     |
+| ------------------ | --------------------------------------------------------- | ----------------------------------------------------------- |
+| **AST Parser**     | [Tree-sitter](https://github.com/tree-sitter/tree-sitter) | Fast, incremental, error-tolerant parsing for 40+ languages |
+| **Python Grammar** | tree-sitter-python                                        | Extract classes, functions, decorators, type hints          |
+| **JS/TS Grammar**  | tree-sitter-javascript, tree-sitter-typescript            | Extract classes, functions, JSX, interfaces, type aliases   |
 
 ### Supported Languages
 
-| Language | Extensions | Features Extracted |
-|----------|-----------|-------------------|
-| Python | `.py` | Classes, functions, methods, decorators, type annotations, docstrings |
-| JavaScript | `.js`, `.jsx`, `.mjs`, `.cjs` | Classes, functions, arrow functions, methods, JSX components |
-| TypeScript | `.ts`, `.tsx`, `.mts`, `.cts` | Classes, functions, interfaces, type aliases, generics |
+| Language   | Extensions                    | Features Extracted                                                    |
+| ---------- | ----------------------------- | --------------------------------------------------------------------- |
+| Python     | `.py`                         | Classes, functions, methods, decorators, type annotations, docstrings |
+| JavaScript | `.js`, `.jsx`, `.mjs`, `.cjs` | Classes, functions, arrow functions, methods, JSX components          |
+| TypeScript | `.ts`, `.tsx`, `.mts`, `.cts` | Classes, functions, interfaces, type aliases, generics                |
 
 ### LLM Providers
 
-| Provider | LLM Models | Embedding Models | Notes |
-|----------|-----------|-----------------|-------|
-| **OpenAI** | GPT-4o, GPT-4, GPT-3.5 | text-embedding-3-small (1536d), text-embedding-3-large (3072d) | Default, best quality |
-| **Anthropic** | Claude Sonnet, Claude Opus, Claude Haiku | *(none—use another provider)* | Great for analysis |
-| **Google** | Gemini 1.5 Flash/Pro, Gemini 2.0 | text-embedding-004 (768d) | Good alternative |
-| **Ollama** | Llama 3.2, CodeLlama, Mistral, DeepSeek | nomic-embed-text, mxbai-embed-large | Free, local, private |
+| Provider      | LLM Models                               | Embedding Models                                               | Notes                 |
+| ------------- | ---------------------------------------- | -------------------------------------------------------------- | --------------------- |
+| **OpenAI**    | GPT-4o, GPT-4, GPT-3.5                   | text-embedding-3-small (1536d), text-embedding-3-large (3072d) | Default, best quality |
+| **Anthropic** | Claude Sonnet, Claude Opus, Claude Haiku | _(none—use another provider)_                                  | Great for analysis    |
+| **Google**    | Gemini 1.5 Flash/Pro, Gemini 2.0         | text-embedding-004 (768d)                                      | Good alternative      |
+| **Ollama**    | Llama 3.2, CodeLlama, Mistral, DeepSeek  | nomic-embed-text, mxbai-embed-large                            | Free, local, private  |
 
 ---
 
@@ -789,24 +791,24 @@ lattice metadata regenerate <name> [--field <field>]
 
 ### What Works Today
 
-- Index Python, TypeScript, and JavaScript codebases
-- Hybrid graph+vector querying with natural language
-- Documentation indexing with drift detection
-- Multi-project support with isolation
-- MCP server for Claude Code integration
-- Incremental indexing (only changed files reprocessed)
-- Multiple LLM/embedding provider options
+-   Index Python, TypeScript, and JavaScript codebases
+-   Hybrid graph+vector querying with natural language
+-   Documentation indexing with drift detection
+-   Multi-project support with isolation
+-   MCP server for Claude Code integration
+-   Incremental indexing (only changed files reprocessed)
+-   Multiple LLM/embedding provider options
 
 ### Roadmap
 
-| Feature | Description | Status |
-|---------|-------------|--------|
-| **Git Integration** | Leverage commit history, blame data, and PR context for richer answers | Planned |
-| **External Docs** | Index documentation from Notion, Confluence, and other hosted sources | Planned |
-| **More Languages** | Go, Rust, Java, C/C++, Ruby parser support | Planned |
-| **Agentic Analysis** | Autonomous code review, security scanning, and quality alerts | Planned |
-| **Hosted Version** | Managed Lattice service—no infrastructure to run | Planned |
-| **IDE Plugins** | VS Code, JetBrains integrations for in-editor querying | Exploring |
+| Feature              | Description                                                            | Status    |
+| -------------------- | ---------------------------------------------------------------------- | --------- |
+| **Git Integration**  | Leverage commit history, blame data, and PR context for richer answers | Planned   |
+| **External Docs**    | Index documentation from Notion, Confluence, and other hosted sources  | Planned   |
+| **More Languages**   | Go, Rust, Java, C/C++, Ruby parser support                             | Planned   |
+| **Agentic Analysis** | Autonomous code review, security scanning, and quality alerts          | Planned   |
+| **Hosted Version**   | Managed Lattice service—no infrastructure to run                       | Planned   |
+| **IDE Plugins**      | VS Code, JetBrains integrations for in-editor querying                 | Exploring |
 
 ---
 
@@ -870,19 +872,13 @@ docker-compose down -v
 
 We welcome contributions! Whether it's:
 
-- Bug reports and feature requests (open an issue)
-- Documentation improvements
-- New language parser support
-- Performance optimizations
-- Test coverage improvements
+-   Bug reports and feature requests (open an issue)
+-   Documentation improvements
+-   New language parser support
+-   Performance optimizations
+-   Test coverage improvements
 
 Please open an issue first to discuss significant changes.
-
----
-
-## License
-
-MIT
 
 ---
 
