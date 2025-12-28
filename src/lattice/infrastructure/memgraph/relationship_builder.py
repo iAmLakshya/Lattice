@@ -67,9 +67,7 @@ class RelationshipBuilder:
                 {"class_name": class_name, "method_name": method_name},
             )
         except Exception as e:
-            logger.warning(
-                f"Failed to create DEFINES_METHOD: {class_name} -> {method_name}: {e}"
-            )
+            logger.warning(f"Failed to create DEFINES_METHOD: {class_name} -> {method_name}: {e}")
 
     async def create_calls_relationships(
         self,
