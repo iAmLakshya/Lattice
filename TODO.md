@@ -3,3 +3,6 @@
 [ ] Tune metadata generation prompts, avoid "I analysed", "based on my analysis" etc
 [ ] Use git to pull in additional context for drift detection
 [ ] Ensure that linking and drift check properly use hybrid RAG
+[ ] ratelimit fallbacks don't work and are not reliable.
+[ ] summairse collection empty in qdrant
+[ ] Test Unxicoder embedding
